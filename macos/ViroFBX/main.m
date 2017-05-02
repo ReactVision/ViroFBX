@@ -7,11 +7,14 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "VROFBXLoader.h"
 
 int main(int argc, const char * argv[]) {
   @autoreleasepool {
-      // insert code here...
-      NSLog(@"Hello, World!");
+      VROFBXLoader *loader = new VROFBXLoader("/Users/radvani/Source/ViroFBX/macos/ViroFBX/heart_beat.fbx");
+      loader->debugPrint();
+      loader->exportFBX("/Users/radvani/Desktop/test.proto");
+      
   }
   return 0;
 }

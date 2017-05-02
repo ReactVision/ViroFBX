@@ -1,0 +1,153 @@
+syntax = "proto3";
+package viro;
+
+option optimize_for = LITE_RUNTIME;
+
+message Node {
+    repeated float position = 1;
+    repeated float scale = 2;
+    repeated float rotation = 3;
+
+    int32 rendering_order = 4;
+    float opacity = 5;
+
+    message Geometry {
+        string name = 1;
+
+        message Source {
+            enum Semantic {
+                Vertex = 0;
+                Normal = 1;
+                Color = 2;
+                Texcoord = 3;
+                Tangent = 4;
+                VertexCrease = 5;
+                EdgeCrease = 6;
+                BoneWeights = 7;
+                BoneIndices = 8;
+            }
+
+            bytes data = 1;
+            Semantic semantic = 2;
+            uint32 vertex_count = 3;
+            bool float_components = 4;
+            uint32 components_per_vertex = 5;
+            uint32 bytes_per_component = 6;
+            uint32 data_offset = 7;
+            uint32 data_stride = 8;
+        }
+        repeated Source source = 2;
+
+        message Element {
+            enum Primitive {
+                Triangle = 0;
+                TriangleStrip = 1;
+                Line = 2;
+                Point = 3;
+            }
+
+            bytes data = 1;
+            Primitive primitive = 2;
+            uint32 primitive_count = 3;
+            uint32 bytes_per_index = 4;
+        }
+        repeated Element element = 3;
+
+        message Material {
+            string name = 1;
+            float shininess = 2;
+            float fresnel_exponent = 3;
+            float transparency = 4;
+
+            enum LightingModel {
+                Constant = 0;
+                Lambert = 1;
+                Blinn = 2;
+                Phong = 3;
+            }
+            LightingModel lighting_model = 5;
+
+            bool lit_per_pixel = 6;
+
+            enum CullMode {
+                Back = 0;
+                Front = 1;
+                None = 2;
+            }
+            CullMode cull_mode = 7;
+
+            enum BlendMode {
+                Alpha = 0;
+                Add = 1;
+                Subtract = 2;
+                Multiply = 3;
+                Screen = 4;
+                Replace = 5;
+            }
+            BlendMode blend_mode = 8;
+
+            bool reads_from_depth_buffer = 9;
+            bool writes_to_depth_buffer = 10;
+
+            message Visual {
+                repeated float color = 1;
+                string texture = 2;
+                float intensity = 3;
+                repeated float transform = 4;
+
+                enum WrapMode {
+                    Clamp = 0;
+                    Repeat = 1;
+                    ClampToBorder = 2;
+                    Mirror = 3;
+                }
+                WrapMode wrap_mode_s = 5;
+                WrapMode wrap_mode_t = 6;
+
+                enum FilterMode {
+                    None = 0;
+                    Nearest = 1;
+                    Linear = 2;
+                }
+                FilterMode minification_filter = 7;
+                FilterMode magnification_filter = 8;
+                FilterMode mip_filter = 9;
+            }
+            repeated Visual visual = 11;
+        }
+        repeated Material material = 4;
+    }
+    Geometry geometry = 6;
+
+    message Light {
+        string name = 1;
+
+        enum LightType {
+            Ambient = 0;
+            Directional = 1;
+            Omni = 2;
+            Spot = 3;
+        }
+        LightType light_type = 2;
+
+        repeated float color = 3;
+        repeated float position = 4;
+        repeated float direction = 5;
+
+        float intensity = 6;
+        float temperature = 7;
+
+        float attenuation_start = 8;
+        float attenuation_end = 9;
+        float attenuation_falloff_exponent = 10;
+
+        float spot_inner_angle = 11;
+        float spot_outer_angle = 12;
+    }
+    repeated Light light = 7;
+
+    message Camera {
+        repeated float position = 1;
+    }
+    Camera camera = 8;
+}
