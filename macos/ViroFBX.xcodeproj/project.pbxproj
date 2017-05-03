@@ -7,12 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8F618E351EB9828F0020B33B /* libprotobuf-lite.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8F618E341EB9828F0020B33B /* libprotobuf-lite.a */; };
 		8FDC5A081EAFE94B006D450F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 8FDC5A071EAFE94B006D450F /* main.m */; };
-		8FDC5A101EB00588006D450F /* VROFBXLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8FDC5A0E1EB00588006D450F /* VROFBXLoader.cpp */; };
+		8FDC5A101EB00588006D450F /* VROFBXExporter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8FDC5A0E1EB00588006D450F /* VROFBXExporter.cpp */; };
 		8FDC5A151EB00632006D450F /* VROLog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8FDC5A131EB00632006D450F /* VROLog.cpp */; };
 		8FDC5A1D1EB301E7006D450F /* libfbxsdk.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8FDC5A1C1EB301E7006D450F /* libfbxsdk.a */; };
 		8FDC5A211EB40F53006D450F /* Nodes.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8FDC5A1F1EB40F53006D450F /* Nodes.pb.cc */; };
-		8FDC5A231EB419A7006D450F /* libprotobuf-lite.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8FDC5A221EB419A7006D450F /* libprotobuf-lite.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -28,10 +28,12 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		8F618E2C1EB92BD10020B33B /* heart_beat_triangles.fbx */ = {isa = PBXFileReference; lastKnownFileType = file; path = heart_beat_triangles.fbx; sourceTree = "<group>"; };
+		8F618E341EB9828F0020B33B /* libprotobuf-lite.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libprotobuf-lite.a"; path = "Libraries/protobuf/lib/libprotobuf-lite.a"; sourceTree = "<group>"; };
 		8FDC5A041EAFE94B006D450F /* ViroFBX */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ViroFBX; sourceTree = BUILT_PRODUCTS_DIR; };
 		8FDC5A071EAFE94B006D450F /* main.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; path = main.m; sourceTree = "<group>"; };
-		8FDC5A0E1EB00588006D450F /* VROFBXLoader.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = VROFBXLoader.cpp; sourceTree = "<group>"; };
-		8FDC5A0F1EB00588006D450F /* VROFBXLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VROFBXLoader.h; sourceTree = "<group>"; };
+		8FDC5A0E1EB00588006D450F /* VROFBXExporter.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = VROFBXExporter.cpp; sourceTree = "<group>"; };
+		8FDC5A0F1EB00588006D450F /* VROFBXExporter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VROFBXExporter.h; sourceTree = "<group>"; };
 		8FDC5A121EB00632006D450F /* VRODefines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VRODefines.h; sourceTree = "<group>"; };
 		8FDC5A131EB00632006D450F /* VROLog.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = VROLog.cpp; sourceTree = "<group>"; };
 		8FDC5A141EB00632006D450F /* VROLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VROLog.h; sourceTree = "<group>"; };
@@ -39,7 +41,6 @@
 		8FDC5A1C1EB301E7006D450F /* libfbxsdk.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libfbxsdk.a; path = Libraries/fbx/lib/libfbxsdk.a; sourceTree = "<group>"; };
 		8FDC5A1F1EB40F53006D450F /* Nodes.pb.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Nodes.pb.cc; sourceTree = "<group>"; };
 		8FDC5A201EB40F53006D450F /* Nodes.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Nodes.pb.h; sourceTree = "<group>"; };
-		8FDC5A221EB419A7006D450F /* libprotobuf-lite.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libprotobuf-lite.a"; path = "Libraries/protobuf/lib/libprotobuf-lite.a"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -47,7 +48,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8FDC5A231EB419A7006D450F /* libprotobuf-lite.a in Frameworks */,
+				8F618E351EB9828F0020B33B /* libprotobuf-lite.a in Frameworks */,
 				8FDC5A1D1EB301E7006D450F /* libfbxsdk.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -91,8 +92,8 @@
 				8FDC5A121EB00632006D450F /* VRODefines.h */,
 				8FDC5A141EB00632006D450F /* VROLog.h */,
 				8FDC5A131EB00632006D450F /* VROLog.cpp */,
-				8FDC5A0F1EB00588006D450F /* VROFBXLoader.h */,
-				8FDC5A0E1EB00588006D450F /* VROFBXLoader.cpp */,
+				8FDC5A0F1EB00588006D450F /* VROFBXExporter.h */,
+				8FDC5A0E1EB00588006D450F /* VROFBXExporter.cpp */,
 			);
 			name = ViroFBX;
 			path = ../ViroFBX;
@@ -101,7 +102,7 @@
 		8FDC5A171EB2FE27006D450F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				8FDC5A221EB419A7006D450F /* libprotobuf-lite.a */,
+				8F618E341EB9828F0020B33B /* libprotobuf-lite.a */,
 				8FDC5A1C1EB301E7006D450F /* libfbxsdk.a */,
 			);
 			name = Frameworks;
@@ -110,6 +111,7 @@
 		8FDC5A1A1EB2FF25006D450F /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				8F618E2C1EB92BD10020B33B /* heart_beat_triangles.fbx */,
 				8FDC5A1B1EB2FF2E006D450F /* heart_beat.fbx */,
 			);
 			name = Resources;
@@ -176,7 +178,7 @@
 				8FDC5A211EB40F53006D450F /* Nodes.pb.cc in Sources */,
 				8FDC5A081EAFE94B006D450F /* main.m in Sources */,
 				8FDC5A151EB00632006D450F /* VROLog.cpp in Sources */,
-				8FDC5A101EB00588006D450F /* VROFBXLoader.cpp in Sources */,
+				8FDC5A101EB00588006D450F /* VROFBXExporter.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -7,13 +7,13 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "VROFBXLoader.h"
+#import "VROFBXExporter.h"
 
 int main(int argc, const char * argv[]) {
   @autoreleasepool {
-      VROFBXLoader *loader = new VROFBXLoader("/Users/radvani/Source/ViroFBX/macos/ViroFBX/heart_beat.fbx");
-      loader->debugPrint();
-      loader->exportFBX("/Users/radvani/Desktop/test.proto");
+      VROFBXExporter *exporter = new VROFBXExporter("/Users/radvani/Source/ViroFBX/macos/ViroFBX/heart_beat_triangles.fbx");
+      exporter->debugPrint();
+      exporter->exportFBX("/Users/radvani/Source/ViroRenderer/ios/ViroSample/heart.proto");
       
   }
   return 0;

@@ -1,12 +1,12 @@
 //
-//  VROFBXLoader.cpp
+//  VROFBXExporter.cpp
 //  ViroFBX
 //
 //  Created by Raj Advani on 4/25/17.
 //  Copyright © 2017 Viro. All rights reserved.
 //
 
-#include "VROFBXLoader.h"
+#include "VROFBXExporter.h"
 #include "VROLog.h"
 #include <fstream>
 
@@ -14,15 +14,15 @@ static const bool kDebugGeometrySource = false;
 
 #pragma mark - Initialization
 
-VROFBXLoader::VROFBXLoader(std::string fbxPath) : _fbxPath(fbxPath) {
+VROFBXExporter::VROFBXExporter(std::string fbxPath) : _fbxPath(fbxPath) {
     
 }
 
-VROFBXLoader::~VROFBXLoader() {
+VROFBXExporter::~VROFBXExporter() {
 
 }
 
-FbxScene *VROFBXLoader::loadFBX(FbxManager *sdkManager) {
+FbxScene *VROFBXExporter::loadFBX(FbxManager *sdkManager) {
     FbxIOSettings *ios = FbxIOSettings::Create(sdkManager, IOSROOT);
     sdkManager->SetIOSettings(ios);
     
@@ -48,16 +48,20 @@ FbxScene *VROFBXLoader::loadFBX(FbxManager *sdkManager) {
 
 #pragma mark - Export
 
-void VROFBXLoader::exportFBX(std::string destPath) {
+void VROFBXExporter::exportFBX(std::string destPath) {
     FbxManager *sdkManager = FbxManager::Create();
     FbxScene *scene = loadFBX(sdkManager);
     
-    viro::Node *outNode = new viro::Node();
+    pinfo("Triangulating scene...");
     
-    pinfo("Reading FBX...");
+    FbxGeometryConverter converter(sdkManager);
+    converter.Triangulate(scene, true);
     
+    pinfo("Exporting FBX...");
     // TODO The root node has no data. Currently we export only the first child
     //      of the root. Instead, export an empty root node and all children
+    viro::Node *outNode = new viro::Node();
+
     FbxNode *rootNode = scene->GetRootNode();
     if (rootNode) {
         for (int i = 0; i < rootNode->GetChildCount(); i++) {
@@ -76,7 +80,7 @@ void VROFBXLoader::exportFBX(std::string destPath) {
     pinfo("Export complete");
 }
 
-void VROFBXLoader::exportNode(FbxNode *node, viro::Node *outNode) {
+void VROFBXExporter::exportNode(FbxNode *node, viro::Node *outNode) {
     FbxDouble3 translation = node->LclTranslation.Get();
     outNode->add_position(translation[0]);
     outNode->add_position(translation[1]);
@@ -100,7 +104,7 @@ void VROFBXLoader::exportNode(FbxNode *node, viro::Node *outNode) {
     outNode->set_allocated_geometry(geometry);
 }
 
-void VROFBXLoader::exportGeometry(FbxNode *node, viro::Node::Geometry *geo) {
+void VROFBXExporter::exportGeometry(FbxNode *node, viro::Node::Geometry *geo) {
     FbxMesh *mesh = node->GetMesh();
     passert_msg (mesh, "Failed to export, null mesh!");
     
@@ -129,82 +133,39 @@ void VROFBXLoader::exportGeometry(FbxNode *node, viro::Node::Geometry *geo) {
         }
     }
     
-    pinfo("UV set name %s", uvSetName);
+    pinfo("   UV set name %s", uvSetName);
     
     /*
      Export the vertex, normal, tex-coord, and tangent data (the geometry
      sources).
      */
-    viro::Node::Geometry::Source *vertices = geo->add_source();
-    vertices->set_semantic(viro::Node_Geometry_Source_Semantic_Vertex);
-    
-    std::vector<float> vertexData;
-    
-    viro::Node::Geometry::Source *normals = geo->add_source();
-    normals->set_semantic(viro::Node_Geometry_Source_Semantic_Normal);
-    
-    std::vector<float> normalData;
-    
-    viro::Node::Geometry::Source *texCoords = geo->add_source();
-    texCoords->set_semantic(viro::Node_Geometry_Source_Semantic_Texcoord);
-    
-    std::vector<float> texCoordData;
-    
-    viro::Node::Geometry::Source *tangents = geo->add_source();
-    tangents->set_semantic(viro::Node_Geometry_Source_Semantic_Tangent);
-    
-    std::vector<float> tangentData;
+    std::vector<float> data;
     
     int numPolygons = mesh->GetPolygonCount();
-    pinfo("Polygon count %d", numPolygons);
+    pinfo("   Polygon count %d", numPolygons);
 
     for (unsigned int i = 0; i < numPolygons; i++) {
         if (kDebugGeometrySource) {
-            pinfo("Reading polygon %d", i);
+            pinfo("   Reading polygon %d", i);
         }
-        int polygonSize = mesh->GetPolygonSize(i);
         
         // We only support triangles
-        if (polygonSize != 3) {
-            if (kDebugGeometrySource) {
-                pinfo("   Encountered non-triangle polygon (size %d)", polygonSize);
-            }
-        }
-        
-        // TODO remove, and support polygonSize 4, abort on <3 or >4
-        polygonSize = 3;
+        int polygonSize = mesh->GetPolygonSize(i);
+        passert (polygonSize == 3);
         
         for (int j = 0; j < polygonSize; j++) {
             if (kDebugGeometrySource) {
-                pinfo("   V%d", j);
+                pinfo("      V%d", j);
             }
             int controlPointIndex = mesh->GetPolygonVertex(i, j);
             
             FbxVector4 vertex = mesh->GetControlPointAt(controlPointIndex);
-            vertexData.push_back(vertex.mData[0]);
-            vertexData.push_back(vertex.mData[1]);
-            vertexData.push_back(vertex.mData[2]);
+            data.push_back(vertex.mData[0]);
+            data.push_back(vertex.mData[1]);
+            data.push_back(vertex.mData[2]);
             
             if (kDebugGeometrySource) {
-                pinfo("      Read vertex %f, %f, %f", vertex.mData[0], vertex.mData[1], vertex.mData[2]);
-            }
-            
-            FbxVector4 normal;
-            bool hasNormal = mesh->GetPolygonVertexNormal(i, j, normal);
-            
-            if (kDebugGeometrySource) {
-                pinfo("      Read normal %f, %f, %f", normal.mData[0], normal.mData[1], normal.mData[2]);
-            }
-
-            if (hasNormal) {
-                normalData.push_back(normal.mData[0]);
-                normalData.push_back(normal.mData[1]);
-                normalData.push_back(normal.mData[2]);
-            }
-            else {
-                normalData.push_back(0);
-                normalData.push_back(0);
-                normalData.push_back(0);
+                pinfo("         Read vertex %f, %f, %f", vertex.mData[0], vertex.mData[1], vertex.mData[2]);
             }
             
             FbxVector2 uv;
@@ -212,59 +173,89 @@ void VROFBXLoader::exportGeometry(FbxNode *node, viro::Node::Geometry *geo) {
             bool hasUV = mesh->GetPolygonVertexUV(i, j, uvSetName, uv, unmapped);
             
             if (kDebugGeometrySource) {
-                pinfo("      Read UV %f, %f", uv.mData[0], uv.mData[1]);
+                pinfo("         Read UV %f, %f", uv.mData[0], uv.mData[1]);
             }
             
             if (hasUV && !unmapped) {
-                texCoordData.push_back(uv.mData[0]);
-                texCoordData.push_back(uv.mData[1]);
+                data.push_back(uv.mData[0]);
+                data.push_back(uv.mData[1]);
             }
             else {
-                texCoordData.push_back(0);
-                texCoordData.push_back(0);
+                data.push_back(0);
+                data.push_back(0);
+            }
+            
+            FbxVector4 normal;
+            bool hasNormal = mesh->GetPolygonVertexNormal(i, j, normal);
+            
+            if (kDebugGeometrySource) {
+                pinfo("         Read normal %f, %f, %f", normal.mData[0], normal.mData[1], normal.mData[2]);
+            }
+            
+            if (hasNormal) {
+                data.push_back(normal.mData[0]);
+                data.push_back(normal.mData[1]);
+                data.push_back(normal.mData[2]);
+            }
+            else {
+                data.push_back(0);
+                data.push_back(0);
+                data.push_back(0);
             }
             
             FbxVector4 tangent = readTangent(mesh, controlPointIndex, cornerCounter);
-            tangentData.push_back(tangent.mData[0]);
-            tangentData.push_back(tangent.mData[1]);
-            tangentData.push_back(tangent.mData[2]);
-            tangentData.push_back(tangent.mData[3]);
+            data.push_back(tangent.mData[0]);
+            data.push_back(tangent.mData[1]);
+            data.push_back(tangent.mData[2]);
+            data.push_back(tangent.mData[3]);
             
             if (kDebugGeometrySource) {
-                pinfo("      Read tangent %f, %f, %f, %f", tangent.mData[0], tangent.mData[1], tangent.mData[2], tangent.mData[3]);
+                pinfo("         Read tangent %f, %f, %f, %f", tangent.mData[0], tangent.mData[1], tangent.mData[2], tangent.mData[3]);
             }
             ++cornerCounter;
         }
     }
     
-    int stride = 12 * sizeof(float);
+    int floatsPerVertex = 12;
+    int numVertices = (uint32_t)data.size() / floatsPerVertex;
+    int stride = floatsPerVertex * sizeof(float);
     
-    vertices->set_data(vertexData.data(), vertexData.size() * sizeof(float));
-    vertices->set_vertex_count((uint32_t)vertexData.size() / 3);
+    passert (numPolygons * 3 * stride == data.size() * sizeof(float));
+    geo->set_data(data.data(), data.size() * sizeof(float));
+    
+    pinfo("   Num vertices %d, stride %d", numVertices, stride);
+    pinfo("   VAR size %lu", data.size() * sizeof(float));
+    
+    viro::Node::Geometry::Source *vertices = geo->add_source();
+    vertices->set_semantic(viro::Node_Geometry_Source_Semantic_Vertex);
+    vertices->set_vertex_count(numVertices);
     vertices->set_float_components(true);
     vertices->set_components_per_vertex(3);
     vertices->set_bytes_per_component(sizeof(float));
     vertices->set_data_offset(0);
     vertices->set_data_stride(stride);
     
-    texCoords->set_data(texCoordData.data(), texCoordData.size() * sizeof(float));
-    texCoords->set_vertex_count((uint32_t)texCoordData.size() / 2);
+    viro::Node::Geometry::Source *texCoords = geo->add_source();
+    texCoords->set_semantic(viro::Node_Geometry_Source_Semantic_Texcoord);
+    texCoords->set_vertex_count(numVertices);
     texCoords->set_float_components(true);
     texCoords->set_components_per_vertex(2);
     texCoords->set_bytes_per_component(sizeof(float));
     texCoords->set_data_offset(sizeof(float) * 3);
     texCoords->set_data_stride(stride);
     
-    normals->set_data(normalData.data(), normalData.size() * sizeof(float));
-    normals->set_vertex_count((uint32_t)normalData.size() / 3);
+    viro::Node::Geometry::Source *normals = geo->add_source();
+    normals->set_semantic(viro::Node_Geometry_Source_Semantic_Normal);
+    normals->set_vertex_count(numVertices);
     normals->set_float_components(true);
     normals->set_components_per_vertex(3);
     normals->set_bytes_per_component(sizeof(float));
     normals->set_data_offset(sizeof(float) * 5);
     normals->set_data_stride(stride);
     
-    tangents->set_data(tangentData.data(), tangentData.size() * sizeof(float));
-    tangents->set_vertex_count((uint32_t)tangentData.size() / 4);
+    viro::Node::Geometry::Source *tangents = geo->add_source();
+    tangents->set_semantic(viro::Node_Geometry_Source_Semantic_Tangent);
+    tangents->set_vertex_count(numVertices);
     tangents->set_float_components(true);
     tangents->set_components_per_vertex(4);
     tangents->set_bytes_per_component(sizeof(float));
@@ -277,15 +268,17 @@ void VROFBXLoader::exportGeometry(FbxNode *node, viro::Node::Geometry *geo) {
     std::vector<int> materialMapping = readMaterialToMeshMapping(mesh, numPolygons);
     
     int numMaterials = node->GetMaterialCount();
-    pinfo("Num materials %d", numMaterials);
+    pinfo("   Num materials %d", numMaterials);
     
     for (int i = 0; i < numMaterials; i++) {
         std::vector<int> triangles;
         
-        for (int m = 0; m < materialMapping.size(); m++) {
-            int materialIndex = materialMapping[m];
+        for (int face = 0; face < materialMapping.size(); face++) {
+            int materialIndex = materialMapping[face];
             if (materialIndex == i) {
-                triangles.push_back(m);
+                triangles.push_back(face * 3 + 0);
+                triangles.push_back(face * 3 + 1);
+                triangles.push_back(face * 3 + 2);
             }
         }
         
@@ -294,6 +287,8 @@ void VROFBXLoader::exportGeometry(FbxNode *node, viro::Node::Geometry *geo) {
         element->set_primitive(viro::Node_Geometry_Element_Primitive_Triangle);
         element->set_bytes_per_index(sizeof(int));
         element->set_primitive_count((int)triangles.size() / 3);
+        
+        pinfo("      Primitive count for material %d: %d", i, element->primitive_count());
         
         FbxSurfaceMaterial *fbxMaterial = node->GetMaterial(i);
         viro::Node::Geometry::Material *material = geo->add_material();
@@ -305,7 +300,7 @@ void VROFBXLoader::exportGeometry(FbxNode *node, viro::Node::Geometry *geo) {
 // It turns out we can just use mesh->GetPolygonVertexNormal() instead of this function,
 // but keeping this here for educational purposes, on how to read normals directly from
 // a mesh.
-FbxVector4 VROFBXLoader::readNormal(FbxMesh *mesh, int controlPointIndex, int cornerCounter) {
+FbxVector4 VROFBXExporter::readNormal(FbxMesh *mesh, int controlPointIndex, int cornerCounter) {
     if(mesh->GetElementNormalCount() < 1) {
         return {};
     }
@@ -350,7 +345,7 @@ FbxVector4 VROFBXLoader::readNormal(FbxMesh *mesh, int controlPointIndex, int co
     return {};
 }
 
-FbxVector4 VROFBXLoader::readTangent(FbxMesh *mesh, int controlPointIndex, int cornerCounter) {
+FbxVector4 VROFBXExporter::readTangent(FbxMesh *mesh, int controlPointIndex, int cornerCounter) {
     if(mesh->GetElementTangentCount() < 1) {
         return {};
     }
@@ -395,7 +390,7 @@ FbxVector4 VROFBXLoader::readTangent(FbxMesh *mesh, int controlPointIndex, int c
     return {};
 }
 
-std::vector<int> VROFBXLoader::readMaterialToMeshMapping(FbxMesh *mesh, int numPolygons) {
+std::vector<int> VROFBXExporter::readMaterialToMeshMapping(FbxMesh *mesh, int numPolygons) {
     std::vector<int> materialMapping;
     
     if (mesh->GetElementMaterial()) {
@@ -437,14 +432,12 @@ std::vector<int> VROFBXLoader::readMaterialToMeshMapping(FbxMesh *mesh, int numP
     return materialMapping;
 }
 
-void VROFBXLoader::exportMaterial(FbxSurfaceMaterial *inMaterial, viro::Node::Geometry::Material *outMaterial) {
-    viro::Node::Geometry::Material::Visual *diffuse = nullptr;
-    viro::Node::Geometry::Material::Visual *specular = nullptr;
-    viro::Node::Geometry::Material::Visual *normal = nullptr;
-    
+void VROFBXExporter::exportMaterial(FbxSurfaceMaterial *inMaterial, viro::Node::Geometry::Material *outMaterial) {
     if (inMaterial->GetClassId().Is(FbxSurfacePhong::ClassId)) {
+        outMaterial->set_lighting_model(viro::Node_Geometry_Material_LightingModel_Phong);
+        
         // Diffuse Color
-        diffuse = outMaterial->add_visual();
+        viro::Node::Geometry::Material::Visual *diffuse = outMaterial->mutable_diffuse();
 
         FbxDouble3 inDiffuse = reinterpret_cast<FbxSurfacePhong *>(inMaterial)->Diffuse;
         diffuse->add_color(static_cast<float>(inDiffuse.mData[0]));
@@ -476,8 +469,10 @@ void VROFBXLoader::exportMaterial(FbxSurfaceMaterial *inMaterial, viro::Node::Ge
         outMaterial->set_fresnel_exponent(reflectionFactor);
     }
     else if (inMaterial->GetClassId().Is(FbxSurfaceLambert::ClassId)) {
+        outMaterial->set_lighting_model(viro::Node_Geometry_Material_LightingModel_Lambert);
+
         // Diffuse Color
-        diffuse = outMaterial->add_visual();
+        viro::Node::Geometry::Material::Visual *diffuse = outMaterial->mutable_diffuse();
 
         FbxDouble3 inDiffuse = reinterpret_cast<FbxSurfaceLambert *>(inMaterial)->Diffuse;
         diffuse->add_color(static_cast<float>(inDiffuse.mData[0]));
@@ -522,22 +517,13 @@ void VROFBXLoader::exportMaterial(FbxSurfaceMaterial *inMaterial, viro::Node::Ge
 
                             
                             if (textureType == "DiffuseColor") {
-                                if (!diffuse) {
-                                    diffuse = outMaterial->add_visual();
-                                }
-                                diffuse->set_texture(textureName);
+                                outMaterial->mutable_diffuse()->set_texture(textureName);
                             }
                             else if (textureType == "SpecularColor") {
-                                if (!specular) {
-                                    specular = outMaterial->add_visual();
-                                }
-                                specular->set_texture(textureName);
+                                outMaterial->mutable_specular()->set_texture(textureName);
                             }
                             else if (textureType == "Bump") {
-                                if (!normal) {
-                                    normal = outMaterial->add_visual();
-                                }
-                                normal->set_texture(textureName);
+                                outMaterial->mutable_normal()->set_texture(textureName);
                             }
                         }
                     }
@@ -545,11 +531,21 @@ void VROFBXLoader::exportMaterial(FbxSurfaceMaterial *inMaterial, viro::Node::Ge
             }
         }
     }
+    
+    if (outMaterial->has_diffuse()) {
+        outMaterial->mutable_diffuse()->set_intensity(1.0);
+    }
+    if (outMaterial->has_specular()) {
+        outMaterial->mutable_specular()->set_intensity(1.0);
+    }
+    if (outMaterial->has_normal()) {
+        outMaterial->mutable_normal()->set_intensity(1.0);
+    }
 }
 
 #pragma mark - Printing (Debug)
 
-void VROFBXLoader::debugPrint() {
+void VROFBXExporter::debugPrint() {
     _numTabs = 0;
     FbxManager *sdkManager = FbxManager::Create();
     
@@ -586,7 +582,7 @@ void VROFBXLoader::debugPrint() {
      */
 }
 
-void VROFBXLoader::printTabs() {
+void VROFBXExporter::printTabs() {
     for(int i = 0; i < _numTabs; i++)
         printf("\t");
 }
@@ -617,7 +613,7 @@ FbxString GetAttributeTypeName(FbxNodeAttribute::EType type) {
     }
 }
 
-void VROFBXLoader::printAttribute(FbxNodeAttribute *pAttribute) {
+void VROFBXExporter::printAttribute(FbxNodeAttribute *pAttribute) {
     if(!pAttribute) return;
     
     FbxString typeName = GetAttributeTypeName(pAttribute->GetAttributeType());
@@ -627,7 +623,7 @@ void VROFBXLoader::printAttribute(FbxNodeAttribute *pAttribute) {
     printf("<attribute type='%s' name='%s'/>\n", typeName.Buffer(), attrName.Buffer());
 }
 
-void VROFBXLoader::printNode(FbxNode *pNode) {
+void VROFBXExporter::printNode(FbxNode *pNode) {
     printTabs();
     const char* nodeName = pNode->GetName();
     FbxDouble3 translation = pNode->LclTranslation.Get();

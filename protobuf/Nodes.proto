@@ -27,16 +27,17 @@ message Node {
                 BoneIndices = 8;
             }
 
-            bytes data = 1;
-            Semantic semantic = 2;
-            uint32 vertex_count = 3;
-            bool float_components = 4;
-            uint32 components_per_vertex = 5;
-            uint32 bytes_per_component = 6;
-            uint32 data_offset = 7;
-            uint32 data_stride = 8;
+            Semantic semantic = 1;
+            uint32 vertex_count = 2;
+            bool float_components = 3;
+            uint32 components_per_vertex = 4;
+            uint32 bytes_per_component = 5;
+            uint32 data_offset = 6;
+            uint32 data_stride = 7;
         }
-        repeated Source source = 2;
+
+        bytes data = 2;
+        repeated Source source = 3;
 
         message Element {
             enum Primitive {
@@ -51,7 +52,7 @@ message Node {
             uint32 primitive_count = 3;
             uint32 bytes_per_index = 4;
         }
-        repeated Element element = 3;
+        repeated Element element = 4;
 
         message Material {
             string name = 1;
@@ -113,9 +114,14 @@ message Node {
                 FilterMode magnification_filter = 8;
                 FilterMode mip_filter = 9;
             }
-            repeated Visual visual = 11;
+            Visual diffuse = 11;
+            Visual specular = 12;
+            Visual normal = 13;
+            Visual reflective = 14;
+            Visual emission = 15;
+            Visual multiply = 16;
         }
-        repeated Material material = 4;
+        repeated Material material = 5;
     }
     Geometry geometry = 6;
 

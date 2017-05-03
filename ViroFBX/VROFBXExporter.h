@@ -1,25 +1,25 @@
 //
-//  VROFBXLoader.h
+//  VROFBXExporter.h
 //  ViroFBX
 //
 //  Created by Raj Advani on 4/25/17.
 //  Copyright © 2017 Viro. All rights reserved.
 //
 
-#ifndef VROFBXLoader_h
-#define VROFBXLoader_h
+#ifndef VROFBXExporter_h
+#define VROFBXExporter_h
 
 #include <stdio.h>
 #include "fbxsdk.h"
 #include <vector>
 #include "Nodes.pb.h"
 
-class VROFBXLoader {
+class VROFBXExporter {
   
 public:
   
-    VROFBXLoader(std::string fbxPath);
-    virtual ~VROFBXLoader();
+    VROFBXExporter(std::string fbxPath);
+    virtual ~VROFBXExporter();
     
     void exportFBX(std::string protoPath);
     void debugPrint();
@@ -50,4 +50,4 @@ private:
   
 };
 
-#endif /* VROFBXLoader_h */
+#endif /* VROFBXExporter_h */
