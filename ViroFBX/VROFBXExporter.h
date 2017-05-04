@@ -18,22 +18,24 @@ class VROFBXExporter {
   
 public:
   
-    VROFBXExporter(std::string fbxPath);
+    VROFBXExporter();
     virtual ~VROFBXExporter();
     
-    void exportFBX(std::string protoPath);
-    void debugPrint();
+    void exportFBX(std::string fbxPath, std::string protoPath);
+    void debugPrint(std::string fbxPath);
     
 private:
     
-    std::string _fbxPath;
-    FbxScene *loadFBX(FbxManager *sdkManager);
+    FbxManager *_fbxManager;
+    FbxScene *loadFBX(std::string fbxPath);
     
 #pragma mark - Export Methods
     
     void exportNode(FbxNode *node, viro::Node *outNode);
     void exportGeometry(FbxNode *node, viro::Node::Geometry *geo);
     void exportMaterial(FbxSurfaceMaterial *inMaterial, viro::Node::Geometry::Material *outMaterial);
+    void exportHardwareMaterial(FbxSurfaceMaterial *inMaterial, const FbxImplementation *implementation,
+                                viro::Node::Geometry::Material *outMaterial);
     
 #pragma mark - Export Helpers
     
@@ -46,7 +48,13 @@ private:
     int _numTabs;
     void printNode(FbxNode *pNode);
     void printAttribute(FbxNodeAttribute *pAttribute);
+    void printGeometry(FbxGeometry *pGeometry);
     void printTabs();
+
+#pragma mark - Utils
+    
+    std::string extractTextureName(FbxFileTexture *texture);
+    bool endsWith(const std::string& candidate, const std::string& ending);
   
 };
 

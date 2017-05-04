@@ -14,22 +14,23 @@ static const bool kDebugGeometrySource = false;
 
 #pragma mark - Initialization
 
-VROFBXExporter::VROFBXExporter(std::string fbxPath) : _fbxPath(fbxPath) {
-    
+VROFBXExporter::VROFBXExporter() {
+    _fbxManager = FbxManager::Create();
+
 }
 
 VROFBXExporter::~VROFBXExporter() {
-
+    _fbxManager->Destroy();
 }
 
-FbxScene *VROFBXExporter::loadFBX(FbxManager *sdkManager) {
-    FbxIOSettings *ios = FbxIOSettings::Create(sdkManager, IOSROOT);
-    sdkManager->SetIOSettings(ios);
+FbxScene *VROFBXExporter::loadFBX(std::string fbxPath) {
+    FbxIOSettings *ios = FbxIOSettings::Create(_fbxManager, IOSROOT);
+    _fbxManager->SetIOSettings(ios);
     
-    FbxImporter *importer = FbxImporter::Create(sdkManager, "");
+    FbxImporter *importer = FbxImporter::Create(_fbxManager, "");
     
-    pinfo("Loading file [%s]", _fbxPath.c_str());
-    bool importStatus = importer->Initialize(_fbxPath.c_str());
+    pinfo("Loading file [%s]", fbxPath.c_str());
+    bool importStatus = importer->Initialize(fbxPath.c_str());
     
     if (!importStatus) {
         pinfo("Call to FBXImporter::Initialize() failed");
@@ -39,7 +40,7 @@ FbxScene *VROFBXExporter::loadFBX(FbxManager *sdkManager) {
         pinfo("Import successful");
     }
     
-    FbxScene *scene = FbxScene::Create(sdkManager, "scene");
+    FbxScene *scene = FbxScene::Create(_fbxManager, "scene");
     importer->Import(scene);
     importer->Destroy();
     
@@ -48,25 +49,21 @@ FbxScene *VROFBXExporter::loadFBX(FbxManager *sdkManager) {
 
 #pragma mark - Export
 
-void VROFBXExporter::exportFBX(std::string destPath) {
-    FbxManager *sdkManager = FbxManager::Create();
-    FbxScene *scene = loadFBX(sdkManager);
+void VROFBXExporter::exportFBX(std::string fbxPath, std::string destPath) {
+    FbxScene *scene = loadFBX(fbxPath);
     
     pinfo("Triangulating scene...");
     
-    FbxGeometryConverter converter(sdkManager);
+    FbxGeometryConverter converter(_fbxManager);
     converter.Triangulate(scene, true);
     
     pinfo("Exporting FBX...");
-    // TODO The root node has no data. Currently we export only the first child
-    //      of the root. Instead, export an empty root node and all children
     viro::Node *outNode = new viro::Node();
 
     FbxNode *rootNode = scene->GetRootNode();
     if (rootNode) {
         for (int i = 0; i < rootNode->GetChildCount(); i++) {
-            exportNode(rootNode->GetChild(i), outNode);
-            break;
+            exportNode(rootNode->GetChild(i), outNode->add_subnode());
         }
     }
     
@@ -76,7 +73,6 @@ void VROFBXExporter::exportFBX(std::string destPath) {
     std::string encoded = outNode->SerializeAsString();
     std::ofstream(destPath.c_str(), std::ios::binary).write(encoded.c_str(), encoded.size());
     
-    sdkManager->Destroy();
     pinfo("Export complete");
 }
 
@@ -99,9 +95,12 @@ void VROFBXExporter::exportNode(FbxNode *node, viro::Node *outNode) {
     outNode->set_rendering_order(0);
     outNode->set_opacity(1.0);
     
-    viro::Node::Geometry *geometry = new viro::Node::Geometry();
-    exportGeometry(node, geometry);
-    outNode->set_allocated_geometry(geometry);
+    if (node->GetMesh() != nullptr) {
+        exportGeometry(node, outNode->mutable_geometry());
+    }
+    for (int i = 0; i < node->GetChildCount(); i++) {
+        exportNode(node->GetChild(i), outNode->add_subnode());
+    }
 }
 
 void VROFBXExporter::exportGeometry(FbxNode *node, viro::Node::Geometry *geo) {
@@ -301,7 +300,7 @@ void VROFBXExporter::exportGeometry(FbxNode *node, viro::Node::Geometry *geo) {
 // but keeping this here for educational purposes, on how to read normals directly from
 // a mesh.
 FbxVector4 VROFBXExporter::readNormal(FbxMesh *mesh, int controlPointIndex, int cornerCounter) {
-    if(mesh->GetElementNormalCount() < 1) {
+    if (mesh->GetElementNormalCount() < 1) {
         return {};
     }
     
@@ -433,6 +432,18 @@ std::vector<int> VROFBXExporter::readMaterialToMeshMapping(FbxMesh *mesh, int nu
 }
 
 void VROFBXExporter::exportMaterial(FbxSurfaceMaterial *inMaterial, viro::Node::Geometry::Material *outMaterial) {
+    // Check if we're using a hardware material
+    const FbxImplementation *implementation = GetImplementation(inMaterial, FBXSDK_IMPLEMENTATION_HLSL);
+    if (!implementation) {
+        implementation = GetImplementation(inMaterial, FBXSDK_IMPLEMENTATION_CGFX);
+    }
+    
+    if (implementation) {
+        exportHardwareMaterial(inMaterial, implementation, outMaterial);
+        return;
+    }
+    
+    // Otherwise it's either Phong or Lambert
     if (inMaterial->GetClassId().Is(FbxSurfacePhong::ClassId)) {
         outMaterial->set_lighting_model(viro::Node_Geometry_Material_LightingModel_Phong);
         
@@ -488,14 +499,13 @@ void VROFBXExporter::exportMaterial(FbxSurfaceMaterial *inMaterial, viro::Node::
     }
     
     unsigned int textureIndex = 0;
-    
     FBXSDK_FOR_EACH_TEXTURE(textureIndex) {
         FbxProperty property = inMaterial->FindProperty(FbxLayerElement::sTextureChannelNames[textureIndex]);
-        if(property.IsValid()) {
+        if (property.IsValid()) {
             unsigned int textureCount = property.GetSrcObjectCount<FbxTexture>();
-            for(unsigned int i = 0; i < textureCount; ++i) {
+            for (unsigned int i = 0; i < textureCount; ++i) {
                 FbxLayeredTexture *layeredTexture = property.GetSrcObject<FbxLayeredTexture>(i);
-                if(layeredTexture) {
+                if (layeredTexture) {
                     pabort("Layered Texture is currently unsupported\n");
                 }
                 else {
@@ -505,17 +515,9 @@ void VROFBXExporter::exportMaterial(FbxSurfaceMaterial *inMaterial, viro::Node::
                         FbxFileTexture *fileTexture = FbxCast<FbxFileTexture>(texture);
                         
                         if (fileTexture) {
-                            std::string fileName = std::string(fileTexture->GetFileName());
-                            size_t lastPathComponent = fileName.find_last_of("/");
-                            
-                            std::string textureName = fileName;
-                            if (lastPathComponent != std::string::npos) {
-                                textureName = fileName.substr(lastPathComponent + 1, fileName.size() - lastPathComponent - 1);
-                            }
-                            
+                            std::string textureName = extractTextureName(fileTexture);
                             pinfo("Texture index %d, texture type [%s], texture name [%s]", textureIndex, textureType.c_str(),  textureName.c_str());
 
-                            
                             if (textureType == "DiffuseColor") {
                                 outMaterial->mutable_diffuse()->set_texture(textureName);
                             }
@@ -543,13 +545,88 @@ void VROFBXExporter::exportMaterial(FbxSurfaceMaterial *inMaterial, viro::Node::
     }
 }
 
+void VROFBXExporter::exportHardwareMaterial(FbxSurfaceMaterial *inMaterial, const FbxImplementation *implementation,
+                                            viro::Node::Geometry::Material *outMaterial) {
+    
+    // TODO This is a work in progress; there are hundreds of potential parameters and it
+    //      isn't clear yet if hardware materials are widely used, and if the parameter
+    //      names are stable.
+    outMaterial->set_transparency(1.0);
+    outMaterial->set_shininess(2.0);
+    outMaterial->set_lighting_model(viro::Node_Geometry_Material_LightingModel_Phong);
+    
+    const FbxBindingTable *rootTable = implementation->GetRootTable();
+    FbxString fileName = rootTable->DescAbsoluteURL.Get();
+    FbxString techniqueName = rootTable->DescTAG.Get();
+    
+    const FbxBindingTable *table = implementation->GetRootTable();
+    size_t numEntries = table->GetEntryCount();
+    
+    for (int i = 0; i < (int)numEntries; ++i) {
+        const FbxBindingTableEntry &entry = table->GetEntry(i);
+        const char* entrySrcType = entry.GetEntryType(true);
+        
+        FbxProperty fbxProp;
+        FbxString entrySource = entry.GetSource();
+        std::string entryText = std::string(entrySource.Buffer());
+        pinfo("            Entry: %s", entryText.c_str());
+        
+        if (strcmp(FbxPropertyEntryView::sEntryType, entrySrcType) == 0) {
+            fbxProp = inMaterial->FindPropertyHierarchical(entry.GetSource());
+            if(!fbxProp.IsValid()) {
+                fbxProp = inMaterial->RootProperty.FindHierarchical(entry.GetSource());
+            }
+        }
+        else if(strcmp(FbxConstantEntryView::sEntryType, entrySrcType) == 0) {
+            fbxProp = implementation->GetConstants().FindHierarchical(entry.GetSource());
+        }
+        
+        if (fbxProp.IsValid()) {
+            if (fbxProp.GetSrcObjectCount<FbxTexture>() > 0) {
+                for(int j = 0; j < fbxProp.GetSrcObjectCount<FbxFileTexture>(); ++j) {
+                    FbxFileTexture *fileTexture = fbxProp.GetSrcObject<FbxFileTexture>(j);
+                    std::string textureName = extractTextureName(fileTexture);
+                    pinfo("Texture [%s] found for entry [%s]", textureName.c_str(), entryText.c_str());
+                    
+                    if (endsWith(entryText, "DiffuseTexture")) {
+                        outMaterial->mutable_diffuse()->set_texture(textureName);
+                    }
+                    else if (endsWith(entryText, "SpecularTexture")) {
+                        outMaterial->mutable_specular()->set_texture(textureName);
+                    }
+                    else if (endsWith(entryText, "NormalTexture")) {
+                        outMaterial->mutable_normal()->set_texture(textureName);
+                    }
+                }
+                for(int j = 0; j < fbxProp.GetSrcObjectCount<FbxLayeredTexture>(); ++j) {
+                    pinfo("Layered texture found: not supported");
+                }
+                for(int j = 0; j < fbxProp.GetSrcObjectCount<FbxProceduralTexture>(); ++j) {
+                    pinfo("Procedural texture found: not supported");
+                }
+            }
+            else {
+                // TODO Support properties (see printGeometry method for detail)
+            }
+        }
+    }
+    
+    if (outMaterial->has_diffuse()) {
+        outMaterial->mutable_diffuse()->set_intensity(1.0);
+    }
+    if (outMaterial->has_specular()) {
+        outMaterial->mutable_specular()->set_intensity(1.0);
+    }
+    if (outMaterial->has_normal()) {
+        outMaterial->mutable_normal()->set_intensity(1.0);
+    }
+}
+
 #pragma mark - Printing (Debug)
 
-void VROFBXExporter::debugPrint() {
+void VROFBXExporter::debugPrint(std::string fbxPath) {
     _numTabs = 0;
-    FbxManager *sdkManager = FbxManager::Create();
-    
-    FbxScene *scene = loadFBX(sdkManager);
+    FbxScene *scene = loadFBX(fbxPath);
     
     // Print the nodes of the scene and their attributes recursively.
     // Note that we are not printing the root node because it should
@@ -560,8 +637,6 @@ void VROFBXExporter::debugPrint() {
             printNode(rootNode->GetChild(i));
         }
     }
-
-    sdkManager->Destroy();
     
     // TODO Delete this below
     /*
@@ -640,14 +715,275 @@ void VROFBXExporter::printNode(FbxNode *pNode) {
     _numTabs++;
     
     // Print the node's attributes.
-    for(int i = 0; i < pNode->GetNodeAttributeCount(); i++)
+    for (int i = 0; i < pNode->GetNodeAttributeCount(); i++) {
         printAttribute(pNode->GetNodeAttributeByIndex(i));
+    }
+    
+    // Print the node's geometry
+    if (pNode->GetGeometry() != nullptr) {
+        printGeometry(pNode->GetGeometry());
+    }
     
     // Recursively print the children.
-    for(int j = 0; j < pNode->GetChildCount(); j++)
+    for (int j = 0; j < pNode->GetChildCount(); j++) {
         printNode(pNode->GetChild(j));
+    }
     
     _numTabs--;
     printTabs();
     printf("</node>\n");
 }
+
+void VROFBXExporter::printGeometry(FbxGeometry *pGeometry) {
+    int lMaterialCount = 0;
+    FbxNode* lNode = NULL;
+    if(pGeometry){
+        lNode = pGeometry->GetNode();
+        if(lNode)
+            lMaterialCount = lNode->GetMaterialCount();
+    }
+    
+    if (lMaterialCount > 0) {
+        FbxPropertyT<FbxDouble3> lKFbxDouble3;
+        FbxPropertyT<FbxDouble> lKFbxDouble1;
+        FbxColor theColor;
+        
+        for (int lCount = 0; lCount < lMaterialCount; lCount ++)
+        {
+            pinfo("        Material %d", lCount);
+            
+            FbxSurfaceMaterial *lMaterial = lNode->GetMaterial(lCount);
+            
+            pinfo("            Name: %s", (char *) lMaterial->GetName());
+            
+            //Get the implementation to see if it's a hardware shader.
+            const FbxImplementation* lImplementation = GetImplementation(lMaterial, FBXSDK_IMPLEMENTATION_HLSL);
+            FbxString lImplemenationType = "HLSL";
+            if(!lImplementation) {
+                lImplementation = GetImplementation(lMaterial, FBXSDK_IMPLEMENTATION_CGFX);
+                lImplemenationType = "CGFX";
+            }
+            if(lImplementation) {
+                //Now we have a hardware shader, let's read it
+                pinfo("            Hardware Shader Type: %s", lImplemenationType.Buffer());
+                const FbxBindingTable* lRootTable = lImplementation->GetRootTable();
+                FbxString lFileName = lRootTable->DescAbsoluteURL.Get();
+                FbxString lTechniqueName = lRootTable->DescTAG.Get();
+                
+                
+                const FbxBindingTable* lTable = lImplementation->GetRootTable();
+                size_t lEntryNum = lTable->GetEntryCount();
+                
+                for(int i=0;i <(int)lEntryNum; ++i)
+                {
+                    const FbxBindingTableEntry& lEntry = lTable->GetEntry(i);
+                    const char* lEntrySrcType = lEntry.GetEntryType(true);
+                    FbxProperty lFbxProp;
+                    
+                    
+                    FbxString lTest = lEntry.GetSource();
+                    pinfo("            Entry: %s", lTest.Buffer());
+                    
+                    
+                    if ( strcmp( FbxPropertyEntryView::sEntryType, lEntrySrcType ) == 0 )
+                    {
+                        lFbxProp = lMaterial->FindPropertyHierarchical(lEntry.GetSource());
+                        if(!lFbxProp.IsValid())
+                        {
+                            lFbxProp = lMaterial->RootProperty.FindHierarchical(lEntry.GetSource());
+                        }
+                        
+                        
+                    }
+                    else if( strcmp( FbxConstantEntryView::sEntryType, lEntrySrcType ) == 0 )
+                    {
+                        lFbxProp = lImplementation->GetConstants().FindHierarchical(lEntry.GetSource());
+                    }
+                    if(lFbxProp.IsValid())
+                    {
+                        if( lFbxProp.GetSrcObjectCount<FbxTexture>() > 0 )
+                        {
+                            //do what you want with the textures
+                            for(int j=0; j<lFbxProp.GetSrcObjectCount<FbxFileTexture>(); ++j)
+                            {
+                                FbxFileTexture *lTex = lFbxProp.GetSrcObject<FbxFileTexture>(j);
+                                FBXSDK_printf("           File Texture: %s\n", lTex->GetFileName());
+                            }
+                            for(int j=0; j<lFbxProp.GetSrcObjectCount<FbxLayeredTexture>(); ++j)
+                            {
+                                FbxLayeredTexture *lTex = lFbxProp.GetSrcObject<FbxLayeredTexture>(j);
+                                FBXSDK_printf("        Layered Texture: %s\n", lTex->GetName());
+                            }
+                            for(int j=0; j<lFbxProp.GetSrcObjectCount<FbxProceduralTexture>(); ++j)
+                            {
+                                FbxProceduralTexture *lTex = lFbxProp.GetSrcObject<FbxProceduralTexture>(j);
+                                FBXSDK_printf("     Procedural Texture: %s\n", lTex->GetName());
+                            }
+                        }
+                        else
+                        {
+                            FbxDataType lFbxType = lFbxProp.GetPropertyDataType();
+                            FbxString blah = lFbxType.GetName();
+                            if(FbxBoolDT == lFbxType)
+                            {
+                                pinfo("                Bool: %d", lFbxProp.Get<FbxBool>() );
+                            }
+                            else if ( FbxIntDT == lFbxType ||  FbxEnumDT  == lFbxType )
+                            {
+                                pinfo("                Int: %d", lFbxProp.Get<FbxInt>());
+                            }
+                            else if ( FbxFloatDT == lFbxType)
+                            {
+                                pinfo("                Float: %f", lFbxProp.Get<FbxFloat>());
+                                
+                            }
+                            else if ( FbxDoubleDT == lFbxType)
+                            {
+                                pinfo("                Double: %f", lFbxProp.Get<FbxDouble>());
+                            }
+                            else if ( FbxStringDT == lFbxType
+                                     ||  FbxUrlDT  == lFbxType
+                                     ||  FbxXRefUrlDT  == lFbxType )
+                            {
+                                pinfo("                String: %s", lFbxProp.Get<FbxString>().Buffer());
+                            }
+                            else if ( FbxDouble2DT == lFbxType)
+                            {
+                                FbxDouble2 lDouble2 = lFbxProp.Get<FbxDouble2>();
+                                FbxVector2 lVect;
+                                lVect[0] = lDouble2[0];
+                                lVect[1] = lDouble2[1];
+                                
+                                pinfo("                2D vector %f, %f: ", lVect[0], lVect[1]);
+                            }
+                            else if ( FbxDouble3DT == lFbxType || FbxColor3DT == lFbxType)
+                            {
+                                FbxDouble3 lDouble3 = lFbxProp.Get<FbxDouble3>();
+                                
+                                
+                                FbxVector4 lVect;
+                                lVect[0] = lDouble3[0];
+                                lVect[1] = lDouble3[1];
+                                lVect[2] = lDouble3[2];
+                                pinfo("                3D vector: %f, %f, %f", lVect[0], lVect[1], lVect[2]);
+                            }
+                            
+                            else if ( FbxDouble4DT == lFbxType || FbxColor4DT == lFbxType)
+                            {
+                                FbxDouble4 lDouble4 = lFbxProp.Get<FbxDouble4>();
+                                FbxVector4 lVect;
+                                lVect[0] = lDouble4[0];
+                                lVect[1] = lDouble4[1];
+                                lVect[2] = lDouble4[2];
+                                lVect[3] = lDouble4[3];
+                                pinfo("                4D vector: %f, %f, %f, %f ", lVect[0], lVect[1], lVect[2], lVect[3]);
+                            }
+                            else if ( FbxDouble4x4DT == lFbxType)
+                            {
+                                FbxDouble4x4 lDouble44 = lFbxProp.Get<FbxDouble4x4>();
+                                for(int j=0; j<4; ++j)
+                                {
+                                    
+                                    FbxVector4 lVect;
+                                    lVect[0] = lDouble44[j][0];
+                                    lVect[1] = lDouble44[j][1];
+                                    lVect[2] = lDouble44[j][2];
+                                    lVect[3] = lDouble44[j][3];
+                                    pinfo("                4x4D vector: %f, %f, %f, %f", lVect[0], lVect[1], lVect[2], lVect[3]);
+                                }
+                                
+                            }
+                        }
+                        
+                    }
+                }
+            }
+            else if (lMaterial->GetClassId().Is(FbxSurfacePhong::ClassId))
+            {
+                // We found a Phong material.  Display its properties.
+                
+                // Display the Ambient Color
+                lKFbxDouble3 =((FbxSurfacePhong *) lMaterial)->Ambient;
+                theColor.Set(lKFbxDouble3.Get()[0], lKFbxDouble3.Get()[1], lKFbxDouble3.Get()[2]);
+                pinfo("            Ambient: %f, %f, %f", theColor.mRed, theColor.mGreen, theColor.mBlue);
+                
+                // Display the Diffuse Color
+                lKFbxDouble3 =((FbxSurfacePhong *) lMaterial)->Diffuse;
+                theColor.Set(lKFbxDouble3.Get()[0], lKFbxDouble3.Get()[1], lKFbxDouble3.Get()[2]);
+                pinfo("            Diffuse: %f, %f, %f", theColor.mRed, theColor.mGreen, theColor.mBlue);
+                
+                // Display the Specular Color (unique to Phong materials)
+                lKFbxDouble3 =((FbxSurfacePhong *) lMaterial)->Specular;
+                theColor.Set(lKFbxDouble3.Get()[0], lKFbxDouble3.Get()[1], lKFbxDouble3.Get()[2]);
+                pinfo("            Specular: %f, %f, %f", theColor.mRed, theColor.mGreen, theColor.mBlue);
+                
+                // Display the Emissive Color
+                lKFbxDouble3 =((FbxSurfacePhong *) lMaterial)->Emissive;
+                theColor.Set(lKFbxDouble3.Get()[0], lKFbxDouble3.Get()[1], lKFbxDouble3.Get()[2]);
+                pinfo("            Emissive: %f, %f, %f", theColor.mRed, theColor.mGreen, theColor.mBlue);
+                
+                //Opacity is Transparency factor now
+                lKFbxDouble1 =((FbxSurfacePhong *) lMaterial)->TransparencyFactor;
+                pinfo("            Transparency: %f", lKFbxDouble1.Get());
+                
+                // Display the Shininess
+                lKFbxDouble1 =((FbxSurfacePhong *) lMaterial)->Shininess;
+                pinfo("            Shininess: %f", lKFbxDouble1.Get());
+                
+                // Display the Reflectivity
+                lKFbxDouble1 =((FbxSurfacePhong *) lMaterial)->ReflectionFactor;
+                pinfo("            Reflectivity: %f", lKFbxDouble1.Get());
+            }
+            else if(lMaterial->GetClassId().Is(FbxSurfaceLambert::ClassId) )
+            {
+                // We found a Lambert material. Display its properties.
+                // Display the Ambient Color
+                lKFbxDouble3=((FbxSurfaceLambert *)lMaterial)->Ambient;
+                theColor.Set(lKFbxDouble3.Get()[0], lKFbxDouble3.Get()[1], lKFbxDouble3.Get()[2]);
+                pinfo("            Ambient: %f, %f, %f", theColor.mRed, theColor.mGreen, theColor.mBlue);
+                
+                // Display the Diffuse Color
+                lKFbxDouble3 =((FbxSurfaceLambert *)lMaterial)->Diffuse;
+                theColor.Set(lKFbxDouble3.Get()[0], lKFbxDouble3.Get()[1], lKFbxDouble3.Get()[2]);
+                pinfo("            Diffuse: %f, %f, %f", theColor.mRed, theColor.mGreen, theColor.mBlue);
+                
+                // Display the Emissive
+                lKFbxDouble3 =((FbxSurfaceLambert *)lMaterial)->Emissive;
+                theColor.Set(lKFbxDouble3.Get()[0], lKFbxDouble3.Get()[1], lKFbxDouble3.Get()[2]);
+                pinfo("            Emissive: %f, %f, %f", theColor.mRed, theColor.mGreen, theColor.mBlue);
+                
+                // Display the Opacity
+                lKFbxDouble1 =((FbxSurfaceLambert *)lMaterial)->TransparencyFactor;
+                pinfo("            Transparency: %f", lKFbxDouble1.Get());
+            }
+            else {
+                pinfo("Unknown type of Material");
+            }
+            
+            FbxPropertyT<FbxString> lString;
+            lString = lMaterial->ShadingModel;
+            pinfo("            Shading Model: %s", lString.Get().Buffer());
+            pinfo("");
+        }
+    }
+}
+
+std::string VROFBXExporter::extractTextureName(FbxFileTexture *texture) {
+    std::string fileName = std::string(texture->GetFileName());
+    size_t lastPathComponent = fileName.find_last_of("/");
+    
+    std::string textureName = fileName;
+    if (lastPathComponent != std::string::npos) {
+        textureName = fileName.substr(lastPathComponent + 1, fileName.size() - lastPathComponent - 1);
+    }
+    return textureName;
+}
+
+bool VROFBXExporter::endsWith(const std::string& candidate, const std::string& ending) {
+    if (candidate.length() < ending.length()) {
+        return false;
+    }
+    return 0 == candidate.compare(candidate.length() - ending.length(), ending.length(), ending);
+}
+
+

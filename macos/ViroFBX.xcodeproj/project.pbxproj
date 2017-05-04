@@ -30,6 +30,8 @@
 /* Begin PBXFileReference section */
 		8F618E2C1EB92BD10020B33B /* heart_beat_triangles.fbx */ = {isa = PBXFileReference; lastKnownFileType = file; path = heart_beat_triangles.fbx; sourceTree = "<group>"; };
 		8F618E341EB9828F0020B33B /* libprotobuf-lite.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libprotobuf-lite.a"; path = "Libraries/protobuf/lib/libprotobuf-lite.a"; sourceTree = "<group>"; };
+		8F618E3E1EBB8B090020B33B /* Hyperspace_Madness_Killamari_Minion.fbx */ = {isa = PBXFileReference; lastKnownFileType = file; path = Hyperspace_Madness_Killamari_Minion.fbx; sourceTree = "<group>"; };
+		8F618E3F1EBB8B090020B33B /* Hyperspace_Madness_Sven.fbx */ = {isa = PBXFileReference; lastKnownFileType = file; path = Hyperspace_Madness_Sven.fbx; sourceTree = "<group>"; };
 		8FDC5A041EAFE94B006D450F /* ViroFBX */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ViroFBX; sourceTree = BUILT_PRODUCTS_DIR; };
 		8FDC5A071EAFE94B006D450F /* main.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; path = main.m; sourceTree = "<group>"; };
 		8FDC5A0E1EB00588006D450F /* VROFBXExporter.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = VROFBXExporter.cpp; sourceTree = "<group>"; };
@@ -111,6 +113,8 @@
 		8FDC5A1A1EB2FF25006D450F /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				8F618E3E1EBB8B090020B33B /* Hyperspace_Madness_Killamari_Minion.fbx */,
+				8F618E3F1EBB8B090020B33B /* Hyperspace_Madness_Sven.fbx */,
 				8F618E2C1EB92BD10020B33B /* heart_beat_triangles.fbx */,
 				8FDC5A1B1EB2FF2E006D450F /* heart_beat.fbx */,
 			);
