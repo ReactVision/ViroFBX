@@ -23,8 +23,8 @@ int main(int argc, const char * argv[]) {
 
       VROFBXExporter *exporter = new VROFBXExporter();
 //      exporter->exportFBX(heartFBX, heartProto);
-//      exporter->debugPrint(minionFBX);
-      exporter->exportFBX(svenFBX, svenProto);
+      exporter->exportFBX(minionFBX, minionProto);
+//      exporter->exportFBX(svenFBX, svenProto);
       
   }
   return 0;
