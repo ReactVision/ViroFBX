@@ -34,6 +34,9 @@ message Node {
             uint32 bytes_per_component = 5;
             uint32 data_offset = 6;
             uint32 data_stride = 7;
+
+            // If not provided, will assume this source uses Geometry.data
+            bytes data = 8;
         }
 
         bytes data = 2;
@@ -122,8 +125,29 @@ message Node {
             Visual multiply = 16;
         }
         repeated Material material = 5;
+
+        message Skin {
+            message InverseBindTransform {
+                repeated float matrix = 1;
+            }
+            repeated InverseBindTransform inverse_bind_transform = 1;
+
+            Source bone_indices = 2;
+            Source bone_weights = 3;
+        }
+        Skin skin = 6;
     }
     Geometry geometry = 6;
+
+    message Skeleton {
+        message Bone {
+            string name = 1;
+            int32 parent_index = 2;
+            repeated float transform = 3;
+        }
+        repeated Bone bone = 1;
+    }
+    Skeleton skeleton = 7;
 
     message Light {
         string name = 1;
@@ -150,12 +174,12 @@ message Node {
         float spot_inner_angle = 11;
         float spot_outer_angle = 12;
     }
-    repeated Light light = 7;
+    repeated Light light = 8;
 
     message Camera {
         repeated float position = 1;
     }
-    Camera camera = 8;
+    Camera camera = 9;
 
-    repeated Node subnode = 9;
+    repeated Node subnode = 10;
 }

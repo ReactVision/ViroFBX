@@ -48,12 +48,24 @@ extern Node_Geometry_MaterialDefaultTypeInternal _Node_Geometry_Material_default
 class Node_Geometry_Material_Visual;
 class Node_Geometry_Material_VisualDefaultTypeInternal;
 extern Node_Geometry_Material_VisualDefaultTypeInternal _Node_Geometry_Material_Visual_default_instance_;
+class Node_Geometry_Skin;
+class Node_Geometry_SkinDefaultTypeInternal;
+extern Node_Geometry_SkinDefaultTypeInternal _Node_Geometry_Skin_default_instance_;
+class Node_Geometry_Skin_InverseBindTransform;
+class Node_Geometry_Skin_InverseBindTransformDefaultTypeInternal;
+extern Node_Geometry_Skin_InverseBindTransformDefaultTypeInternal _Node_Geometry_Skin_InverseBindTransform_default_instance_;
 class Node_Geometry_Source;
 class Node_Geometry_SourceDefaultTypeInternal;
 extern Node_Geometry_SourceDefaultTypeInternal _Node_Geometry_Source_default_instance_;
 class Node_Light;
 class Node_LightDefaultTypeInternal;
 extern Node_LightDefaultTypeInternal _Node_Light_default_instance_;
+class Node_Skeleton;
+class Node_SkeletonDefaultTypeInternal;
+extern Node_SkeletonDefaultTypeInternal _Node_Skeleton_default_instance_;
+class Node_Skeleton_Bone;
+class Node_Skeleton_BoneDefaultTypeInternal;
+extern Node_Skeleton_BoneDefaultTypeInternal _Node_Skeleton_Bone_default_instance_;
 }  // namespace viro
 
 namespace viro {
@@ -269,6 +281,20 @@ class Node_Geometry_Source : public ::google::protobuf::MessageLite /* @@protoc_
 
   // accessors -------------------------------------------------------
 
+  // bytes data = 8;
+  void clear_data();
+  static const int kDataFieldNumber = 8;
+  const ::std::string& data() const;
+  void set_data(const ::std::string& value);
+  #if LANG_CXX11
+  void set_data(::std::string&& value);
+  #endif
+  void set_data(const char* value);
+  void set_data(const void* value, size_t size);
+  ::std::string* mutable_data();
+  ::std::string* release_data();
+  void set_allocated_data(::std::string* data);
+
   // .viro.Node.Geometry.Source.Semantic semantic = 1;
   void clear_semantic();
   static const int kSemanticFieldNumber = 1;
@@ -315,6 +341,7 @@ class Node_Geometry_Source : public ::google::protobuf::MessageLite /* @@protoc_
  private:
 
   ::google::protobuf::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::google::protobuf::internal::ArenaStringPtr data_;
   int semantic_;
   ::google::protobuf::uint32 vertex_count_;
   bool float_components_;
@@ -909,6 +936,193 @@ class Node_Geometry_Material : public ::google::protobuf::MessageLite /* @@proto
 };
 // -------------------------------------------------------------------
 
+class Node_Geometry_Skin_InverseBindTransform : public ::google::protobuf::MessageLite /* @@protoc_insertion_point(class_definition:viro.Node.Geometry.Skin.InverseBindTransform) */ {
+ public:
+  Node_Geometry_Skin_InverseBindTransform();
+  virtual ~Node_Geometry_Skin_InverseBindTransform();
+
+  Node_Geometry_Skin_InverseBindTransform(const Node_Geometry_Skin_InverseBindTransform& from);
+
+  inline Node_Geometry_Skin_InverseBindTransform& operator=(const Node_Geometry_Skin_InverseBindTransform& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const Node_Geometry_Skin_InverseBindTransform& default_instance();
+
+  static inline const Node_Geometry_Skin_InverseBindTransform* internal_default_instance() {
+    return reinterpret_cast<const Node_Geometry_Skin_InverseBindTransform*>(
+               &_Node_Geometry_Skin_InverseBindTransform_default_instance_);
+  }
+
+  void Swap(Node_Geometry_Skin_InverseBindTransform* other);
+
+  // implements Message ----------------------------------------------
+
+  inline Node_Geometry_Skin_InverseBindTransform* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  Node_Geometry_Skin_InverseBindTransform* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CheckTypeAndMergeFrom(const ::google::protobuf::MessageLite& from)
+    PROTOBUF_FINAL;
+  void CopyFrom(const Node_Geometry_Skin_InverseBindTransform& from);
+  void MergeFrom(const Node_Geometry_Skin_InverseBindTransform& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  void DiscardUnknownFields();
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  void InternalSwap(Node_Geometry_Skin_InverseBindTransform* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::std::string GetTypeName() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // repeated float matrix = 1;
+  int matrix_size() const;
+  void clear_matrix();
+  static const int kMatrixFieldNumber = 1;
+  float matrix(int index) const;
+  void set_matrix(int index, float value);
+  void add_matrix(float value);
+  const ::google::protobuf::RepeatedField< float >&
+      matrix() const;
+  ::google::protobuf::RepeatedField< float >*
+      mutable_matrix();
+
+  // @@protoc_insertion_point(class_scope:viro.Node.Geometry.Skin.InverseBindTransform)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::google::protobuf::RepeatedField< float > matrix_;
+  mutable int _matrix_cached_byte_size_;
+  mutable int _cached_size_;
+  friend struct  protobuf_Nodes_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class Node_Geometry_Skin : public ::google::protobuf::MessageLite /* @@protoc_insertion_point(class_definition:viro.Node.Geometry.Skin) */ {
+ public:
+  Node_Geometry_Skin();
+  virtual ~Node_Geometry_Skin();
+
+  Node_Geometry_Skin(const Node_Geometry_Skin& from);
+
+  inline Node_Geometry_Skin& operator=(const Node_Geometry_Skin& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const Node_Geometry_Skin& default_instance();
+
+  static inline const Node_Geometry_Skin* internal_default_instance() {
+    return reinterpret_cast<const Node_Geometry_Skin*>(
+               &_Node_Geometry_Skin_default_instance_);
+  }
+
+  void Swap(Node_Geometry_Skin* other);
+
+  // implements Message ----------------------------------------------
+
+  inline Node_Geometry_Skin* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  Node_Geometry_Skin* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CheckTypeAndMergeFrom(const ::google::protobuf::MessageLite& from)
+    PROTOBUF_FINAL;
+  void CopyFrom(const Node_Geometry_Skin& from);
+  void MergeFrom(const Node_Geometry_Skin& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  void DiscardUnknownFields();
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  void InternalSwap(Node_Geometry_Skin* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::std::string GetTypeName() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  typedef Node_Geometry_Skin_InverseBindTransform InverseBindTransform;
+
+  // accessors -------------------------------------------------------
+
+  // repeated .viro.Node.Geometry.Skin.InverseBindTransform inverse_bind_transform = 1;
+  int inverse_bind_transform_size() const;
+  void clear_inverse_bind_transform();
+  static const int kInverseBindTransformFieldNumber = 1;
+  const ::viro::Node_Geometry_Skin_InverseBindTransform& inverse_bind_transform(int index) const;
+  ::viro::Node_Geometry_Skin_InverseBindTransform* mutable_inverse_bind_transform(int index);
+  ::viro::Node_Geometry_Skin_InverseBindTransform* add_inverse_bind_transform();
+  ::google::protobuf::RepeatedPtrField< ::viro::Node_Geometry_Skin_InverseBindTransform >*
+      mutable_inverse_bind_transform();
+  const ::google::protobuf::RepeatedPtrField< ::viro::Node_Geometry_Skin_InverseBindTransform >&
+      inverse_bind_transform() const;
+
+  // .viro.Node.Geometry.Source bone_indices = 2;
+  bool has_bone_indices() const;
+  void clear_bone_indices();
+  static const int kBoneIndicesFieldNumber = 2;
+  const ::viro::Node_Geometry_Source& bone_indices() const;
+  ::viro::Node_Geometry_Source* mutable_bone_indices();
+  ::viro::Node_Geometry_Source* release_bone_indices();
+  void set_allocated_bone_indices(::viro::Node_Geometry_Source* bone_indices);
+
+  // .viro.Node.Geometry.Source bone_weights = 3;
+  bool has_bone_weights() const;
+  void clear_bone_weights();
+  static const int kBoneWeightsFieldNumber = 3;
+  const ::viro::Node_Geometry_Source& bone_weights() const;
+  ::viro::Node_Geometry_Source* mutable_bone_weights();
+  ::viro::Node_Geometry_Source* release_bone_weights();
+  void set_allocated_bone_weights(::viro::Node_Geometry_Source* bone_weights);
+
+  // @@protoc_insertion_point(class_scope:viro.Node.Geometry.Skin)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::google::protobuf::RepeatedPtrField< ::viro::Node_Geometry_Skin_InverseBindTransform > inverse_bind_transform_;
+  ::viro::Node_Geometry_Source* bone_indices_;
+  ::viro::Node_Geometry_Source* bone_weights_;
+  mutable int _cached_size_;
+  friend struct  protobuf_Nodes_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
 class Node_Geometry : public ::google::protobuf::MessageLite /* @@protoc_insertion_point(class_definition:viro.Node.Geometry) */ {
  public:
   Node_Geometry();
@@ -970,6 +1184,7 @@ class Node_Geometry : public ::google::protobuf::MessageLite /* @@protoc_inserti
   typedef Node_Geometry_Source Source;
   typedef Node_Geometry_Element Element;
   typedef Node_Geometry_Material Material;
+  typedef Node_Geometry_Skin Skin;
 
   // accessors -------------------------------------------------------
 
@@ -1037,6 +1252,15 @@ class Node_Geometry : public ::google::protobuf::MessageLite /* @@protoc_inserti
   ::std::string* release_data();
   void set_allocated_data(::std::string* data);
 
+  // .viro.Node.Geometry.Skin skin = 6;
+  bool has_skin() const;
+  void clear_skin();
+  static const int kSkinFieldNumber = 6;
+  const ::viro::Node_Geometry_Skin& skin() const;
+  ::viro::Node_Geometry_Skin* mutable_skin();
+  ::viro::Node_Geometry_Skin* release_skin();
+  void set_allocated_skin(::viro::Node_Geometry_Skin* skin);
+
   // @@protoc_insertion_point(class_scope:viro.Node.Geometry)
  private:
 
@@ -1046,6 +1270,196 @@ class Node_Geometry : public ::google::protobuf::MessageLite /* @@protoc_inserti
   ::google::protobuf::RepeatedPtrField< ::viro::Node_Geometry_Material > material_;
   ::google::protobuf::internal::ArenaStringPtr name_;
   ::google::protobuf::internal::ArenaStringPtr data_;
+  ::viro::Node_Geometry_Skin* skin_;
+  mutable int _cached_size_;
+  friend struct  protobuf_Nodes_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class Node_Skeleton_Bone : public ::google::protobuf::MessageLite /* @@protoc_insertion_point(class_definition:viro.Node.Skeleton.Bone) */ {
+ public:
+  Node_Skeleton_Bone();
+  virtual ~Node_Skeleton_Bone();
+
+  Node_Skeleton_Bone(const Node_Skeleton_Bone& from);
+
+  inline Node_Skeleton_Bone& operator=(const Node_Skeleton_Bone& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const Node_Skeleton_Bone& default_instance();
+
+  static inline const Node_Skeleton_Bone* internal_default_instance() {
+    return reinterpret_cast<const Node_Skeleton_Bone*>(
+               &_Node_Skeleton_Bone_default_instance_);
+  }
+
+  void Swap(Node_Skeleton_Bone* other);
+
+  // implements Message ----------------------------------------------
+
+  inline Node_Skeleton_Bone* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  Node_Skeleton_Bone* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CheckTypeAndMergeFrom(const ::google::protobuf::MessageLite& from)
+    PROTOBUF_FINAL;
+  void CopyFrom(const Node_Skeleton_Bone& from);
+  void MergeFrom(const Node_Skeleton_Bone& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  void DiscardUnknownFields();
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  void InternalSwap(Node_Skeleton_Bone* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::std::string GetTypeName() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // repeated float transform = 3;
+  int transform_size() const;
+  void clear_transform();
+  static const int kTransformFieldNumber = 3;
+  float transform(int index) const;
+  void set_transform(int index, float value);
+  void add_transform(float value);
+  const ::google::protobuf::RepeatedField< float >&
+      transform() const;
+  ::google::protobuf::RepeatedField< float >*
+      mutable_transform();
+
+  // string name = 1;
+  void clear_name();
+  static const int kNameFieldNumber = 1;
+  const ::std::string& name() const;
+  void set_name(const ::std::string& value);
+  #if LANG_CXX11
+  void set_name(::std::string&& value);
+  #endif
+  void set_name(const char* value);
+  void set_name(const char* value, size_t size);
+  ::std::string* mutable_name();
+  ::std::string* release_name();
+  void set_allocated_name(::std::string* name);
+
+  // int32 parent_index = 2;
+  void clear_parent_index();
+  static const int kParentIndexFieldNumber = 2;
+  ::google::protobuf::int32 parent_index() const;
+  void set_parent_index(::google::protobuf::int32 value);
+
+  // @@protoc_insertion_point(class_scope:viro.Node.Skeleton.Bone)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::google::protobuf::RepeatedField< float > transform_;
+  mutable int _transform_cached_byte_size_;
+  ::google::protobuf::internal::ArenaStringPtr name_;
+  ::google::protobuf::int32 parent_index_;
+  mutable int _cached_size_;
+  friend struct  protobuf_Nodes_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class Node_Skeleton : public ::google::protobuf::MessageLite /* @@protoc_insertion_point(class_definition:viro.Node.Skeleton) */ {
+ public:
+  Node_Skeleton();
+  virtual ~Node_Skeleton();
+
+  Node_Skeleton(const Node_Skeleton& from);
+
+  inline Node_Skeleton& operator=(const Node_Skeleton& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const Node_Skeleton& default_instance();
+
+  static inline const Node_Skeleton* internal_default_instance() {
+    return reinterpret_cast<const Node_Skeleton*>(
+               &_Node_Skeleton_default_instance_);
+  }
+
+  void Swap(Node_Skeleton* other);
+
+  // implements Message ----------------------------------------------
+
+  inline Node_Skeleton* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  Node_Skeleton* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CheckTypeAndMergeFrom(const ::google::protobuf::MessageLite& from)
+    PROTOBUF_FINAL;
+  void CopyFrom(const Node_Skeleton& from);
+  void MergeFrom(const Node_Skeleton& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  void DiscardUnknownFields();
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  void InternalSwap(Node_Skeleton* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::std::string GetTypeName() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  typedef Node_Skeleton_Bone Bone;
+
+  // accessors -------------------------------------------------------
+
+  // repeated .viro.Node.Skeleton.Bone bone = 1;
+  int bone_size() const;
+  void clear_bone();
+  static const int kBoneFieldNumber = 1;
+  const ::viro::Node_Skeleton_Bone& bone(int index) const;
+  ::viro::Node_Skeleton_Bone* mutable_bone(int index);
+  ::viro::Node_Skeleton_Bone* add_bone();
+  ::google::protobuf::RepeatedPtrField< ::viro::Node_Skeleton_Bone >*
+      mutable_bone();
+  const ::google::protobuf::RepeatedPtrField< ::viro::Node_Skeleton_Bone >&
+      bone() const;
+
+  // @@protoc_insertion_point(class_scope:viro.Node.Skeleton)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArenaLite _internal_metadata_;
+  ::google::protobuf::RepeatedPtrField< ::viro::Node_Skeleton_Bone > bone_;
   mutable int _cached_size_;
   friend struct  protobuf_Nodes_2eproto::TableStruct;
 };
@@ -1394,6 +1808,7 @@ class Node : public ::google::protobuf::MessageLite /* @@protoc_insertion_point(
   // nested types ----------------------------------------------------
 
   typedef Node_Geometry Geometry;
+  typedef Node_Skeleton Skeleton;
   typedef Node_Light Light;
   typedef Node_Camera Camera;
 
@@ -1435,10 +1850,10 @@ class Node : public ::google::protobuf::MessageLite /* @@protoc_insertion_point(
   ::google::protobuf::RepeatedField< float >*
       mutable_rotation();
 
-  // repeated .viro.Node.Light light = 7;
+  // repeated .viro.Node.Light light = 8;
   int light_size() const;
   void clear_light();
-  static const int kLightFieldNumber = 7;
+  static const int kLightFieldNumber = 8;
   const ::viro::Node_Light& light(int index) const;
   ::viro::Node_Light* mutable_light(int index);
   ::viro::Node_Light* add_light();
@@ -1447,10 +1862,10 @@ class Node : public ::google::protobuf::MessageLite /* @@protoc_insertion_point(
   const ::google::protobuf::RepeatedPtrField< ::viro::Node_Light >&
       light() const;
 
-  // repeated .viro.Node subnode = 9;
+  // repeated .viro.Node subnode = 10;
   int subnode_size() const;
   void clear_subnode();
-  static const int kSubnodeFieldNumber = 9;
+  static const int kSubnodeFieldNumber = 10;
   const ::viro::Node& subnode(int index) const;
   ::viro::Node* mutable_subnode(int index);
   ::viro::Node* add_subnode();
@@ -1468,10 +1883,19 @@ class Node : public ::google::protobuf::MessageLite /* @@protoc_insertion_point(
   ::viro::Node_Geometry* release_geometry();
   void set_allocated_geometry(::viro::Node_Geometry* geometry);
 
-  // .viro.Node.Camera camera = 8;
+  // .viro.Node.Skeleton skeleton = 7;
+  bool has_skeleton() const;
+  void clear_skeleton();
+  static const int kSkeletonFieldNumber = 7;
+  const ::viro::Node_Skeleton& skeleton() const;
+  ::viro::Node_Skeleton* mutable_skeleton();
+  ::viro::Node_Skeleton* release_skeleton();
+  void set_allocated_skeleton(::viro::Node_Skeleton* skeleton);
+
+  // .viro.Node.Camera camera = 9;
   bool has_camera() const;
   void clear_camera();
-  static const int kCameraFieldNumber = 8;
+  static const int kCameraFieldNumber = 9;
   const ::viro::Node_Camera& camera() const;
   ::viro::Node_Camera* mutable_camera();
   ::viro::Node_Camera* release_camera();
@@ -1502,6 +1926,7 @@ class Node : public ::google::protobuf::MessageLite /* @@protoc_insertion_point(
   ::google::protobuf::RepeatedPtrField< ::viro::Node_Light > light_;
   ::google::protobuf::RepeatedPtrField< ::viro::Node > subnode_;
   ::viro::Node_Geometry* geometry_;
+  ::viro::Node_Skeleton* skeleton_;
   ::viro::Node_Camera* camera_;
   ::google::protobuf::int32 rendering_order_;
   float opacity_;
@@ -1612,6 +2037,58 @@ inline void Node_Geometry_Source::set_data_stride(::google::protobuf::uint32 val
   
   data_stride_ = value;
   // @@protoc_insertion_point(field_set:viro.Node.Geometry.Source.data_stride)
+}
+
+// bytes data = 8;
+inline void Node_Geometry_Source::clear_data() {
+  data_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline const ::std::string& Node_Geometry_Source::data() const {
+  // @@protoc_insertion_point(field_get:viro.Node.Geometry.Source.data)
+  return data_.GetNoArena();
+}
+inline void Node_Geometry_Source::set_data(const ::std::string& value) {
+  
+  data_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:viro.Node.Geometry.Source.data)
+}
+#if LANG_CXX11
+inline void Node_Geometry_Source::set_data(::std::string&& value) {
+  
+  data_.SetNoArena(
+    &::google::protobuf::internal::GetEmptyStringAlreadyInited(), std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:viro.Node.Geometry.Source.data)
+}
+#endif
+inline void Node_Geometry_Source::set_data(const char* value) {
+  
+  data_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:viro.Node.Geometry.Source.data)
+}
+inline void Node_Geometry_Source::set_data(const void* value, size_t size) {
+  
+  data_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:viro.Node.Geometry.Source.data)
+}
+inline ::std::string* Node_Geometry_Source::mutable_data() {
+  
+  // @@protoc_insertion_point(field_mutable:viro.Node.Geometry.Source.data)
+  return data_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline ::std::string* Node_Geometry_Source::release_data() {
+  // @@protoc_insertion_point(field_release:viro.Node.Geometry.Source.data)
+  
+  return data_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void Node_Geometry_Source::set_allocated_data(::std::string* data) {
+  if (data != NULL) {
+    
+  } else {
+    
+  }
+  data_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), data);
+  // @@protoc_insertion_point(field_set_allocated:viro.Node.Geometry.Source.data)
 }
 
 // -------------------------------------------------------------------
@@ -2330,6 +2807,152 @@ inline void Node_Geometry_Material::set_allocated_multiply(::viro::Node_Geometry
 
 // -------------------------------------------------------------------
 
+// Node_Geometry_Skin_InverseBindTransform
+
+// repeated float matrix = 1;
+inline int Node_Geometry_Skin_InverseBindTransform::matrix_size() const {
+  return matrix_.size();
+}
+inline void Node_Geometry_Skin_InverseBindTransform::clear_matrix() {
+  matrix_.Clear();
+}
+inline float Node_Geometry_Skin_InverseBindTransform::matrix(int index) const {
+  // @@protoc_insertion_point(field_get:viro.Node.Geometry.Skin.InverseBindTransform.matrix)
+  return matrix_.Get(index);
+}
+inline void Node_Geometry_Skin_InverseBindTransform::set_matrix(int index, float value) {
+  matrix_.Set(index, value);
+  // @@protoc_insertion_point(field_set:viro.Node.Geometry.Skin.InverseBindTransform.matrix)
+}
+inline void Node_Geometry_Skin_InverseBindTransform::add_matrix(float value) {
+  matrix_.Add(value);
+  // @@protoc_insertion_point(field_add:viro.Node.Geometry.Skin.InverseBindTransform.matrix)
+}
+inline const ::google::protobuf::RepeatedField< float >&
+Node_Geometry_Skin_InverseBindTransform::matrix() const {
+  // @@protoc_insertion_point(field_list:viro.Node.Geometry.Skin.InverseBindTransform.matrix)
+  return matrix_;
+}
+inline ::google::protobuf::RepeatedField< float >*
+Node_Geometry_Skin_InverseBindTransform::mutable_matrix() {
+  // @@protoc_insertion_point(field_mutable_list:viro.Node.Geometry.Skin.InverseBindTransform.matrix)
+  return &matrix_;
+}
+
+// -------------------------------------------------------------------
+
+// Node_Geometry_Skin
+
+// repeated .viro.Node.Geometry.Skin.InverseBindTransform inverse_bind_transform = 1;
+inline int Node_Geometry_Skin::inverse_bind_transform_size() const {
+  return inverse_bind_transform_.size();
+}
+inline void Node_Geometry_Skin::clear_inverse_bind_transform() {
+  inverse_bind_transform_.Clear();
+}
+inline const ::viro::Node_Geometry_Skin_InverseBindTransform& Node_Geometry_Skin::inverse_bind_transform(int index) const {
+  // @@protoc_insertion_point(field_get:viro.Node.Geometry.Skin.inverse_bind_transform)
+  return inverse_bind_transform_.Get(index);
+}
+inline ::viro::Node_Geometry_Skin_InverseBindTransform* Node_Geometry_Skin::mutable_inverse_bind_transform(int index) {
+  // @@protoc_insertion_point(field_mutable:viro.Node.Geometry.Skin.inverse_bind_transform)
+  return inverse_bind_transform_.Mutable(index);
+}
+inline ::viro::Node_Geometry_Skin_InverseBindTransform* Node_Geometry_Skin::add_inverse_bind_transform() {
+  // @@protoc_insertion_point(field_add:viro.Node.Geometry.Skin.inverse_bind_transform)
+  return inverse_bind_transform_.Add();
+}
+inline ::google::protobuf::RepeatedPtrField< ::viro::Node_Geometry_Skin_InverseBindTransform >*
+Node_Geometry_Skin::mutable_inverse_bind_transform() {
+  // @@protoc_insertion_point(field_mutable_list:viro.Node.Geometry.Skin.inverse_bind_transform)
+  return &inverse_bind_transform_;
+}
+inline const ::google::protobuf::RepeatedPtrField< ::viro::Node_Geometry_Skin_InverseBindTransform >&
+Node_Geometry_Skin::inverse_bind_transform() const {
+  // @@protoc_insertion_point(field_list:viro.Node.Geometry.Skin.inverse_bind_transform)
+  return inverse_bind_transform_;
+}
+
+// .viro.Node.Geometry.Source bone_indices = 2;
+inline bool Node_Geometry_Skin::has_bone_indices() const {
+  return this != internal_default_instance() && bone_indices_ != NULL;
+}
+inline void Node_Geometry_Skin::clear_bone_indices() {
+  if (GetArenaNoVirtual() == NULL && bone_indices_ != NULL) delete bone_indices_;
+  bone_indices_ = NULL;
+}
+inline const ::viro::Node_Geometry_Source& Node_Geometry_Skin::bone_indices() const {
+  // @@protoc_insertion_point(field_get:viro.Node.Geometry.Skin.bone_indices)
+  return bone_indices_ != NULL ? *bone_indices_
+                         : *::viro::Node_Geometry_Source::internal_default_instance();
+}
+inline ::viro::Node_Geometry_Source* Node_Geometry_Skin::mutable_bone_indices() {
+  
+  if (bone_indices_ == NULL) {
+    bone_indices_ = new ::viro::Node_Geometry_Source;
+  }
+  // @@protoc_insertion_point(field_mutable:viro.Node.Geometry.Skin.bone_indices)
+  return bone_indices_;
+}
+inline ::viro::Node_Geometry_Source* Node_Geometry_Skin::release_bone_indices() {
+  // @@protoc_insertion_point(field_release:viro.Node.Geometry.Skin.bone_indices)
+  
+  ::viro::Node_Geometry_Source* temp = bone_indices_;
+  bone_indices_ = NULL;
+  return temp;
+}
+inline void Node_Geometry_Skin::set_allocated_bone_indices(::viro::Node_Geometry_Source* bone_indices) {
+  delete bone_indices_;
+  bone_indices_ = bone_indices;
+  if (bone_indices) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_set_allocated:viro.Node.Geometry.Skin.bone_indices)
+}
+
+// .viro.Node.Geometry.Source bone_weights = 3;
+inline bool Node_Geometry_Skin::has_bone_weights() const {
+  return this != internal_default_instance() && bone_weights_ != NULL;
+}
+inline void Node_Geometry_Skin::clear_bone_weights() {
+  if (GetArenaNoVirtual() == NULL && bone_weights_ != NULL) delete bone_weights_;
+  bone_weights_ = NULL;
+}
+inline const ::viro::Node_Geometry_Source& Node_Geometry_Skin::bone_weights() const {
+  // @@protoc_insertion_point(field_get:viro.Node.Geometry.Skin.bone_weights)
+  return bone_weights_ != NULL ? *bone_weights_
+                         : *::viro::Node_Geometry_Source::internal_default_instance();
+}
+inline ::viro::Node_Geometry_Source* Node_Geometry_Skin::mutable_bone_weights() {
+  
+  if (bone_weights_ == NULL) {
+    bone_weights_ = new ::viro::Node_Geometry_Source;
+  }
+  // @@protoc_insertion_point(field_mutable:viro.Node.Geometry.Skin.bone_weights)
+  return bone_weights_;
+}
+inline ::viro::Node_Geometry_Source* Node_Geometry_Skin::release_bone_weights() {
+  // @@protoc_insertion_point(field_release:viro.Node.Geometry.Skin.bone_weights)
+  
+  ::viro::Node_Geometry_Source* temp = bone_weights_;
+  bone_weights_ = NULL;
+  return temp;
+}
+inline void Node_Geometry_Skin::set_allocated_bone_weights(::viro::Node_Geometry_Source* bone_weights) {
+  delete bone_weights_;
+  bone_weights_ = bone_weights;
+  if (bone_weights) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_set_allocated:viro.Node.Geometry.Skin.bone_weights)
+}
+
+// -------------------------------------------------------------------
+
 // Node_Geometry
 
 // string name = 1;
@@ -2524,6 +3147,179 @@ inline const ::google::protobuf::RepeatedPtrField< ::viro::Node_Geometry_Materia
 Node_Geometry::material() const {
   // @@protoc_insertion_point(field_list:viro.Node.Geometry.material)
   return material_;
+}
+
+// .viro.Node.Geometry.Skin skin = 6;
+inline bool Node_Geometry::has_skin() const {
+  return this != internal_default_instance() && skin_ != NULL;
+}
+inline void Node_Geometry::clear_skin() {
+  if (GetArenaNoVirtual() == NULL && skin_ != NULL) delete skin_;
+  skin_ = NULL;
+}
+inline const ::viro::Node_Geometry_Skin& Node_Geometry::skin() const {
+  // @@protoc_insertion_point(field_get:viro.Node.Geometry.skin)
+  return skin_ != NULL ? *skin_
+                         : *::viro::Node_Geometry_Skin::internal_default_instance();
+}
+inline ::viro::Node_Geometry_Skin* Node_Geometry::mutable_skin() {
+  
+  if (skin_ == NULL) {
+    skin_ = new ::viro::Node_Geometry_Skin;
+  }
+  // @@protoc_insertion_point(field_mutable:viro.Node.Geometry.skin)
+  return skin_;
+}
+inline ::viro::Node_Geometry_Skin* Node_Geometry::release_skin() {
+  // @@protoc_insertion_point(field_release:viro.Node.Geometry.skin)
+  
+  ::viro::Node_Geometry_Skin* temp = skin_;
+  skin_ = NULL;
+  return temp;
+}
+inline void Node_Geometry::set_allocated_skin(::viro::Node_Geometry_Skin* skin) {
+  delete skin_;
+  skin_ = skin;
+  if (skin) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_set_allocated:viro.Node.Geometry.skin)
+}
+
+// -------------------------------------------------------------------
+
+// Node_Skeleton_Bone
+
+// string name = 1;
+inline void Node_Skeleton_Bone::clear_name() {
+  name_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline const ::std::string& Node_Skeleton_Bone::name() const {
+  // @@protoc_insertion_point(field_get:viro.Node.Skeleton.Bone.name)
+  return name_.GetNoArena();
+}
+inline void Node_Skeleton_Bone::set_name(const ::std::string& value) {
+  
+  name_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:viro.Node.Skeleton.Bone.name)
+}
+#if LANG_CXX11
+inline void Node_Skeleton_Bone::set_name(::std::string&& value) {
+  
+  name_.SetNoArena(
+    &::google::protobuf::internal::GetEmptyStringAlreadyInited(), std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:viro.Node.Skeleton.Bone.name)
+}
+#endif
+inline void Node_Skeleton_Bone::set_name(const char* value) {
+  
+  name_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:viro.Node.Skeleton.Bone.name)
+}
+inline void Node_Skeleton_Bone::set_name(const char* value, size_t size) {
+  
+  name_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:viro.Node.Skeleton.Bone.name)
+}
+inline ::std::string* Node_Skeleton_Bone::mutable_name() {
+  
+  // @@protoc_insertion_point(field_mutable:viro.Node.Skeleton.Bone.name)
+  return name_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline ::std::string* Node_Skeleton_Bone::release_name() {
+  // @@protoc_insertion_point(field_release:viro.Node.Skeleton.Bone.name)
+  
+  return name_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void Node_Skeleton_Bone::set_allocated_name(::std::string* name) {
+  if (name != NULL) {
+    
+  } else {
+    
+  }
+  name_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), name);
+  // @@protoc_insertion_point(field_set_allocated:viro.Node.Skeleton.Bone.name)
+}
+
+// int32 parent_index = 2;
+inline void Node_Skeleton_Bone::clear_parent_index() {
+  parent_index_ = 0;
+}
+inline ::google::protobuf::int32 Node_Skeleton_Bone::parent_index() const {
+  // @@protoc_insertion_point(field_get:viro.Node.Skeleton.Bone.parent_index)
+  return parent_index_;
+}
+inline void Node_Skeleton_Bone::set_parent_index(::google::protobuf::int32 value) {
+  
+  parent_index_ = value;
+  // @@protoc_insertion_point(field_set:viro.Node.Skeleton.Bone.parent_index)
+}
+
+// repeated float transform = 3;
+inline int Node_Skeleton_Bone::transform_size() const {
+  return transform_.size();
+}
+inline void Node_Skeleton_Bone::clear_transform() {
+  transform_.Clear();
+}
+inline float Node_Skeleton_Bone::transform(int index) const {
+  // @@protoc_insertion_point(field_get:viro.Node.Skeleton.Bone.transform)
+  return transform_.Get(index);
+}
+inline void Node_Skeleton_Bone::set_transform(int index, float value) {
+  transform_.Set(index, value);
+  // @@protoc_insertion_point(field_set:viro.Node.Skeleton.Bone.transform)
+}
+inline void Node_Skeleton_Bone::add_transform(float value) {
+  transform_.Add(value);
+  // @@protoc_insertion_point(field_add:viro.Node.Skeleton.Bone.transform)
+}
+inline const ::google::protobuf::RepeatedField< float >&
+Node_Skeleton_Bone::transform() const {
+  // @@protoc_insertion_point(field_list:viro.Node.Skeleton.Bone.transform)
+  return transform_;
+}
+inline ::google::protobuf::RepeatedField< float >*
+Node_Skeleton_Bone::mutable_transform() {
+  // @@protoc_insertion_point(field_mutable_list:viro.Node.Skeleton.Bone.transform)
+  return &transform_;
+}
+
+// -------------------------------------------------------------------
+
+// Node_Skeleton
+
+// repeated .viro.Node.Skeleton.Bone bone = 1;
+inline int Node_Skeleton::bone_size() const {
+  return bone_.size();
+}
+inline void Node_Skeleton::clear_bone() {
+  bone_.Clear();
+}
+inline const ::viro::Node_Skeleton_Bone& Node_Skeleton::bone(int index) const {
+  // @@protoc_insertion_point(field_get:viro.Node.Skeleton.bone)
+  return bone_.Get(index);
+}
+inline ::viro::Node_Skeleton_Bone* Node_Skeleton::mutable_bone(int index) {
+  // @@protoc_insertion_point(field_mutable:viro.Node.Skeleton.bone)
+  return bone_.Mutable(index);
+}
+inline ::viro::Node_Skeleton_Bone* Node_Skeleton::add_bone() {
+  // @@protoc_insertion_point(field_add:viro.Node.Skeleton.bone)
+  return bone_.Add();
+}
+inline ::google::protobuf::RepeatedPtrField< ::viro::Node_Skeleton_Bone >*
+Node_Skeleton::mutable_bone() {
+  // @@protoc_insertion_point(field_mutable_list:viro.Node.Skeleton.bone)
+  return &bone_;
+}
+inline const ::google::protobuf::RepeatedPtrField< ::viro::Node_Skeleton_Bone >&
+Node_Skeleton::bone() const {
+  // @@protoc_insertion_point(field_list:viro.Node.Skeleton.bone)
+  return bone_;
 }
 
 // -------------------------------------------------------------------
@@ -2979,7 +3775,46 @@ inline void Node::set_allocated_geometry(::viro::Node_Geometry* geometry) {
   // @@protoc_insertion_point(field_set_allocated:viro.Node.geometry)
 }
 
-// repeated .viro.Node.Light light = 7;
+// .viro.Node.Skeleton skeleton = 7;
+inline bool Node::has_skeleton() const {
+  return this != internal_default_instance() && skeleton_ != NULL;
+}
+inline void Node::clear_skeleton() {
+  if (GetArenaNoVirtual() == NULL && skeleton_ != NULL) delete skeleton_;
+  skeleton_ = NULL;
+}
+inline const ::viro::Node_Skeleton& Node::skeleton() const {
+  // @@protoc_insertion_point(field_get:viro.Node.skeleton)
+  return skeleton_ != NULL ? *skeleton_
+                         : *::viro::Node_Skeleton::internal_default_instance();
+}
+inline ::viro::Node_Skeleton* Node::mutable_skeleton() {
+  
+  if (skeleton_ == NULL) {
+    skeleton_ = new ::viro::Node_Skeleton;
+  }
+  // @@protoc_insertion_point(field_mutable:viro.Node.skeleton)
+  return skeleton_;
+}
+inline ::viro::Node_Skeleton* Node::release_skeleton() {
+  // @@protoc_insertion_point(field_release:viro.Node.skeleton)
+  
+  ::viro::Node_Skeleton* temp = skeleton_;
+  skeleton_ = NULL;
+  return temp;
+}
+inline void Node::set_allocated_skeleton(::viro::Node_Skeleton* skeleton) {
+  delete skeleton_;
+  skeleton_ = skeleton;
+  if (skeleton) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_set_allocated:viro.Node.skeleton)
+}
+
+// repeated .viro.Node.Light light = 8;
 inline int Node::light_size() const {
   return light_.size();
 }
@@ -3009,7 +3844,7 @@ Node::light() const {
   return light_;
 }
 
-// .viro.Node.Camera camera = 8;
+// .viro.Node.Camera camera = 9;
 inline bool Node::has_camera() const {
   return this != internal_default_instance() && camera_ != NULL;
 }
@@ -3048,7 +3883,7 @@ inline void Node::set_allocated_camera(::viro::Node_Camera* camera) {
   // @@protoc_insertion_point(field_set_allocated:viro.Node.camera)
 }
 
-// repeated .viro.Node subnode = 9;
+// repeated .viro.Node subnode = 10;
 inline int Node::subnode_size() const {
   return subnode_.size();
 }
@@ -3079,6 +3914,14 @@ Node::subnode() const {
 }
 
 #endif  // !PROTOBUF_INLINE_NOT_IN_HEADERS
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------
