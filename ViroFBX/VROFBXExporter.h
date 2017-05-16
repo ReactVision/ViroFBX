@@ -19,8 +19,8 @@ static const int kMaxBones = 4;
 
 class VROBoneIndexWeight {
 public:
-    const int index;
-    const float weight;
+    int index;
+    float weight;
     
     VROBoneIndexWeight(int i, float w) :
         index(i), weight(w) {}
@@ -52,7 +52,7 @@ private:
     
 #pragma mark - Export Methods
     
-    void exportNode(FbxNode *node, const viro::Node::Skeleton &skeleton, viro::Node *outNode);
+    void exportNode(FbxScene *scene, FbxNode *node, const viro::Node::Skeleton &skeleton, viro::Node *outNode);
     void exportGeometry(FbxNode *node, viro::Node::Geometry *geo);
     void exportMaterial(FbxSurfaceMaterial *inMaterial, viro::Node::Geometry::Material *outMaterial);
     void exportHardwareMaterial(FbxSurfaceMaterial *inMaterial, const FbxImplementation *implementation,
@@ -60,6 +60,7 @@ private:
     void exportSkeleton(FbxNode *rootNode, viro::Node::Skeleton *outSkeleton);
     void exportSkeletonRecursive(FbxNode *node, int depth, int index, int parentIndex, viro::Node::Skeleton *outSkeleton);
     void exportSkin(FbxNode *node, const viro::Node::Skeleton &skeleton, viro::Node::Geometry::Skin *outSkin);
+    void exportAnimations(FbxScene *scene, FbxNode *node, const viro::Node::Skeleton &skeleton, viro::Node *outNode);
     
 #pragma mark - Export Helpers
     

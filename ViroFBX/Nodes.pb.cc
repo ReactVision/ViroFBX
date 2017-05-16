@@ -15,6 +15,8 @@
 // @@protoc_insertion_point(includes)
 
 namespace viro {
+class Node_MatrixDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<Node_Matrix> {
+} _Node_Matrix_default_instance_;
 class Node_Geometry_SourceDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<Node_Geometry_Source> {
 } _Node_Geometry_Source_default_instance_;
 class Node_Geometry_ElementDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<Node_Geometry_Element> {
@@ -23,8 +25,6 @@ class Node_Geometry_Material_VisualDefaultTypeInternal : public ::google::protob
 } _Node_Geometry_Material_Visual_default_instance_;
 class Node_Geometry_MaterialDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<Node_Geometry_Material> {
 } _Node_Geometry_Material_default_instance_;
-class Node_Geometry_Skin_InverseBindTransformDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<Node_Geometry_Skin_InverseBindTransform> {
-} _Node_Geometry_Skin_InverseBindTransform_default_instance_;
 class Node_Geometry_SkinDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<Node_Geometry_Skin> {
 } _Node_Geometry_Skin_default_instance_;
 class Node_GeometryDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<Node_Geometry> {
@@ -33,6 +33,10 @@ class Node_Skeleton_BoneDefaultTypeInternal : public ::google::protobuf::interna
 } _Node_Skeleton_Bone_default_instance_;
 class Node_SkeletonDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<Node_Skeleton> {
 } _Node_Skeleton_default_instance_;
+class Node_SkeletalAnimation_FrameDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<Node_SkeletalAnimation_Frame> {
+} _Node_SkeletalAnimation_Frame_default_instance_;
+class Node_SkeletalAnimationDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<Node_SkeletalAnimation> {
+} _Node_SkeletalAnimation_default_instance_;
 class Node_LightDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<Node_Light> {
 } _Node_Light_default_instance_;
 class Node_CameraDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<Node_Camera> {
@@ -44,15 +48,17 @@ namespace protobuf_Nodes_2eproto {
 
 
 void TableStruct::Shutdown() {
+  _Node_Matrix_default_instance_.Shutdown();
   _Node_Geometry_Source_default_instance_.Shutdown();
   _Node_Geometry_Element_default_instance_.Shutdown();
   _Node_Geometry_Material_Visual_default_instance_.Shutdown();
   _Node_Geometry_Material_default_instance_.Shutdown();
-  _Node_Geometry_Skin_InverseBindTransform_default_instance_.Shutdown();
   _Node_Geometry_Skin_default_instance_.Shutdown();
   _Node_Geometry_default_instance_.Shutdown();
   _Node_Skeleton_Bone_default_instance_.Shutdown();
   _Node_Skeleton_default_instance_.Shutdown();
+  _Node_SkeletalAnimation_Frame_default_instance_.Shutdown();
+  _Node_SkeletalAnimation_default_instance_.Shutdown();
   _Node_Light_default_instance_.Shutdown();
   _Node_Camera_default_instance_.Shutdown();
   _Node_default_instance_.Shutdown();
@@ -62,15 +68,17 @@ void TableStruct::InitDefaultsImpl() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
   ::google::protobuf::internal::InitProtobufDefaults();
+  _Node_Matrix_default_instance_.DefaultConstruct();
   _Node_Geometry_Source_default_instance_.DefaultConstruct();
   _Node_Geometry_Element_default_instance_.DefaultConstruct();
   _Node_Geometry_Material_Visual_default_instance_.DefaultConstruct();
   _Node_Geometry_Material_default_instance_.DefaultConstruct();
-  _Node_Geometry_Skin_InverseBindTransform_default_instance_.DefaultConstruct();
   _Node_Geometry_Skin_default_instance_.DefaultConstruct();
   _Node_Geometry_default_instance_.DefaultConstruct();
   _Node_Skeleton_Bone_default_instance_.DefaultConstruct();
   _Node_Skeleton_default_instance_.DefaultConstruct();
+  _Node_SkeletalAnimation_Frame_default_instance_.DefaultConstruct();
+  _Node_SkeletalAnimation_default_instance_.DefaultConstruct();
   _Node_Light_default_instance_.DefaultConstruct();
   _Node_Camera_default_instance_.DefaultConstruct();
   _Node_default_instance_.DefaultConstruct();
@@ -302,6 +310,222 @@ const Node_Light_LightType Node_Light::LightType_MIN;
 const Node_Light_LightType Node_Light::LightType_MAX;
 const int Node_Light::LightType_ARRAYSIZE;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+
+// ===================================================================
+
+#if !defined(_MSC_VER) || _MSC_VER >= 1900
+const int Node_Matrix::kValueFieldNumber;
+#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+
+Node_Matrix::Node_Matrix()
+  : ::google::protobuf::MessageLite(), _internal_metadata_(NULL) {
+  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
+    protobuf_Nodes_2eproto::InitDefaults();
+  }
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:viro.Node.Matrix)
+}
+Node_Matrix::Node_Matrix(const Node_Matrix& from)
+  : ::google::protobuf::MessageLite(),
+      _internal_metadata_(NULL),
+      value_(from.value_),
+      _cached_size_(0) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  // @@protoc_insertion_point(copy_constructor:viro.Node.Matrix)
+}
+
+void Node_Matrix::SharedCtor() {
+  _cached_size_ = 0;
+}
+
+Node_Matrix::~Node_Matrix() {
+  // @@protoc_insertion_point(destructor:viro.Node.Matrix)
+  SharedDtor();
+}
+
+void Node_Matrix::SharedDtor() {
+}
+
+void Node_Matrix::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const Node_Matrix& Node_Matrix::default_instance() {
+  protobuf_Nodes_2eproto::InitDefaults();
+  return *internal_default_instance();
+}
+
+Node_Matrix* Node_Matrix::New(::google::protobuf::Arena* arena) const {
+  Node_Matrix* n = new Node_Matrix;
+  if (arena != NULL) {
+    arena->Own(n);
+  }
+  return n;
+}
+
+void Node_Matrix::Clear() {
+// @@protoc_insertion_point(message_clear_start:viro.Node.Matrix)
+  value_.Clear();
+}
+
+bool Node_Matrix::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:viro.Node.Matrix)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // repeated float value = 1;
+      case 1: {
+        if (tag == 10u) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitive<
+                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
+                 input, this->mutable_value())));
+        } else if (tag == 13u) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitiveNoInline<
+                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
+                 1, 10u, input, this->mutable_value())));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormatLite::SkipField(input, tag));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:viro.Node.Matrix)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:viro.Node.Matrix)
+  return false;
+#undef DO_
+}
+
+void Node_Matrix::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:viro.Node.Matrix)
+  // repeated float value = 1;
+  if (this->value_size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteTag(1, ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED, output);
+    output->WriteVarint32(_value_cached_byte_size_);
+    ::google::protobuf::internal::WireFormatLite::WriteFloatArray(
+      this->value().data(), this->value_size(), output);
+  }
+
+  // @@protoc_insertion_point(serialize_end:viro.Node.Matrix)
+}
+
+size_t Node_Matrix::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:viro.Node.Matrix)
+  size_t total_size = 0;
+
+  // repeated float value = 1;
+  {
+    unsigned int count = this->value_size();
+    size_t data_size = 4UL * count;
+    if (data_size > 0) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(data_size);
+    }
+    int cached_size = ::google::protobuf::internal::ToCachedSize(data_size);
+    GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+    _value_cached_byte_size_ = cached_size;
+    GOOGLE_SAFE_CONCURRENT_WRITES_END();
+    total_size += data_size;
+  }
+
+  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = cached_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void Node_Matrix::CheckTypeAndMergeFrom(
+    const ::google::protobuf::MessageLite& from) {
+  MergeFrom(*::google::protobuf::down_cast<const Node_Matrix*>(&from));
+}
+
+void Node_Matrix::MergeFrom(const Node_Matrix& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:viro.Node.Matrix)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  value_.MergeFrom(from.value_);
+}
+
+void Node_Matrix::CopyFrom(const Node_Matrix& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:viro.Node.Matrix)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool Node_Matrix::IsInitialized() const {
+  return true;
+}
+
+void Node_Matrix::Swap(Node_Matrix* other) {
+  if (other == this) return;
+  InternalSwap(other);
+}
+void Node_Matrix::InternalSwap(Node_Matrix* other) {
+  value_.UnsafeArenaSwap(&other->value_);
+  std::swap(_cached_size_, other->_cached_size_);
+}
+
+::std::string Node_Matrix::GetTypeName() const {
+  return "viro.Node.Matrix";
+}
+
+#if PROTOBUF_INLINE_NOT_IN_HEADERS
+// Node_Matrix
+
+// repeated float value = 1;
+int Node_Matrix::value_size() const {
+  return value_.size();
+}
+void Node_Matrix::clear_value() {
+  value_.Clear();
+}
+float Node_Matrix::value(int index) const {
+  // @@protoc_insertion_point(field_get:viro.Node.Matrix.value)
+  return value_.Get(index);
+}
+void Node_Matrix::set_value(int index, float value) {
+  value_.Set(index, value);
+  // @@protoc_insertion_point(field_set:viro.Node.Matrix.value)
+}
+void Node_Matrix::add_value(float value) {
+  value_.Add(value);
+  // @@protoc_insertion_point(field_add:viro.Node.Matrix.value)
+}
+const ::google::protobuf::RepeatedField< float >&
+Node_Matrix::value() const {
+  // @@protoc_insertion_point(field_list:viro.Node.Matrix.value)
+  return value_;
+}
+::google::protobuf::RepeatedField< float >*
+Node_Matrix::mutable_value() {
+  // @@protoc_insertion_point(field_mutable_list:viro.Node.Matrix.value)
+  return &value_;
+}
+
+#endif  // PROTOBUF_INLINE_NOT_IN_HEADERS
 
 // ===================================================================
 
@@ -2996,223 +3220,7 @@ void Node_Geometry_Material::set_allocated_multiply(::viro::Node_Geometry_Materi
 // ===================================================================
 
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
-const int Node_Geometry_Skin_InverseBindTransform::kMatrixFieldNumber;
-#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
-
-Node_Geometry_Skin_InverseBindTransform::Node_Geometry_Skin_InverseBindTransform()
-  : ::google::protobuf::MessageLite(), _internal_metadata_(NULL) {
-  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
-    protobuf_Nodes_2eproto::InitDefaults();
-  }
-  SharedCtor();
-  // @@protoc_insertion_point(constructor:viro.Node.Geometry.Skin.InverseBindTransform)
-}
-Node_Geometry_Skin_InverseBindTransform::Node_Geometry_Skin_InverseBindTransform(const Node_Geometry_Skin_InverseBindTransform& from)
-  : ::google::protobuf::MessageLite(),
-      _internal_metadata_(NULL),
-      matrix_(from.matrix_),
-      _cached_size_(0) {
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
-  // @@protoc_insertion_point(copy_constructor:viro.Node.Geometry.Skin.InverseBindTransform)
-}
-
-void Node_Geometry_Skin_InverseBindTransform::SharedCtor() {
-  _cached_size_ = 0;
-}
-
-Node_Geometry_Skin_InverseBindTransform::~Node_Geometry_Skin_InverseBindTransform() {
-  // @@protoc_insertion_point(destructor:viro.Node.Geometry.Skin.InverseBindTransform)
-  SharedDtor();
-}
-
-void Node_Geometry_Skin_InverseBindTransform::SharedDtor() {
-}
-
-void Node_Geometry_Skin_InverseBindTransform::SetCachedSize(int size) const {
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-}
-const Node_Geometry_Skin_InverseBindTransform& Node_Geometry_Skin_InverseBindTransform::default_instance() {
-  protobuf_Nodes_2eproto::InitDefaults();
-  return *internal_default_instance();
-}
-
-Node_Geometry_Skin_InverseBindTransform* Node_Geometry_Skin_InverseBindTransform::New(::google::protobuf::Arena* arena) const {
-  Node_Geometry_Skin_InverseBindTransform* n = new Node_Geometry_Skin_InverseBindTransform;
-  if (arena != NULL) {
-    arena->Own(n);
-  }
-  return n;
-}
-
-void Node_Geometry_Skin_InverseBindTransform::Clear() {
-// @@protoc_insertion_point(message_clear_start:viro.Node.Geometry.Skin.InverseBindTransform)
-  matrix_.Clear();
-}
-
-bool Node_Geometry_Skin_InverseBindTransform::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:viro.Node.Geometry.Skin.InverseBindTransform)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // repeated float matrix = 1;
-      case 1: {
-        if (tag == 10u) {
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitive<
-                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
-                 input, this->mutable_matrix())));
-        } else if (tag == 13u) {
-          DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitiveNoInline<
-                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
-                 1, 10u, input, this->mutable_matrix())));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormatLite::SkipField(input, tag));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:viro.Node.Geometry.Skin.InverseBindTransform)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:viro.Node.Geometry.Skin.InverseBindTransform)
-  return false;
-#undef DO_
-}
-
-void Node_Geometry_Skin_InverseBindTransform::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:viro.Node.Geometry.Skin.InverseBindTransform)
-  // repeated float matrix = 1;
-  if (this->matrix_size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteTag(1, ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED, output);
-    output->WriteVarint32(_matrix_cached_byte_size_);
-    ::google::protobuf::internal::WireFormatLite::WriteFloatArray(
-      this->matrix().data(), this->matrix_size(), output);
-  }
-
-  // @@protoc_insertion_point(serialize_end:viro.Node.Geometry.Skin.InverseBindTransform)
-}
-
-size_t Node_Geometry_Skin_InverseBindTransform::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:viro.Node.Geometry.Skin.InverseBindTransform)
-  size_t total_size = 0;
-
-  // repeated float matrix = 1;
-  {
-    unsigned int count = this->matrix_size();
-    size_t data_size = 4UL * count;
-    if (data_size > 0) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::Int32Size(data_size);
-    }
-    int cached_size = ::google::protobuf::internal::ToCachedSize(data_size);
-    GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-    _matrix_cached_byte_size_ = cached_size;
-    GOOGLE_SAFE_CONCURRENT_WRITES_END();
-    total_size += data_size;
-  }
-
-  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = cached_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void Node_Geometry_Skin_InverseBindTransform::CheckTypeAndMergeFrom(
-    const ::google::protobuf::MessageLite& from) {
-  MergeFrom(*::google::protobuf::down_cast<const Node_Geometry_Skin_InverseBindTransform*>(&from));
-}
-
-void Node_Geometry_Skin_InverseBindTransform::MergeFrom(const Node_Geometry_Skin_InverseBindTransform& from) {
-// @@protoc_insertion_point(class_specific_merge_from_start:viro.Node.Geometry.Skin.InverseBindTransform)
-  GOOGLE_DCHECK_NE(&from, this);
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
-  matrix_.MergeFrom(from.matrix_);
-}
-
-void Node_Geometry_Skin_InverseBindTransform::CopyFrom(const Node_Geometry_Skin_InverseBindTransform& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:viro.Node.Geometry.Skin.InverseBindTransform)
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool Node_Geometry_Skin_InverseBindTransform::IsInitialized() const {
-  return true;
-}
-
-void Node_Geometry_Skin_InverseBindTransform::Swap(Node_Geometry_Skin_InverseBindTransform* other) {
-  if (other == this) return;
-  InternalSwap(other);
-}
-void Node_Geometry_Skin_InverseBindTransform::InternalSwap(Node_Geometry_Skin_InverseBindTransform* other) {
-  matrix_.UnsafeArenaSwap(&other->matrix_);
-  std::swap(_cached_size_, other->_cached_size_);
-}
-
-::std::string Node_Geometry_Skin_InverseBindTransform::GetTypeName() const {
-  return "viro.Node.Geometry.Skin.InverseBindTransform";
-}
-
-#if PROTOBUF_INLINE_NOT_IN_HEADERS
-// Node_Geometry_Skin_InverseBindTransform
-
-// repeated float matrix = 1;
-int Node_Geometry_Skin_InverseBindTransform::matrix_size() const {
-  return matrix_.size();
-}
-void Node_Geometry_Skin_InverseBindTransform::clear_matrix() {
-  matrix_.Clear();
-}
-float Node_Geometry_Skin_InverseBindTransform::matrix(int index) const {
-  // @@protoc_insertion_point(field_get:viro.Node.Geometry.Skin.InverseBindTransform.matrix)
-  return matrix_.Get(index);
-}
-void Node_Geometry_Skin_InverseBindTransform::set_matrix(int index, float value) {
-  matrix_.Set(index, value);
-  // @@protoc_insertion_point(field_set:viro.Node.Geometry.Skin.InverseBindTransform.matrix)
-}
-void Node_Geometry_Skin_InverseBindTransform::add_matrix(float value) {
-  matrix_.Add(value);
-  // @@protoc_insertion_point(field_add:viro.Node.Geometry.Skin.InverseBindTransform.matrix)
-}
-const ::google::protobuf::RepeatedField< float >&
-Node_Geometry_Skin_InverseBindTransform::matrix() const {
-  // @@protoc_insertion_point(field_list:viro.Node.Geometry.Skin.InverseBindTransform.matrix)
-  return matrix_;
-}
-::google::protobuf::RepeatedField< float >*
-Node_Geometry_Skin_InverseBindTransform::mutable_matrix() {
-  // @@protoc_insertion_point(field_mutable_list:viro.Node.Geometry.Skin.InverseBindTransform.matrix)
-  return &matrix_;
-}
-
-#endif  // PROTOBUF_INLINE_NOT_IN_HEADERS
-
-// ===================================================================
-
-#if !defined(_MSC_VER) || _MSC_VER >= 1900
-const int Node_Geometry_Skin::kInverseBindTransformFieldNumber;
+const int Node_Geometry_Skin::kBindTransformFieldNumber;
 const int Node_Geometry_Skin::kBoneIndicesFieldNumber;
 const int Node_Geometry_Skin::kBoneWeightsFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
@@ -3228,7 +3236,7 @@ Node_Geometry_Skin::Node_Geometry_Skin()
 Node_Geometry_Skin::Node_Geometry_Skin(const Node_Geometry_Skin& from)
   : ::google::protobuf::MessageLite(),
       _internal_metadata_(NULL),
-      inverse_bind_transform_(from.inverse_bind_transform_),
+      bind_transform_(from.bind_transform_),
       _cached_size_(0) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   if (from.has_bone_indices()) {
@@ -3284,7 +3292,7 @@ Node_Geometry_Skin* Node_Geometry_Skin::New(::google::protobuf::Arena* arena) co
 
 void Node_Geometry_Skin::Clear() {
 // @@protoc_insertion_point(message_clear_start:viro.Node.Geometry.Skin)
-  inverse_bind_transform_.Clear();
+  bind_transform_.Clear();
   if (GetArenaNoVirtual() == NULL && bone_indices_ != NULL) {
     delete bone_indices_;
   }
@@ -3305,12 +3313,12 @@ bool Node_Geometry_Skin::MergePartialFromCodedStream(
     tag = p.first;
     if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // repeated .viro.Node.Geometry.Skin.InverseBindTransform inverse_bind_transform = 1;
+      // repeated .viro.Node.Matrix bind_transform = 1;
       case 1: {
         if (tag == 10u) {
           DO_(input->IncrementRecursionDepth());
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtualNoRecursionDepth(
-                input, add_inverse_bind_transform()));
+                input, add_bind_transform()));
         } else {
           goto handle_unusual;
         }
@@ -3364,10 +3372,10 @@ failure:
 void Node_Geometry_Skin::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
   // @@protoc_insertion_point(serialize_start:viro.Node.Geometry.Skin)
-  // repeated .viro.Node.Geometry.Skin.InverseBindTransform inverse_bind_transform = 1;
-  for (unsigned int i = 0, n = this->inverse_bind_transform_size(); i < n; i++) {
+  // repeated .viro.Node.Matrix bind_transform = 1;
+  for (unsigned int i = 0, n = this->bind_transform_size(); i < n; i++) {
     ::google::protobuf::internal::WireFormatLite::WriteMessage(
-      1, this->inverse_bind_transform(i), output);
+      1, this->bind_transform(i), output);
   }
 
   // .viro.Node.Geometry.Source bone_indices = 2;
@@ -3389,14 +3397,14 @@ size_t Node_Geometry_Skin::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:viro.Node.Geometry.Skin)
   size_t total_size = 0;
 
-  // repeated .viro.Node.Geometry.Skin.InverseBindTransform inverse_bind_transform = 1;
+  // repeated .viro.Node.Matrix bind_transform = 1;
   {
-    unsigned int count = this->inverse_bind_transform_size();
+    unsigned int count = this->bind_transform_size();
     total_size += 1UL * count;
     for (unsigned int i = 0; i < count; i++) {
       total_size +=
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->inverse_bind_transform(i));
+          this->bind_transform(i));
     }
   }
 
@@ -3430,7 +3438,7 @@ void Node_Geometry_Skin::MergeFrom(const Node_Geometry_Skin& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:viro.Node.Geometry.Skin)
   GOOGLE_DCHECK_NE(&from, this);
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  inverse_bind_transform_.MergeFrom(from.inverse_bind_transform_);
+  bind_transform_.MergeFrom(from.bind_transform_);
   if (from.has_bone_indices()) {
     mutable_bone_indices()->::viro::Node_Geometry_Source::MergeFrom(from.bone_indices());
   }
@@ -3455,7 +3463,7 @@ void Node_Geometry_Skin::Swap(Node_Geometry_Skin* other) {
   InternalSwap(other);
 }
 void Node_Geometry_Skin::InternalSwap(Node_Geometry_Skin* other) {
-  inverse_bind_transform_.UnsafeArenaSwap(&other->inverse_bind_transform_);
+  bind_transform_.UnsafeArenaSwap(&other->bind_transform_);
   std::swap(bone_indices_, other->bone_indices_);
   std::swap(bone_weights_, other->bone_weights_);
   std::swap(_cached_size_, other->_cached_size_);
@@ -3468,34 +3476,34 @@ void Node_Geometry_Skin::InternalSwap(Node_Geometry_Skin* other) {
 #if PROTOBUF_INLINE_NOT_IN_HEADERS
 // Node_Geometry_Skin
 
-// repeated .viro.Node.Geometry.Skin.InverseBindTransform inverse_bind_transform = 1;
-int Node_Geometry_Skin::inverse_bind_transform_size() const {
-  return inverse_bind_transform_.size();
+// repeated .viro.Node.Matrix bind_transform = 1;
+int Node_Geometry_Skin::bind_transform_size() const {
+  return bind_transform_.size();
 }
-void Node_Geometry_Skin::clear_inverse_bind_transform() {
-  inverse_bind_transform_.Clear();
+void Node_Geometry_Skin::clear_bind_transform() {
+  bind_transform_.Clear();
 }
-const ::viro::Node_Geometry_Skin_InverseBindTransform& Node_Geometry_Skin::inverse_bind_transform(int index) const {
-  // @@protoc_insertion_point(field_get:viro.Node.Geometry.Skin.inverse_bind_transform)
-  return inverse_bind_transform_.Get(index);
+const ::viro::Node_Matrix& Node_Geometry_Skin::bind_transform(int index) const {
+  // @@protoc_insertion_point(field_get:viro.Node.Geometry.Skin.bind_transform)
+  return bind_transform_.Get(index);
 }
-::viro::Node_Geometry_Skin_InverseBindTransform* Node_Geometry_Skin::mutable_inverse_bind_transform(int index) {
-  // @@protoc_insertion_point(field_mutable:viro.Node.Geometry.Skin.inverse_bind_transform)
-  return inverse_bind_transform_.Mutable(index);
+::viro::Node_Matrix* Node_Geometry_Skin::mutable_bind_transform(int index) {
+  // @@protoc_insertion_point(field_mutable:viro.Node.Geometry.Skin.bind_transform)
+  return bind_transform_.Mutable(index);
 }
-::viro::Node_Geometry_Skin_InverseBindTransform* Node_Geometry_Skin::add_inverse_bind_transform() {
-  // @@protoc_insertion_point(field_add:viro.Node.Geometry.Skin.inverse_bind_transform)
-  return inverse_bind_transform_.Add();
+::viro::Node_Matrix* Node_Geometry_Skin::add_bind_transform() {
+  // @@protoc_insertion_point(field_add:viro.Node.Geometry.Skin.bind_transform)
+  return bind_transform_.Add();
 }
-::google::protobuf::RepeatedPtrField< ::viro::Node_Geometry_Skin_InverseBindTransform >*
-Node_Geometry_Skin::mutable_inverse_bind_transform() {
-  // @@protoc_insertion_point(field_mutable_list:viro.Node.Geometry.Skin.inverse_bind_transform)
-  return &inverse_bind_transform_;
+::google::protobuf::RepeatedPtrField< ::viro::Node_Matrix >*
+Node_Geometry_Skin::mutable_bind_transform() {
+  // @@protoc_insertion_point(field_mutable_list:viro.Node.Geometry.Skin.bind_transform)
+  return &bind_transform_;
 }
-const ::google::protobuf::RepeatedPtrField< ::viro::Node_Geometry_Skin_InverseBindTransform >&
-Node_Geometry_Skin::inverse_bind_transform() const {
-  // @@protoc_insertion_point(field_list:viro.Node.Geometry.Skin.inverse_bind_transform)
-  return inverse_bind_transform_;
+const ::google::protobuf::RepeatedPtrField< ::viro::Node_Matrix >&
+Node_Geometry_Skin::bind_transform() const {
+  // @@protoc_insertion_point(field_list:viro.Node.Geometry.Skin.bind_transform)
+  return bind_transform_;
 }
 
 // .viro.Node.Geometry.Source bone_indices = 2;
@@ -4187,7 +4195,6 @@ void Node_Geometry::set_allocated_skin(::viro::Node_Geometry_Skin* skin) {
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
 const int Node_Skeleton_Bone::kNameFieldNumber;
 const int Node_Skeleton_Bone::kParentIndexFieldNumber;
-const int Node_Skeleton_Bone::kTransformFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 Node_Skeleton_Bone::Node_Skeleton_Bone()
@@ -4201,7 +4208,6 @@ Node_Skeleton_Bone::Node_Skeleton_Bone()
 Node_Skeleton_Bone::Node_Skeleton_Bone(const Node_Skeleton_Bone& from)
   : ::google::protobuf::MessageLite(),
       _internal_metadata_(NULL),
-      transform_(from.transform_),
       _cached_size_(0) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   name_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
@@ -4247,7 +4253,6 @@ Node_Skeleton_Bone* Node_Skeleton_Bone::New(::google::protobuf::Arena* arena) co
 
 void Node_Skeleton_Bone::Clear() {
 // @@protoc_insertion_point(message_clear_start:viro.Node.Skeleton.Bone)
-  transform_.Clear();
   name_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   parent_index_ = 0;
 }
@@ -4284,22 +4289,6 @@ bool Node_Skeleton_Bone::MergePartialFromCodedStream(
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
                  input, &parent_index_)));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
-      // repeated float transform = 3;
-      case 3: {
-        if (tag == 26u) {
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitive<
-                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
-                 input, this->mutable_transform())));
-        } else if (tag == 29u) {
-          DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitiveNoInline<
-                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
-                 1, 26u, input, this->mutable_transform())));
         } else {
           goto handle_unusual;
         }
@@ -4345,35 +4334,12 @@ void Node_Skeleton_Bone::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteInt32(2, this->parent_index(), output);
   }
 
-  // repeated float transform = 3;
-  if (this->transform_size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteTag(3, ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED, output);
-    output->WriteVarint32(_transform_cached_byte_size_);
-    ::google::protobuf::internal::WireFormatLite::WriteFloatArray(
-      this->transform().data(), this->transform_size(), output);
-  }
-
   // @@protoc_insertion_point(serialize_end:viro.Node.Skeleton.Bone)
 }
 
 size_t Node_Skeleton_Bone::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:viro.Node.Skeleton.Bone)
   size_t total_size = 0;
-
-  // repeated float transform = 3;
-  {
-    unsigned int count = this->transform_size();
-    size_t data_size = 4UL * count;
-    if (data_size > 0) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::Int32Size(data_size);
-    }
-    int cached_size = ::google::protobuf::internal::ToCachedSize(data_size);
-    GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-    _transform_cached_byte_size_ = cached_size;
-    GOOGLE_SAFE_CONCURRENT_WRITES_END();
-    total_size += data_size;
-  }
 
   // string name = 1;
   if (this->name().size() > 0) {
@@ -4405,7 +4371,6 @@ void Node_Skeleton_Bone::MergeFrom(const Node_Skeleton_Bone& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:viro.Node.Skeleton.Bone)
   GOOGLE_DCHECK_NE(&from, this);
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  transform_.MergeFrom(from.transform_);
   if (from.name().size() > 0) {
 
     name_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.name_);
@@ -4431,7 +4396,6 @@ void Node_Skeleton_Bone::Swap(Node_Skeleton_Bone* other) {
   InternalSwap(other);
 }
 void Node_Skeleton_Bone::InternalSwap(Node_Skeleton_Bone* other) {
-  transform_.UnsafeArenaSwap(&other->transform_);
   name_.Swap(&other->name_);
   std::swap(parent_index_, other->parent_index_);
   std::swap(_cached_size_, other->_cached_size_);
@@ -4508,36 +4472,6 @@ void Node_Skeleton_Bone::set_parent_index(::google::protobuf::int32 value) {
   
   parent_index_ = value;
   // @@protoc_insertion_point(field_set:viro.Node.Skeleton.Bone.parent_index)
-}
-
-// repeated float transform = 3;
-int Node_Skeleton_Bone::transform_size() const {
-  return transform_.size();
-}
-void Node_Skeleton_Bone::clear_transform() {
-  transform_.Clear();
-}
-float Node_Skeleton_Bone::transform(int index) const {
-  // @@protoc_insertion_point(field_get:viro.Node.Skeleton.Bone.transform)
-  return transform_.Get(index);
-}
-void Node_Skeleton_Bone::set_transform(int index, float value) {
-  transform_.Set(index, value);
-  // @@protoc_insertion_point(field_set:viro.Node.Skeleton.Bone.transform)
-}
-void Node_Skeleton_Bone::add_transform(float value) {
-  transform_.Add(value);
-  // @@protoc_insertion_point(field_add:viro.Node.Skeleton.Bone.transform)
-}
-const ::google::protobuf::RepeatedField< float >&
-Node_Skeleton_Bone::transform() const {
-  // @@protoc_insertion_point(field_list:viro.Node.Skeleton.Bone.transform)
-  return transform_;
-}
-::google::protobuf::RepeatedField< float >*
-Node_Skeleton_Bone::mutable_transform() {
-  // @@protoc_insertion_point(field_mutable_list:viro.Node.Skeleton.Bone.transform)
-  return &transform_;
 }
 
 #endif  // PROTOBUF_INLINE_NOT_IN_HEADERS
@@ -4745,6 +4679,640 @@ const ::google::protobuf::RepeatedPtrField< ::viro::Node_Skeleton_Bone >&
 Node_Skeleton::bone() const {
   // @@protoc_insertion_point(field_list:viro.Node.Skeleton.bone)
   return bone_;
+}
+
+#endif  // PROTOBUF_INLINE_NOT_IN_HEADERS
+
+// ===================================================================
+
+#if !defined(_MSC_VER) || _MSC_VER >= 1900
+const int Node_SkeletalAnimation_Frame::kTimeFieldNumber;
+const int Node_SkeletalAnimation_Frame::kBoneIndexFieldNumber;
+const int Node_SkeletalAnimation_Frame::kTransformFieldNumber;
+#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+
+Node_SkeletalAnimation_Frame::Node_SkeletalAnimation_Frame()
+  : ::google::protobuf::MessageLite(), _internal_metadata_(NULL) {
+  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
+    protobuf_Nodes_2eproto::InitDefaults();
+  }
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:viro.Node.SkeletalAnimation.Frame)
+}
+Node_SkeletalAnimation_Frame::Node_SkeletalAnimation_Frame(const Node_SkeletalAnimation_Frame& from)
+  : ::google::protobuf::MessageLite(),
+      _internal_metadata_(NULL),
+      bone_index_(from.bone_index_),
+      transform_(from.transform_),
+      _cached_size_(0) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  time_ = from.time_;
+  // @@protoc_insertion_point(copy_constructor:viro.Node.SkeletalAnimation.Frame)
+}
+
+void Node_SkeletalAnimation_Frame::SharedCtor() {
+  time_ = GOOGLE_LONGLONG(0);
+  _cached_size_ = 0;
+}
+
+Node_SkeletalAnimation_Frame::~Node_SkeletalAnimation_Frame() {
+  // @@protoc_insertion_point(destructor:viro.Node.SkeletalAnimation.Frame)
+  SharedDtor();
+}
+
+void Node_SkeletalAnimation_Frame::SharedDtor() {
+}
+
+void Node_SkeletalAnimation_Frame::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const Node_SkeletalAnimation_Frame& Node_SkeletalAnimation_Frame::default_instance() {
+  protobuf_Nodes_2eproto::InitDefaults();
+  return *internal_default_instance();
+}
+
+Node_SkeletalAnimation_Frame* Node_SkeletalAnimation_Frame::New(::google::protobuf::Arena* arena) const {
+  Node_SkeletalAnimation_Frame* n = new Node_SkeletalAnimation_Frame;
+  if (arena != NULL) {
+    arena->Own(n);
+  }
+  return n;
+}
+
+void Node_SkeletalAnimation_Frame::Clear() {
+// @@protoc_insertion_point(message_clear_start:viro.Node.SkeletalAnimation.Frame)
+  bone_index_.Clear();
+  transform_.Clear();
+  time_ = GOOGLE_LONGLONG(0);
+}
+
+bool Node_SkeletalAnimation_Frame::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:viro.Node.SkeletalAnimation.Frame)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // int64 time = 1;
+      case 1: {
+        if (tag == 8u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int64, ::google::protobuf::internal::WireFormatLite::TYPE_INT64>(
+                 input, &time_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // repeated int32 bone_index = 2;
+      case 2: {
+        if (tag == 18u) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, this->mutable_bone_index())));
+        } else if (tag == 16u) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitiveNoInline<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 1, 18u, input, this->mutable_bone_index())));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // repeated .viro.Node.Matrix transform = 3;
+      case 3: {
+        if (tag == 26u) {
+          DO_(input->IncrementRecursionDepth());
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtualNoRecursionDepth(
+                input, add_transform()));
+        } else {
+          goto handle_unusual;
+        }
+        input->UnsafeDecrementRecursionDepth();
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormatLite::SkipField(input, tag));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:viro.Node.SkeletalAnimation.Frame)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:viro.Node.SkeletalAnimation.Frame)
+  return false;
+#undef DO_
+}
+
+void Node_SkeletalAnimation_Frame::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:viro.Node.SkeletalAnimation.Frame)
+  // int64 time = 1;
+  if (this->time() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt64(1, this->time(), output);
+  }
+
+  // repeated int32 bone_index = 2;
+  if (this->bone_index_size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteTag(2, ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED, output);
+    output->WriteVarint32(_bone_index_cached_byte_size_);
+  }
+  for (int i = 0; i < this->bone_index_size(); i++) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32NoTag(
+      this->bone_index(i), output);
+  }
+
+  // repeated .viro.Node.Matrix transform = 3;
+  for (unsigned int i = 0, n = this->transform_size(); i < n; i++) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessage(
+      3, this->transform(i), output);
+  }
+
+  // @@protoc_insertion_point(serialize_end:viro.Node.SkeletalAnimation.Frame)
+}
+
+size_t Node_SkeletalAnimation_Frame::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:viro.Node.SkeletalAnimation.Frame)
+  size_t total_size = 0;
+
+  // repeated int32 bone_index = 2;
+  {
+    size_t data_size = ::google::protobuf::internal::WireFormatLite::
+      Int32Size(this->bone_index_);
+    if (data_size > 0) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(data_size);
+    }
+    int cached_size = ::google::protobuf::internal::ToCachedSize(data_size);
+    GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+    _bone_index_cached_byte_size_ = cached_size;
+    GOOGLE_SAFE_CONCURRENT_WRITES_END();
+    total_size += data_size;
+  }
+
+  // repeated .viro.Node.Matrix transform = 3;
+  {
+    unsigned int count = this->transform_size();
+    total_size += 1UL * count;
+    for (unsigned int i = 0; i < count; i++) {
+      total_size +=
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->transform(i));
+    }
+  }
+
+  // int64 time = 1;
+  if (this->time() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int64Size(
+        this->time());
+  }
+
+  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = cached_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void Node_SkeletalAnimation_Frame::CheckTypeAndMergeFrom(
+    const ::google::protobuf::MessageLite& from) {
+  MergeFrom(*::google::protobuf::down_cast<const Node_SkeletalAnimation_Frame*>(&from));
+}
+
+void Node_SkeletalAnimation_Frame::MergeFrom(const Node_SkeletalAnimation_Frame& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:viro.Node.SkeletalAnimation.Frame)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  bone_index_.MergeFrom(from.bone_index_);
+  transform_.MergeFrom(from.transform_);
+  if (from.time() != 0) {
+    set_time(from.time());
+  }
+}
+
+void Node_SkeletalAnimation_Frame::CopyFrom(const Node_SkeletalAnimation_Frame& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:viro.Node.SkeletalAnimation.Frame)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool Node_SkeletalAnimation_Frame::IsInitialized() const {
+  return true;
+}
+
+void Node_SkeletalAnimation_Frame::Swap(Node_SkeletalAnimation_Frame* other) {
+  if (other == this) return;
+  InternalSwap(other);
+}
+void Node_SkeletalAnimation_Frame::InternalSwap(Node_SkeletalAnimation_Frame* other) {
+  bone_index_.UnsafeArenaSwap(&other->bone_index_);
+  transform_.UnsafeArenaSwap(&other->transform_);
+  std::swap(time_, other->time_);
+  std::swap(_cached_size_, other->_cached_size_);
+}
+
+::std::string Node_SkeletalAnimation_Frame::GetTypeName() const {
+  return "viro.Node.SkeletalAnimation.Frame";
+}
+
+#if PROTOBUF_INLINE_NOT_IN_HEADERS
+// Node_SkeletalAnimation_Frame
+
+// int64 time = 1;
+void Node_SkeletalAnimation_Frame::clear_time() {
+  time_ = GOOGLE_LONGLONG(0);
+}
+::google::protobuf::int64 Node_SkeletalAnimation_Frame::time() const {
+  // @@protoc_insertion_point(field_get:viro.Node.SkeletalAnimation.Frame.time)
+  return time_;
+}
+void Node_SkeletalAnimation_Frame::set_time(::google::protobuf::int64 value) {
+  
+  time_ = value;
+  // @@protoc_insertion_point(field_set:viro.Node.SkeletalAnimation.Frame.time)
+}
+
+// repeated int32 bone_index = 2;
+int Node_SkeletalAnimation_Frame::bone_index_size() const {
+  return bone_index_.size();
+}
+void Node_SkeletalAnimation_Frame::clear_bone_index() {
+  bone_index_.Clear();
+}
+::google::protobuf::int32 Node_SkeletalAnimation_Frame::bone_index(int index) const {
+  // @@protoc_insertion_point(field_get:viro.Node.SkeletalAnimation.Frame.bone_index)
+  return bone_index_.Get(index);
+}
+void Node_SkeletalAnimation_Frame::set_bone_index(int index, ::google::protobuf::int32 value) {
+  bone_index_.Set(index, value);
+  // @@protoc_insertion_point(field_set:viro.Node.SkeletalAnimation.Frame.bone_index)
+}
+void Node_SkeletalAnimation_Frame::add_bone_index(::google::protobuf::int32 value) {
+  bone_index_.Add(value);
+  // @@protoc_insertion_point(field_add:viro.Node.SkeletalAnimation.Frame.bone_index)
+}
+const ::google::protobuf::RepeatedField< ::google::protobuf::int32 >&
+Node_SkeletalAnimation_Frame::bone_index() const {
+  // @@protoc_insertion_point(field_list:viro.Node.SkeletalAnimation.Frame.bone_index)
+  return bone_index_;
+}
+::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
+Node_SkeletalAnimation_Frame::mutable_bone_index() {
+  // @@protoc_insertion_point(field_mutable_list:viro.Node.SkeletalAnimation.Frame.bone_index)
+  return &bone_index_;
+}
+
+// repeated .viro.Node.Matrix transform = 3;
+int Node_SkeletalAnimation_Frame::transform_size() const {
+  return transform_.size();
+}
+void Node_SkeletalAnimation_Frame::clear_transform() {
+  transform_.Clear();
+}
+const ::viro::Node_Matrix& Node_SkeletalAnimation_Frame::transform(int index) const {
+  // @@protoc_insertion_point(field_get:viro.Node.SkeletalAnimation.Frame.transform)
+  return transform_.Get(index);
+}
+::viro::Node_Matrix* Node_SkeletalAnimation_Frame::mutable_transform(int index) {
+  // @@protoc_insertion_point(field_mutable:viro.Node.SkeletalAnimation.Frame.transform)
+  return transform_.Mutable(index);
+}
+::viro::Node_Matrix* Node_SkeletalAnimation_Frame::add_transform() {
+  // @@protoc_insertion_point(field_add:viro.Node.SkeletalAnimation.Frame.transform)
+  return transform_.Add();
+}
+::google::protobuf::RepeatedPtrField< ::viro::Node_Matrix >*
+Node_SkeletalAnimation_Frame::mutable_transform() {
+  // @@protoc_insertion_point(field_mutable_list:viro.Node.SkeletalAnimation.Frame.transform)
+  return &transform_;
+}
+const ::google::protobuf::RepeatedPtrField< ::viro::Node_Matrix >&
+Node_SkeletalAnimation_Frame::transform() const {
+  // @@protoc_insertion_point(field_list:viro.Node.SkeletalAnimation.Frame.transform)
+  return transform_;
+}
+
+#endif  // PROTOBUF_INLINE_NOT_IN_HEADERS
+
+// ===================================================================
+
+#if !defined(_MSC_VER) || _MSC_VER >= 1900
+const int Node_SkeletalAnimation::kNameFieldNumber;
+const int Node_SkeletalAnimation::kFrameFieldNumber;
+#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+
+Node_SkeletalAnimation::Node_SkeletalAnimation()
+  : ::google::protobuf::MessageLite(), _internal_metadata_(NULL) {
+  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
+    protobuf_Nodes_2eproto::InitDefaults();
+  }
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:viro.Node.SkeletalAnimation)
+}
+Node_SkeletalAnimation::Node_SkeletalAnimation(const Node_SkeletalAnimation& from)
+  : ::google::protobuf::MessageLite(),
+      _internal_metadata_(NULL),
+      frame_(from.frame_),
+      _cached_size_(0) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  name_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  if (from.name().size() > 0) {
+    name_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.name_);
+  }
+  // @@protoc_insertion_point(copy_constructor:viro.Node.SkeletalAnimation)
+}
+
+void Node_SkeletalAnimation::SharedCtor() {
+  name_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  _cached_size_ = 0;
+}
+
+Node_SkeletalAnimation::~Node_SkeletalAnimation() {
+  // @@protoc_insertion_point(destructor:viro.Node.SkeletalAnimation)
+  SharedDtor();
+}
+
+void Node_SkeletalAnimation::SharedDtor() {
+  name_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+
+void Node_SkeletalAnimation::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const Node_SkeletalAnimation& Node_SkeletalAnimation::default_instance() {
+  protobuf_Nodes_2eproto::InitDefaults();
+  return *internal_default_instance();
+}
+
+Node_SkeletalAnimation* Node_SkeletalAnimation::New(::google::protobuf::Arena* arena) const {
+  Node_SkeletalAnimation* n = new Node_SkeletalAnimation;
+  if (arena != NULL) {
+    arena->Own(n);
+  }
+  return n;
+}
+
+void Node_SkeletalAnimation::Clear() {
+// @@protoc_insertion_point(message_clear_start:viro.Node.SkeletalAnimation)
+  frame_.Clear();
+  name_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+
+bool Node_SkeletalAnimation::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:viro.Node.SkeletalAnimation)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // string name = 1;
+      case 1: {
+        if (tag == 10u) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_name()));
+          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+            this->name().data(), this->name().length(),
+            ::google::protobuf::internal::WireFormatLite::PARSE,
+            "viro.Node.SkeletalAnimation.name"));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // repeated .viro.Node.SkeletalAnimation.Frame frame = 2;
+      case 2: {
+        if (tag == 18u) {
+          DO_(input->IncrementRecursionDepth());
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtualNoRecursionDepth(
+                input, add_frame()));
+        } else {
+          goto handle_unusual;
+        }
+        input->UnsafeDecrementRecursionDepth();
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormatLite::SkipField(input, tag));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:viro.Node.SkeletalAnimation)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:viro.Node.SkeletalAnimation)
+  return false;
+#undef DO_
+}
+
+void Node_SkeletalAnimation::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:viro.Node.SkeletalAnimation)
+  // string name = 1;
+  if (this->name().size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+      this->name().data(), this->name().length(),
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      "viro.Node.SkeletalAnimation.name");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+      1, this->name(), output);
+  }
+
+  // repeated .viro.Node.SkeletalAnimation.Frame frame = 2;
+  for (unsigned int i = 0, n = this->frame_size(); i < n; i++) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessage(
+      2, this->frame(i), output);
+  }
+
+  // @@protoc_insertion_point(serialize_end:viro.Node.SkeletalAnimation)
+}
+
+size_t Node_SkeletalAnimation::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:viro.Node.SkeletalAnimation)
+  size_t total_size = 0;
+
+  // repeated .viro.Node.SkeletalAnimation.Frame frame = 2;
+  {
+    unsigned int count = this->frame_size();
+    total_size += 1UL * count;
+    for (unsigned int i = 0; i < count; i++) {
+      total_size +=
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->frame(i));
+    }
+  }
+
+  // string name = 1;
+  if (this->name().size() > 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::StringSize(
+        this->name());
+  }
+
+  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = cached_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void Node_SkeletalAnimation::CheckTypeAndMergeFrom(
+    const ::google::protobuf::MessageLite& from) {
+  MergeFrom(*::google::protobuf::down_cast<const Node_SkeletalAnimation*>(&from));
+}
+
+void Node_SkeletalAnimation::MergeFrom(const Node_SkeletalAnimation& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:viro.Node.SkeletalAnimation)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  frame_.MergeFrom(from.frame_);
+  if (from.name().size() > 0) {
+
+    name_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.name_);
+  }
+}
+
+void Node_SkeletalAnimation::CopyFrom(const Node_SkeletalAnimation& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:viro.Node.SkeletalAnimation)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool Node_SkeletalAnimation::IsInitialized() const {
+  return true;
+}
+
+void Node_SkeletalAnimation::Swap(Node_SkeletalAnimation* other) {
+  if (other == this) return;
+  InternalSwap(other);
+}
+void Node_SkeletalAnimation::InternalSwap(Node_SkeletalAnimation* other) {
+  frame_.UnsafeArenaSwap(&other->frame_);
+  name_.Swap(&other->name_);
+  std::swap(_cached_size_, other->_cached_size_);
+}
+
+::std::string Node_SkeletalAnimation::GetTypeName() const {
+  return "viro.Node.SkeletalAnimation";
+}
+
+#if PROTOBUF_INLINE_NOT_IN_HEADERS
+// Node_SkeletalAnimation
+
+// string name = 1;
+void Node_SkeletalAnimation::clear_name() {
+  name_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+const ::std::string& Node_SkeletalAnimation::name() const {
+  // @@protoc_insertion_point(field_get:viro.Node.SkeletalAnimation.name)
+  return name_.GetNoArena();
+}
+void Node_SkeletalAnimation::set_name(const ::std::string& value) {
+  
+  name_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:viro.Node.SkeletalAnimation.name)
+}
+#if LANG_CXX11
+void Node_SkeletalAnimation::set_name(::std::string&& value) {
+  
+  name_.SetNoArena(
+    &::google::protobuf::internal::GetEmptyStringAlreadyInited(), std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:viro.Node.SkeletalAnimation.name)
+}
+#endif
+void Node_SkeletalAnimation::set_name(const char* value) {
+  
+  name_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:viro.Node.SkeletalAnimation.name)
+}
+void Node_SkeletalAnimation::set_name(const char* value, size_t size) {
+  
+  name_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:viro.Node.SkeletalAnimation.name)
+}
+::std::string* Node_SkeletalAnimation::mutable_name() {
+  
+  // @@protoc_insertion_point(field_mutable:viro.Node.SkeletalAnimation.name)
+  return name_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+::std::string* Node_SkeletalAnimation::release_name() {
+  // @@protoc_insertion_point(field_release:viro.Node.SkeletalAnimation.name)
+  
+  return name_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+void Node_SkeletalAnimation::set_allocated_name(::std::string* name) {
+  if (name != NULL) {
+    
+  } else {
+    
+  }
+  name_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), name);
+  // @@protoc_insertion_point(field_set_allocated:viro.Node.SkeletalAnimation.name)
+}
+
+// repeated .viro.Node.SkeletalAnimation.Frame frame = 2;
+int Node_SkeletalAnimation::frame_size() const {
+  return frame_.size();
+}
+void Node_SkeletalAnimation::clear_frame() {
+  frame_.Clear();
+}
+const ::viro::Node_SkeletalAnimation_Frame& Node_SkeletalAnimation::frame(int index) const {
+  // @@protoc_insertion_point(field_get:viro.Node.SkeletalAnimation.frame)
+  return frame_.Get(index);
+}
+::viro::Node_SkeletalAnimation_Frame* Node_SkeletalAnimation::mutable_frame(int index) {
+  // @@protoc_insertion_point(field_mutable:viro.Node.SkeletalAnimation.frame)
+  return frame_.Mutable(index);
+}
+::viro::Node_SkeletalAnimation_Frame* Node_SkeletalAnimation::add_frame() {
+  // @@protoc_insertion_point(field_add:viro.Node.SkeletalAnimation.frame)
+  return frame_.Add();
+}
+::google::protobuf::RepeatedPtrField< ::viro::Node_SkeletalAnimation_Frame >*
+Node_SkeletalAnimation::mutable_frame() {
+  // @@protoc_insertion_point(field_mutable_list:viro.Node.SkeletalAnimation.frame)
+  return &frame_;
+}
+const ::google::protobuf::RepeatedPtrField< ::viro::Node_SkeletalAnimation_Frame >&
+Node_SkeletalAnimation::frame() const {
+  // @@protoc_insertion_point(field_list:viro.Node.SkeletalAnimation.frame)
+  return frame_;
 }
 
 #endif  // PROTOBUF_INLINE_NOT_IN_HEADERS
@@ -5782,6 +6350,7 @@ const int Node::kRenderingOrderFieldNumber;
 const int Node::kOpacityFieldNumber;
 const int Node::kGeometryFieldNumber;
 const int Node::kSkeletonFieldNumber;
+const int Node::kSkeletalAnimationFieldNumber;
 const int Node::kLightFieldNumber;
 const int Node::kCameraFieldNumber;
 const int Node::kSubnodeFieldNumber;
@@ -5801,6 +6370,7 @@ Node::Node(const Node& from)
       position_(from.position_),
       scale_(from.scale_),
       rotation_(from.rotation_),
+      skeletal_animation_(from.skeletal_animation_),
       light_(from.light_),
       subnode_(from.subnode_),
       _cached_size_(0) {
@@ -5872,6 +6442,7 @@ void Node::Clear() {
   position_.Clear();
   scale_.Clear();
   rotation_.Clear();
+  skeletal_animation_.Clear();
   light_.Clear();
   subnode_.Clear();
   if (GetArenaNoVirtual() == NULL && geometry_ != NULL) {
@@ -5996,9 +6567,22 @@ bool Node::MergePartialFromCodedStream(
         break;
       }
 
-      // repeated .viro.Node.Light light = 8;
+      // repeated .viro.Node.SkeletalAnimation skeletal_animation = 8;
       case 8: {
         if (tag == 66u) {
+          DO_(input->IncrementRecursionDepth());
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtualNoRecursionDepth(
+                input, add_skeletal_animation()));
+        } else {
+          goto handle_unusual;
+        }
+        input->UnsafeDecrementRecursionDepth();
+        break;
+      }
+
+      // repeated .viro.Node.Light light = 9;
+      case 9: {
+        if (tag == 74u) {
           DO_(input->IncrementRecursionDepth());
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtualNoRecursionDepth(
                 input, add_light()));
@@ -6009,9 +6593,9 @@ bool Node::MergePartialFromCodedStream(
         break;
       }
 
-      // .viro.Node.Camera camera = 9;
-      case 9: {
-        if (tag == 74u) {
+      // .viro.Node.Camera camera = 10;
+      case 10: {
+        if (tag == 82u) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                input, mutable_camera()));
         } else {
@@ -6020,9 +6604,9 @@ bool Node::MergePartialFromCodedStream(
         break;
       }
 
-      // repeated .viro.Node subnode = 10;
-      case 10: {
-        if (tag == 82u) {
+      // repeated .viro.Node subnode = 11;
+      case 11: {
+        if (tag == 90u) {
           DO_(input->IncrementRecursionDepth());
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtualNoRecursionDepth(
                 input, add_subnode()));
@@ -6103,22 +6687,28 @@ void Node::SerializeWithCachedSizes(
       7, *this->skeleton_, output);
   }
 
-  // repeated .viro.Node.Light light = 8;
+  // repeated .viro.Node.SkeletalAnimation skeletal_animation = 8;
+  for (unsigned int i = 0, n = this->skeletal_animation_size(); i < n; i++) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessage(
+      8, this->skeletal_animation(i), output);
+  }
+
+  // repeated .viro.Node.Light light = 9;
   for (unsigned int i = 0, n = this->light_size(); i < n; i++) {
     ::google::protobuf::internal::WireFormatLite::WriteMessage(
-      8, this->light(i), output);
+      9, this->light(i), output);
   }
 
-  // .viro.Node.Camera camera = 9;
+  // .viro.Node.Camera camera = 10;
   if (this->has_camera()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessage(
-      9, *this->camera_, output);
+      10, *this->camera_, output);
   }
 
-  // repeated .viro.Node subnode = 10;
+  // repeated .viro.Node subnode = 11;
   for (unsigned int i = 0, n = this->subnode_size(); i < n; i++) {
     ::google::protobuf::internal::WireFormatLite::WriteMessage(
-      10, this->subnode(i), output);
+      11, this->subnode(i), output);
   }
 
   // @@protoc_insertion_point(serialize_end:viro.Node)
@@ -6173,7 +6763,18 @@ size_t Node::ByteSizeLong() const {
     total_size += data_size;
   }
 
-  // repeated .viro.Node.Light light = 8;
+  // repeated .viro.Node.SkeletalAnimation skeletal_animation = 8;
+  {
+    unsigned int count = this->skeletal_animation_size();
+    total_size += 1UL * count;
+    for (unsigned int i = 0; i < count; i++) {
+      total_size +=
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->skeletal_animation(i));
+    }
+  }
+
+  // repeated .viro.Node.Light light = 9;
   {
     unsigned int count = this->light_size();
     total_size += 1UL * count;
@@ -6184,7 +6785,7 @@ size_t Node::ByteSizeLong() const {
     }
   }
 
-  // repeated .viro.Node subnode = 10;
+  // repeated .viro.Node subnode = 11;
   {
     unsigned int count = this->subnode_size();
     total_size += 1UL * count;
@@ -6209,7 +6810,7 @@ size_t Node::ByteSizeLong() const {
         *this->skeleton_);
   }
 
-  // .viro.Node.Camera camera = 9;
+  // .viro.Node.Camera camera = 10;
   if (this->has_camera()) {
     total_size += 1 +
       ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
@@ -6247,6 +6848,7 @@ void Node::MergeFrom(const Node& from) {
   position_.MergeFrom(from.position_);
   scale_.MergeFrom(from.scale_);
   rotation_.MergeFrom(from.rotation_);
+  skeletal_animation_.MergeFrom(from.skeletal_animation_);
   light_.MergeFrom(from.light_);
   subnode_.MergeFrom(from.subnode_);
   if (from.has_geometry()) {
@@ -6285,6 +6887,7 @@ void Node::InternalSwap(Node* other) {
   position_.UnsafeArenaSwap(&other->position_);
   scale_.UnsafeArenaSwap(&other->scale_);
   rotation_.UnsafeArenaSwap(&other->rotation_);
+  skeletal_animation_.UnsafeArenaSwap(&other->skeletal_animation_);
   light_.UnsafeArenaSwap(&other->light_);
   subnode_.UnsafeArenaSwap(&other->subnode_);
   std::swap(geometry_, other->geometry_);
@@ -6498,7 +7101,37 @@ void Node::set_allocated_skeleton(::viro::Node_Skeleton* skeleton) {
   // @@protoc_insertion_point(field_set_allocated:viro.Node.skeleton)
 }
 
-// repeated .viro.Node.Light light = 8;
+// repeated .viro.Node.SkeletalAnimation skeletal_animation = 8;
+int Node::skeletal_animation_size() const {
+  return skeletal_animation_.size();
+}
+void Node::clear_skeletal_animation() {
+  skeletal_animation_.Clear();
+}
+const ::viro::Node_SkeletalAnimation& Node::skeletal_animation(int index) const {
+  // @@protoc_insertion_point(field_get:viro.Node.skeletal_animation)
+  return skeletal_animation_.Get(index);
+}
+::viro::Node_SkeletalAnimation* Node::mutable_skeletal_animation(int index) {
+  // @@protoc_insertion_point(field_mutable:viro.Node.skeletal_animation)
+  return skeletal_animation_.Mutable(index);
+}
+::viro::Node_SkeletalAnimation* Node::add_skeletal_animation() {
+  // @@protoc_insertion_point(field_add:viro.Node.skeletal_animation)
+  return skeletal_animation_.Add();
+}
+::google::protobuf::RepeatedPtrField< ::viro::Node_SkeletalAnimation >*
+Node::mutable_skeletal_animation() {
+  // @@protoc_insertion_point(field_mutable_list:viro.Node.skeletal_animation)
+  return &skeletal_animation_;
+}
+const ::google::protobuf::RepeatedPtrField< ::viro::Node_SkeletalAnimation >&
+Node::skeletal_animation() const {
+  // @@protoc_insertion_point(field_list:viro.Node.skeletal_animation)
+  return skeletal_animation_;
+}
+
+// repeated .viro.Node.Light light = 9;
 int Node::light_size() const {
   return light_.size();
 }
@@ -6528,7 +7161,7 @@ Node::light() const {
   return light_;
 }
 
-// .viro.Node.Camera camera = 9;
+// .viro.Node.Camera camera = 10;
 bool Node::has_camera() const {
   return this != internal_default_instance() && camera_ != NULL;
 }
@@ -6567,7 +7200,7 @@ void Node::set_allocated_camera(::viro::Node_Camera* camera) {
   // @@protoc_insertion_point(field_set_allocated:viro.Node.camera)
 }
 
-// repeated .viro.Node subnode = 10;
+// repeated .viro.Node subnode = 11;
 int Node::subnode_size() const {
   return subnode_.size();
 }

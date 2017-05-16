@@ -4,6 +4,11 @@ package viro;
 option optimize_for = LITE_RUNTIME;
 
 message Node {
+
+    message Matrix {
+        repeated float value = 1;
+    }
+
     repeated float position = 1;
     repeated float scale = 2;
     repeated float rotation = 3;
@@ -127,11 +132,7 @@ message Node {
         repeated Material material = 5;
 
         message Skin {
-            message InverseBindTransform {
-                repeated float matrix = 1;
-            }
-            repeated InverseBindTransform inverse_bind_transform = 1;
-
+            repeated Matrix bind_transform = 1;
             Source bone_indices = 2;
             Source bone_weights = 3;
         }
@@ -143,11 +144,22 @@ message Node {
         message Bone {
             string name = 1;
             int32 parent_index = 2;
-            repeated float transform = 3;
         }
         repeated Bone bone = 1;
     }
     Skeleton skeleton = 7;
+
+    message SkeletalAnimation {
+        message Frame {
+            int64 time = 1;
+            repeated int32 bone_index = 2;
+            repeated Matrix transform = 3;
+        }
+
+        string name = 1;
+        repeated Frame frame = 2;
+    }
+    repeated SkeletalAnimation skeletal_animation = 8;
 
     message Light {
         string name = 1;
@@ -174,12 +186,12 @@ message Node {
         float spot_inner_angle = 11;
         float spot_outer_angle = 12;
     }
-    repeated Light light = 8;
+    repeated Light light = 9;
 
     message Camera {
         repeated float position = 1;
     }
-    Camera camera = 9;
+    Camera camera = 10;
 
-    repeated Node subnode = 10;
+    repeated Node subnode = 11;
 }
