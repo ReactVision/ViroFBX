@@ -68,6 +68,7 @@ private:
     FbxVector4 readTangent(FbxMesh *mesh, int controlPointIndex, int cornerCounter);
     std::vector<int> readMaterialToMeshMapping(FbxMesh *mesh, int numPolygons);
     unsigned int findBoneIndexUsingName(const std::string &name, const viro::Node::Skeleton &skeleton);
+    bool isExportableNode(FbxNode *node);
     
 #pragma mark - Print Methods
     

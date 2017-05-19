@@ -97,7 +97,9 @@ void VROFBXExporter::exportFBX(std::string fbxPath, std::string destPath) {
         exportSkeleton(rootNode, skeleton);
         
         for (int i = 0; i < rootNode->GetChildCount(); i++) {
-            exportNode(scene, rootNode->GetChild(i), *skeleton, outNode->add_subnode());
+            if (isExportableNode(rootNode->GetChild(i))) {
+                exportNode(scene, rootNode->GetChild(i), *skeleton, outNode->add_subnode());
+            }
         }
     }
     
@@ -110,24 +112,32 @@ void VROFBXExporter::exportFBX(std::string fbxPath, std::string destPath) {
     pinfo("Export complete");
 }
 
-void VROFBXExporter::exportNode(FbxScene *scene, FbxNode *node, const viro::Node::Skeleton &skeleton, viro::Node *outNode) {
+bool VROFBXExporter::isExportableNode(FbxNode *node) {
     if (!node->GetNodeAttribute() || !node->GetNodeAttribute()->GetAttributeType()) {
         pinfo("Encountered node with no attribute type -- skipping");
+        return false;
     }
     
     // Do not export skeleton nodes here (processed separately)
     if (node->GetNodeAttribute()->GetAttributeType() == FbxNodeAttribute::eSkeleton) {
-        return;
+        return false;
     }
     
     // Skip camera and light nodes
     if (node->GetNodeAttribute()->GetAttributeType() == FbxNodeAttribute::eCamera ||
         node->GetNodeAttribute()->GetAttributeType() == FbxNodeAttribute::eLight) {
-        return;
+        return false;
     }
+    
+    return true;
+}
+
+void VROFBXExporter::exportNode(FbxScene *scene, FbxNode *node, const viro::Node::Skeleton &skeleton, viro::Node *outNode) {
+    passert (isExportableNode(node));
     
     pinfo("Exporting node [%s], type [%s]", node->GetName(),
           GetAttributeTypeName(node->GetNodeAttribute()->GetAttributeType()).Buffer());
+    outNode->set_name(node->GetName());
     
     FbxDouble3 translation = node->LclTranslation.Get();
     outNode->add_position(translation[0]);
@@ -143,6 +153,16 @@ void VROFBXExporter::exportNode(FbxScene *scene, FbxNode *node, const viro::Node
     outNode->add_rotation(rotation[0]);
     outNode->add_rotation(rotation[1]);
     outNode->add_rotation(rotation[2]);
+    
+    pinfo("   Node translation %f, %f, %f", translation[0], translation[1], translation[2]);
+    pinfo("   Node rotation %f, %f, %f", rotation[0], rotation[1], rotation[2]);
+    pinfo("   Node scale %f, %f, %f", scaling[0], scaling[1], scaling[2]);
+    
+    FbxVector4 geoTranslation = node->GetGeometricTranslation(FbxNode::eSourcePivot);
+    FbxVector4 geoRotation = node->GetGeometricRotation(FbxNode::eSourcePivot);
+    
+    pinfo("   Geo-only translation %f, %f, %f", geoTranslation[0], geoTranslation[1], geoTranslation[2]);
+    pinfo("   Geo-only rotation %f, %f, %f", geoRotation[0], geoRotation[1], geoRotation[2]);
     
     outNode->set_rendering_order(0);
     outNode->set_opacity(1.0);
@@ -163,7 +183,9 @@ void VROFBXExporter::exportNode(FbxScene *scene, FbxNode *node, const viro::Node
         }
     }
     for (int i = 0; i < node->GetChildCount(); i++) {
-        exportNode(scene, node->GetChild(i), skeleton, outNode->add_subnode());
+        if (isExportableNode(node->GetChild(i))) {
+            exportNode(scene, node->GetChild(i), skeleton, outNode->add_subnode());
+        }
     }
 }
 
@@ -454,6 +476,347 @@ FbxVector4 VROFBXExporter::readTangent(FbxMesh *mesh, int controlPointIndex, int
     return {};
 }
 
+#pragma mark - Export Skeleton and Animations
+
+void VROFBXExporter::exportSkeleton(FbxNode *rootNode, viro::Node::Skeleton *outSkeleton) {
+    for (int i = 0; i < rootNode->GetChildCount(); ++i) {
+        FbxNode *node = rootNode->GetChild(i);
+        exportSkeletonRecursive(node, 0, 0, -1, outSkeleton);
+    }
+}
+
+void VROFBXExporter::exportSkeletonRecursive(FbxNode *node, int depth, int index, int parentIndex, viro::Node::Skeleton *outSkeleton) {
+    if (node->GetNodeAttribute() &&
+        node->GetNodeAttribute()->GetAttributeType() &&
+        node->GetNodeAttribute()->GetAttributeType() == FbxNodeAttribute::eSkeleton) {
+        
+        printf("   %*sExporting skeleton node [%s]\n", depth * 3, "", node->GetName());
+
+        viro::Node::Skeleton::Bone *bone = outSkeleton->add_bone();
+        bone->set_name(node->GetName());
+        bone->set_parent_index(parentIndex);
+    }
+    for (int i = 0; i < node->GetChildCount(); i++) {
+        exportSkeletonRecursive(node->GetChild(i), depth + 1, outSkeleton->bone_size(), index, outSkeleton);
+    }
+}
+
+bool SortByBoneWeight(const VROBoneIndexWeight &i, const VROBoneIndexWeight &j) {
+    return (i.weight > j.weight);
+}
+
+void VROFBXExporter::exportSkin(FbxNode *node, const viro::Node::Skeleton &skeleton, viro::Node::Geometry::Skin *outSkin) {
+    FbxMesh *mesh = node->GetMesh();
+    unsigned int numDeformers = mesh->GetDeformerCount();
+    
+    // Not understood, typically identity matrix
+    // FbxAMatrix geometryTransform = Utilities::GetGeometryTransformation(node);
+    
+    // Each FBX deformer contains clusters. Clusters each contain a link (which is a
+    // bone). Normally only one deformer per mesh.
+    
+    std::map<int, std::vector<VROBoneIndexWeight>> bones;
+    
+    for (unsigned int deformerIndex = 0; deformerIndex < numDeformers; ++deformerIndex) {
+        // There are many types of deformers in Maya, we only use skins
+        FbxSkin *skin = reinterpret_cast<FbxSkin*>(mesh->GetDeformer(deformerIndex, FbxDeformer::eSkin));
+        if (!skin) {
+            continue;
+        }
+        
+        unsigned int numClusters = skin->GetClusterCount();
+        pinfo("      Number of clusters %d", numClusters);
+        
+        // We will be filling in the bind transform for each bone
+        for (int b = 0; b < skeleton.bone_size(); b++) {
+            outSkin->add_bind_transform();
+        }
+        
+        /*
+         Encode the transform that gets us from model space, original position 
+         to world space, bind position.
+         */
+        FbxAMatrix geometryBindingTransform;
+        if (numClusters > 0) {
+            skin->GetCluster(0)->GetTransformMatrix(geometryBindingTransform);
+            
+            viro::Node::Matrix *gbt = outSkin->mutable_geometry_bind_transform();
+            for (int i = 0; i < 16; i++) {
+                gbt->add_value(geometryBindingTransform.Get(i / 4, i % 4));
+            }
+        }
+        
+        for (unsigned int clusterIndex = 0; clusterIndex < numClusters; ++clusterIndex) {
+            FbxCluster *cluster = skin->GetCluster(clusterIndex);
+            
+            /*
+             Set the bind transform for the bone. The bind transform transforms
+             the mesh from its encoded position in model space to the bind position
+             in bone local space.
+             */
+            std::string boneName = cluster->GetLink()->GetName();
+            unsigned int boneIndex = findBoneIndexUsingName(boneName, skeleton);
+        
+            /*
+             Sanity check: the transform matrix for each cluster's parent node should
+             be the same (it's the same parent!).
+             */
+            FbxAMatrix meshBindingTransform;
+            cluster->GetTransformMatrix(meshBindingTransform);
+            for (int i = 0; i < 4; i++) {
+                for (int j = 0; j < 4; j++) {
+                    passert (fabs(geometryBindingTransform.Get(i, j) - meshBindingTransform.Get(i, j)) < .0001);
+                }
+            }
+            
+            /*
+             Encode the matrix that, for each bone, takes us from world space, bind position 
+             to bone local space, bind position.
+             */
+            FbxAMatrix boneBindingTransform;
+            cluster->GetTransformLinkMatrix(boneBindingTransform);
+            FbxAMatrix inverseBoneBindingTransform = boneBindingTransform.Inverse();
+            
+            viro::Node::Matrix *bt = outSkin->mutable_bind_transform(boneIndex);
+            for (int i = 0; i < 16; i++) {
+                bt->add_value(inverseBoneBindingTransform.Get(i / 4, i % 4));
+            }
+            
+            /*
+             Associate each bone with the control points it affects.
+             */
+            unsigned int numIndices = cluster->GetControlPointIndicesCount();
+            for (unsigned int i = 0; i < numIndices; ++i) {
+                int controlPointIndex = cluster->GetControlPointIndices()[i];
+                float boneWeight = cluster->GetControlPointWeights()[i];
+                
+                // Associates a control point (vertex) with a bone, and gives
+                // the bone a weight on that control point
+                VROBoneIndexWeight bone(boneIndex, boneWeight);
+                bones[controlPointIndex].push_back(bone);
+            }
+        }
+    }
+    
+    for (auto &kv : bones) {
+        std::vector<VROBoneIndexWeight> &bones = kv.second;
+        
+        // If there are more than kMaxBones bones, use only those with greatest
+        // weight, and renormalize
+        if (bones.size() > kMaxBones) {
+            std::sort(bones.begin(), bones.end(), SortByBoneWeight);
+            bones.erase(bones.begin() + kMaxBones, bones.end());
+            
+            float total = 0;
+            for (VROBoneIndexWeight &bone : bones) {
+                total += bone.weight;
+            }
+            for (VROBoneIndexWeight &bone : bones) {
+                bone.weight = (bone.weight / total);
+            }
+        }
+        
+        // Add extra dummy bones to each control point that has fewer than
+        // kMaxBones
+        for (size_t i = bones.size(); i < kMaxBones; ++i) {
+            bones.push_back({0, 0});
+        }
+    }
+    
+    pinfo("      Found bones for %lu control points", bones.size());
+    
+    /*
+     Export the geometry sources for the skin. Note this must be in the same order we 
+     follow in exportGeometry.
+     */
+    std::vector<int> boneIndicesData;
+    std::vector<float> boneWeightsData;
+    std::set<int> controlPointsNoBones;
+    
+    int numPolygons = mesh->GetPolygonCount();
+    for (unsigned int i = 0; i < numPolygons; i++) {
+        // We only support triangles
+        int polygonSize = mesh->GetPolygonSize(i);
+        passert (polygonSize == 3);
+        
+        for (int j = 0; j < polygonSize; j++) {
+            int controlPointIndex = mesh->GetPolygonVertex(i, j);
+            
+            auto it = bones.find(controlPointIndex);
+            if (it == bones.end()) {
+                // This is just so we only log the message once per control point instead
+                // of once per polygon
+                if (controlPointsNoBones.find(controlPointIndex) == controlPointsNoBones.end()) {
+                    controlPointsNoBones.insert(controlPointIndex);
+                    pinfo("         No bones found for control point %d", controlPointIndex);
+                }
+                
+                for (int b = 0; b < kMaxBones; b++) {
+                    boneIndicesData.push_back(0);
+                    boneWeightsData.push_back(0);
+                }
+            }
+            else {
+                std::vector<VROBoneIndexWeight> &boneData = it->second;
+                passert (boneData.size() == kMaxBones);
+                
+                if (kDebugGeometrySource) {
+                    pinfo("      Control point %d", controlPointIndex);
+                }
+                for (VROBoneIndexWeight &bone : boneData) {
+                    boneIndicesData.push_back(bone.index);
+                    boneWeightsData.push_back(bone.weight);
+                    
+                    if (kDebugGeometrySource) {
+                        pinfo("         bone-index: %d", bone.index);
+                        pinfo("         bone-weight: %f", bone.weight);
+                    }
+                }
+            }
+        }
+    }
+    
+    int intsPerVertex = kMaxBones;
+    int numVertices = (uint32_t)boneIndicesData.size() / intsPerVertex;
+    
+    viro::Node::Geometry::Source *boneIndices = outSkin->mutable_bone_indices();
+    boneIndices->set_semantic(viro::Node_Geometry_Source_Semantic_BoneIndices);
+    boneIndices->set_vertex_count(numVertices);
+    boneIndices->set_float_components(false);
+    boneIndices->set_components_per_vertex(kMaxBones);
+    boneIndices->set_bytes_per_component(sizeof(int));
+    boneIndices->set_data_offset(0);
+    boneIndices->set_data_stride(sizeof(int) * kMaxBones);
+    boneIndices->set_data(boneIndicesData.data(), boneIndicesData.size() * sizeof(int));
+
+    viro::Node::Geometry::Source *boneWeights = outSkin->mutable_bone_weights();
+    boneWeights->set_semantic(viro::Node_Geometry_Source_Semantic_BoneWeights);
+    boneWeights->set_vertex_count(numVertices);
+    boneWeights->set_float_components(true);
+    boneWeights->set_components_per_vertex(kMaxBones);
+    boneWeights->set_bytes_per_component(sizeof(float));
+    boneWeights->set_data_offset(0);
+    boneWeights->set_data_stride(sizeof(float) * kMaxBones);
+    boneWeights->set_data(boneWeightsData.data(), boneWeightsData.size() * sizeof(float));
+}
+
+void VROFBXExporter::exportAnimations(FbxScene *scene, FbxNode *node, const viro::Node::Skeleton &skeleton, viro::Node *outNode) {
+    FbxMesh *mesh = node->GetMesh();
+    
+    unsigned int numDeformers = mesh->GetDeformerCount();
+    if (numDeformers <= 0) {
+        pinfo("   Mesh had no deformers, not exporting animation");
+        return;
+    }
+
+    FbxAnimEvaluator *evaluator = scene->GetAnimationEvaluator();
+    
+    /*
+     Iterate through each animation stack. Each stack corresponds to a separate skeletal animation.
+     */
+    int numStacks = scene->GetSrcObjectCount(FbxCriteria::ObjectType(FbxAnimStack::ClassId));
+    for (int i = 0; i < numStacks; i++) {
+        viro::Node::SkeletalAnimation *skeletalAnimation = outNode->add_skeletal_animation();
+        
+        /*
+         Get metadata for the animation.
+         */
+        FbxAnimStack *animStack = scene->GetSrcObject<FbxAnimStack>(i);
+        FbxString animStackName = animStack->GetName();
+        FbxTakeInfo *take = scene->GetTakeInfo(animStackName);
+        FbxTime start = take->mLocalTimeSpan.GetStart();
+        FbxTime end = take->mLocalTimeSpan.GetStop();
+        FbxLongLong duration = end.GetMilliSeconds() - start.GetMilliSeconds();
+        
+        pinfo("      Animation duration %lld ms", duration);
+        
+        skeletalAnimation->set_name(animStackName.Buffer());
+        skeletalAnimation->set_duration(duration);
+
+        for (FbxLongLong i = start.GetFrameCount(FbxTime::eFrames30); i <= end.GetFrameCount(FbxTime::eFrames30); ++i) {
+            viro::Node::SkeletalAnimation::Frame *frame = skeletalAnimation->add_frame();
+            
+            FbxTime time;
+            time.SetFrame(i, FbxTime::eFrames30);
+            
+            frame->set_time(fmin(1.0, (float) time.GetMilliSeconds() / (float) duration));
+            for (unsigned int deformerIndex = 0; deformerIndex < numDeformers; ++deformerIndex) {
+                // There are many types of deformers in Maya, we only use skins
+                FbxSkin *skin = reinterpret_cast<FbxSkin*>(mesh->GetDeformer(deformerIndex, FbxDeformer::eSkin));
+                if (!skin) {
+                    continue;
+                }
+                
+                unsigned int numClusters = skin->GetClusterCount();
+                for (unsigned int clusterIndex = 0; clusterIndex < numClusters; ++clusterIndex) {
+                    FbxCluster *cluster = skin->GetCluster(clusterIndex);
+                    
+                    FbxNode *bone = cluster->GetLink();
+                    unsigned int boneIndex = findBoneIndexUsingName(bone->GetName(), skeleton);
+                    
+                    frame->add_bone_index(boneIndex);
+                    
+                    /*
+                     This computes the transform matrix for a given bone at a specific time. 
+                     When animating, we first multiply each vertex by the geometryBindingTranform:
+                     this takes the mesh from model space to its binding position in *world space*. 
+                     From there we can move to the bone's local space by multiplying by the inverse 
+                     of the bone's world transform. Once in the binding position, in bone local
+                     space, we can apply the animation.
+                     
+                     Note: the step described above is performed in the renderer. We encode the
+                     matrices required for this when exporting the skin.
+                     
+                     The transform that applies the animation is the boneWorldTransform: this 
+                     transform is *global*: it includes all bone transforms of its parents up the
+                     skeleton hierarchy, along with all node transforms. Therefore, when we multiply
+                     our vertex (in bone local space) by boneWorldTransform, we end up back in
+                     world space: except we've moved from our bind pose to our animated position.
+                     
+                     Now, in order to render in Viro, we cannot be in world space! We have to be back
+                     in bone space, because Viro will itself move the geometry back to model space in
+                     the skinner, and from there to world space in the shader. So to get back into bone
+                     local space, we multiply the vertex again by the inverseBoneBindingTransform.
+                     
+                     To summarize, each transformation moves us to a different position and coordinate
+                     space. This table shows the step-by-step process for getting from the model's 
+                     original position in model space to its animated position in model space. The first
+                     two steps are accomplished in exportSkin and are contained in the binding transform
+                     that we encode in the protobuf. The next two steps are accomplished here.
+                     
+                     1. Model space, encoded position  --> [geometryBindingTransform]    --> World space, bind position
+                     2. World space, bind position     --> [inverseBoneBindingTransform] --> Bone space, bind position
+                     3. Bone space, bind position      --> [boneWorldTransform]          --> World space, animated position
+                     4. World space, animated position --> [inverseBoneBindingTransform] --> Bone space, animated position
+                     */
+                    FbxAMatrix inverseNodeWorldTransform = evaluator->GetNodeGlobalTransform(node, time).Inverse();
+                    FbxAMatrix boneWorldTransform = evaluator->GetNodeGlobalTransform(bone, time);
+        
+                    FbxAMatrix boneBindingTransform;
+                    cluster->GetTransformLinkMatrix(boneBindingTransform);
+
+                    FbxAMatrix animationTransform = boneBindingTransform.Inverse() * boneWorldTransform;
+                    viro::Node::Matrix *transform = frame->add_transform();
+                    for (int t = 0; t < 16; t++) {
+                        transform->add_value(animationTransform.Get(t / 4, t % 4));
+                    }
+                }
+            }
+        }
+    }
+}
+
+unsigned int VROFBXExporter::findBoneIndexUsingName(const std::string &name, const viro::Node::Skeleton &skeleton) {
+    for (unsigned int i = 0; i < skeleton.bone_size(); ++i) {
+        if (skeleton.bone(i).name() == name) {
+            return i;
+        }
+    }
+    pabort("Skeleton information in FBX file is corrupted");
+}
+
+#pragma mark - Export Materials
+
 std::vector<int> VROFBXExporter::readMaterialToMeshMapping(FbxMesh *mesh, int numPolygons) {
     std::vector<int> materialMapping;
     
@@ -471,7 +834,7 @@ std::vector<int> VROFBXExporter::readMaterialToMeshMapping(FbxMesh *mesh, int nu
                         materialMapping.push_back(materialIndex);
                     }
                 }
-                break;
+                    break;
                     
                 case FbxGeometryElement::eAllSame: {
                     unsigned int materialIndex = materialIndices->GetAt(0);
@@ -479,7 +842,7 @@ std::vector<int> VROFBXExporter::readMaterialToMeshMapping(FbxMesh *mesh, int nu
                         materialMapping.push_back(materialIndex);
                     }
                 }
-                break;
+                    break;
                     
                 default:
                     pabort("Invalid mapping mode for material");
@@ -510,11 +873,13 @@ void VROFBXExporter::exportMaterial(FbxSurfaceMaterial *inMaterial, viro::Node::
     
     // Otherwise it's either Phong or Lambert
     if (inMaterial->GetClassId().Is(FbxSurfacePhong::ClassId)) {
+        pinfo("      Phong material");
+        FbxSurfacePhong *phong = reinterpret_cast<FbxSurfacePhong *>(inMaterial);
         outMaterial->set_lighting_model(viro::Node_Geometry_Material_LightingModel_Phong);
         
         // Diffuse Color
         viro::Node::Geometry::Material::Visual *diffuse = outMaterial->mutable_diffuse();
-
+        
         FbxDouble3 inDiffuse = reinterpret_cast<FbxSurfacePhong *>(inMaterial)->Diffuse;
         diffuse->add_color(static_cast<float>(inDiffuse.mData[0]));
         diffuse->add_color(static_cast<float>(inDiffuse.mData[1]));
@@ -529,9 +894,24 @@ void VROFBXExporter::exportMaterial(FbxSurfaceMaterial *inMaterial, viro::Node::
         // Reflection
         // double3 = reinterpret_cast<FbxSurfacePhong *>(inMaterial)->Reflection;
         
-        // Transparency Factor
-        FbxDouble transparency = reinterpret_cast<FbxSurfacePhong *>(inMaterial)->TransparencyFactor;
-        outMaterial->set_transparency(transparency);
+        // Transparency
+        if (phong->TransparencyFactor.IsValid() && phong->TransparentColor.IsValid()) {
+            FbxDouble transparencyFactor = reinterpret_cast<FbxSurfaceLambert *>(inMaterial)->TransparencyFactor.Get();
+            FbxDouble3 transparencyColor = reinterpret_cast<FbxSurfaceLambert *>(inMaterial)->TransparentColor.Get();
+            float transparency = (transparencyColor[0] * transparencyFactor +
+                                  transparencyColor[1] * transparencyFactor +
+                                  transparencyColor[2] * transparencyFactor) / 3.0;
+            outMaterial->set_transparency(1.0 - transparency);
+        }
+        else if (phong->TransparencyFactor.IsValid()) {
+            outMaterial->set_transparency(1.0 - phong->TransparencyFactor.Get());
+        }
+        else if (phong->TransparentColor.IsValid()) {
+            FbxDouble3 color = phong->TransparentColor.Get();
+            outMaterial->set_transparency(1.0 - (float)((color[0] + color[1] + color[2]) / 3.0));
+        }
+        
+        pinfo("         Opacity set to %f", outMaterial->transparency());
         
         // Shininess
         FbxDouble shininess = reinterpret_cast<FbxSurfacePhong *>(inMaterial)->Shininess;
@@ -545,12 +925,14 @@ void VROFBXExporter::exportMaterial(FbxSurfaceMaterial *inMaterial, viro::Node::
         outMaterial->set_fresnel_exponent(reflectionFactor);
     }
     else if (inMaterial->GetClassId().Is(FbxSurfaceLambert::ClassId)) {
+        pinfo("      Lambert material");
+        FbxSurfaceLambert *lambert = reinterpret_cast<FbxSurfaceLambert *>(inMaterial);
         outMaterial->set_lighting_model(viro::Node_Geometry_Material_LightingModel_Lambert);
-
+        
         // Diffuse Color
         viro::Node::Geometry::Material::Visual *diffuse = outMaterial->mutable_diffuse();
-
-        FbxDouble3 inDiffuse = reinterpret_cast<FbxSurfaceLambert *>(inMaterial)->Diffuse;
+        
+        FbxDouble3 inDiffuse = lambert->Diffuse;
         diffuse->add_color(static_cast<float>(inDiffuse.mData[0]));
         diffuse->add_color(static_cast<float>(inDiffuse.mData[1]));
         diffuse->add_color(static_cast<float>(inDiffuse.mData[2]));
@@ -558,9 +940,24 @@ void VROFBXExporter::exportMaterial(FbxSurfaceMaterial *inMaterial, viro::Node::
         // Emissive Color
         // double3 = reinterpret_cast<FbxSurfaceLambert *>(inMaterial)->Emissive;
         
-        // Transparency Factor
-        FbxDouble transparency = reinterpret_cast<FbxSurfaceLambert *>(inMaterial)->TransparencyFactor;
-        outMaterial->set_transparency(transparency);
+        // Transparency
+        if (lambert->TransparencyFactor.IsValid() && lambert->TransparentColor.IsValid()) {
+            FbxDouble transparencyFactor = reinterpret_cast<FbxSurfaceLambert *>(inMaterial)->TransparencyFactor.Get();
+            FbxDouble3 transparencyColor = reinterpret_cast<FbxSurfaceLambert *>(inMaterial)->TransparentColor.Get();
+            float transparency = (transparencyColor[0] * transparencyFactor +
+                                  transparencyColor[1] * transparencyFactor +
+                                  transparencyColor[2] * transparencyFactor) / 3.0;
+            outMaterial->set_transparency(1.0 - transparency);
+        }
+        else if (lambert->TransparencyFactor.IsValid()) {
+            outMaterial->set_transparency(1.0 - lambert->TransparencyFactor.Get());
+        }
+        else if (lambert->TransparentColor.IsValid()) {
+            FbxDouble3 color = lambert->TransparentColor.Get();
+            outMaterial->set_transparency(1.0 - (float)((color[0] + color[1] + color[2]) / 3.0));
+        }
+        
+        pinfo("         Opacity set to %f", outMaterial->transparency());
     }
     
     unsigned int textureIndex = 0;
@@ -582,7 +979,7 @@ void VROFBXExporter::exportMaterial(FbxSurfaceMaterial *inMaterial, viro::Node::
                         if (fileTexture) {
                             std::string textureName = extractTextureName(fileTexture);
                             pinfo("         Texture index %d, texture type [%s], texture name [%s]", textureIndex, textureType.c_str(),  textureName.c_str());
-
+                            
                             if (textureType == "DiffuseColor") {
                                 outMaterial->mutable_diffuse()->set_texture(textureName);
                             }
@@ -685,284 +1082,6 @@ void VROFBXExporter::exportHardwareMaterial(FbxSurfaceMaterial *inMaterial, cons
     if (outMaterial->has_normal()) {
         outMaterial->mutable_normal()->set_intensity(1.0);
     }
-}
-
-#pragma mark - Export Skeleton and Animations
-
-void VROFBXExporter::exportSkeleton(FbxNode *rootNode, viro::Node::Skeleton *outSkeleton) {
-    for (int i = 0; i < rootNode->GetChildCount(); ++i) {
-        FbxNode *node = rootNode->GetChild(i);
-        exportSkeletonRecursive(node, 0, 0, -1, outSkeleton);
-    }
-}
-
-void VROFBXExporter::exportSkeletonRecursive(FbxNode *node, int depth, int index, int parentIndex, viro::Node::Skeleton *outSkeleton) {
-    if (node->GetNodeAttribute() &&
-        node->GetNodeAttribute()->GetAttributeType() &&
-        node->GetNodeAttribute()->GetAttributeType() == FbxNodeAttribute::eSkeleton) {
-        
-        printf("   %*sExporting skeleton node [%s]\n", depth * 3, "", node->GetName());
-
-        viro::Node::Skeleton::Bone *bone = outSkeleton->add_bone();
-        bone->set_name(node->GetName());
-        bone->set_parent_index(parentIndex);
-    }
-    for (int i = 0; i < node->GetChildCount(); i++) {
-        exportSkeletonRecursive(node->GetChild(i), depth + 1, outSkeleton->bone_size(), index, outSkeleton);
-    }
-}
-
-bool SortByBoneWeight(const VROBoneIndexWeight &i, const VROBoneIndexWeight &j) {
-    return (i.weight > j.weight);
-}
-
-void VROFBXExporter::exportSkin(FbxNode *node, const viro::Node::Skeleton &skeleton, viro::Node::Geometry::Skin *outSkin) {
-    FbxMesh *mesh = node->GetMesh();
-    unsigned int numDeformers = mesh->GetDeformerCount();
-    
-    // Not understood, typically identity matrix
-    // FbxAMatrix geometryTransform = Utilities::GetGeometryTransformation(node);
-    
-    // Each FBX deformer contains clusters. Clusters each contain a link (which is a
-    // bone). Normally only one deformer per mesh.
-    
-    std::map<int, std::vector<VROBoneIndexWeight>> bones;
-    
-    for (unsigned int deformerIndex = 0; deformerIndex < numDeformers; ++deformerIndex) {
-        // There are many types of deformers in Maya, we only use skins
-        FbxSkin *skin = reinterpret_cast<FbxSkin*>(mesh->GetDeformer(deformerIndex, FbxDeformer::eSkin));
-        if (!skin) {
-            continue;
-        }
-        
-        unsigned int numClusters = skin->GetClusterCount();
-        pinfo("      Number of bones %d", numClusters);
-        
-        for (unsigned int clusterIndex = 0; clusterIndex < numClusters; ++clusterIndex) {
-            FbxCluster *cluster = skin->GetCluster(clusterIndex);
-            
-            std::string boneName = cluster->GetLink()->GetName();
-            unsigned int boneIndex = findBoneIndexUsingName(boneName, skeleton);
-            
-            FbxAMatrix transformMatrix;
-            FbxAMatrix transformLinkMatrix;
-            FbxAMatrix globalBindposeMatrix;
-            
-            cluster->GetTransformMatrix(transformMatrix);	// The transformation of the mesh at binding time
-            cluster->GetTransformLinkMatrix(transformLinkMatrix);	// The transformation of the cluster(joint) at binding time from bone space to world space
-            globalBindposeMatrix = transformLinkMatrix.Inverse() * transformMatrix;// * geometryTransform;
-            
-            /*
-             The transformMatrix takes the mesh (geometry) from its encoded position to the
-             bind position.
-             
-             The transformLinkMatrix takes the bone from its encoded position in bone space, to the
-             bind position in model space.
-             
-             The inverse of the transformLinkMatrix, therefore, takes the bone (or mesh!) from the
-             bind position in model space, down to the bind position in bone space.
-             
-             Therefore, the globalBindposeMatrix will take the geometry from its encoded
-             position, all the way down to the bind position in bone space.
-             */
-            viro::Node::Matrix *bt = outSkin->add_bind_transform();
-            for (int i = 0; i < 16; i++) {
-                bt->add_value(globalBindposeMatrix.Get(i % 4, i / 4));
-            }
-            
-            // Associate each joint with the control points it affects
-            unsigned int numIndices = cluster->GetControlPointIndicesCount();
-            for (unsigned int i = 0; i < numIndices; ++i) {
-                int controlPointIndex = cluster->GetControlPointIndices()[i];
-                float boneWeight = cluster->GetControlPointWeights()[i];
-                
-                // Associates a control point (vertex) with a bone, and gives
-                // the bone a weight on that control point
-                VROBoneIndexWeight bone(boneIndex, boneWeight);
-                bones[controlPointIndex].push_back(bone);
-            }
-        }
-    }
-    
-    
-    for (auto &kv : bones) {
-        std::vector<VROBoneIndexWeight> &bones = kv.second;
-        
-        // If there are more than kMaxBones bones, use only those with greatest
-        // weight, and renormalize
-        if (bones.size() > kMaxBones) {
-            std::sort(bones.begin(), bones.end(), SortByBoneWeight);
-            bones.erase(bones.begin() + kMaxBones, bones.end());
-            
-            float total = 0;
-            for (VROBoneIndexWeight &bone : bones) {
-                total += bone.weight;
-            }
-            for (VROBoneIndexWeight &bone : bones) {
-                bone.weight = (bone.weight / total);
-            }
-        }
-        
-        // Add extra dummy bones to each control point that has fewer than
-        // kMaxBones
-        for (size_t i = bones.size(); i < kMaxBones; ++i) {
-            bones.push_back({0, 0});
-        }
-    }
-    
-    pinfo("      Found bones for %lu control points", bones.size());
-    
-    /*
-     Export the geometry sources for the skin. Note this must be in the same order we 
-     follow in exportGeometry.
-     */
-    std::vector<float> boneIndicesData;
-    std::vector<float> boneWeightsData;
-    std::set<int> controlPointsNoBones;
-    
-    int numPolygons = mesh->GetPolygonCount();
-    for (unsigned int i = 0; i < numPolygons; i++) {
-        // We only support triangles
-        int polygonSize = mesh->GetPolygonSize(i);
-        passert (polygonSize == 3);
-        
-        for (int j = 0; j < polygonSize; j++) {
-            int controlPointIndex = mesh->GetPolygonVertex(i, j);
-            
-            auto it = bones.find(controlPointIndex);
-            if (it == bones.end()) {
-                // This is just so we only log the message once per control point instead
-                // of once per polygon
-                if (controlPointsNoBones.find(controlPointIndex) == controlPointsNoBones.end()) {
-                    controlPointsNoBones.insert(controlPointIndex);
-                    pinfo("         No bones found for control point %d", controlPointIndex);
-                }
-                
-                for (int b = 0; b < kMaxBones; b++) {
-                    boneIndicesData.push_back(0);
-                    boneWeightsData.push_back(0);
-                }
-            }
-            else {
-                std::vector<VROBoneIndexWeight> &boneData = it->second;
-                passert (boneData.size() == kMaxBones);
-                
-                if (kDebugGeometrySource) {
-                    pinfo("      Control point %d", controlPointIndex);
-                }
-                for (VROBoneIndexWeight &bone : boneData) {
-                    boneIndicesData.push_back(bone.index);
-                    boneWeightsData.push_back(bone.weight);
-                    
-                    if (kDebugGeometrySource) {
-                        pinfo("         bone-index: %d", bone.index);
-                        pinfo("         bone-weight: %f", bone.weight);
-                    }
-                }
-            }
-        }
-    }
-    
-    int intsPerVertex = 4;
-    int numVertices = (uint32_t)boneIndicesData.size() / intsPerVertex;
-    
-    viro::Node::Geometry::Source *boneIndices = outSkin->mutable_bone_indices();
-    boneIndices->set_semantic(viro::Node_Geometry_Source_Semantic_BoneIndices);
-    boneIndices->set_vertex_count(numVertices);
-    boneIndices->set_float_components(false);
-    boneIndices->set_components_per_vertex(4);
-    boneIndices->set_bytes_per_component(sizeof(int));
-    boneIndices->set_data_offset(0);
-    boneIndices->set_data_stride(sizeof(int) * 4);
-    boneIndices->set_data(boneIndicesData.data(), boneIndicesData.size() * sizeof(int));
-
-    viro::Node::Geometry::Source *boneWeights = outSkin->mutable_bone_weights();
-    boneWeights->set_semantic(viro::Node_Geometry_Source_Semantic_BoneWeights);
-    boneWeights->set_vertex_count(numVertices);
-    boneWeights->set_float_components(true);
-    boneWeights->set_components_per_vertex(4);
-    boneWeights->set_bytes_per_component(sizeof(float));
-    boneWeights->set_data_offset(0);
-    boneWeights->set_data_stride(sizeof(float) * 4);
-    boneWeights->set_data(boneWeightsData.data(), boneWeightsData.size() * sizeof(float));
-}
-
-void VROFBXExporter::exportAnimations(FbxScene *scene, FbxNode *node, const viro::Node::Skeleton &skeleton, viro::Node *outNode) {
-    FbxMesh *mesh = node->GetMesh();
-    
-    unsigned int numDeformers = mesh->GetDeformerCount();
-    if (numDeformers <= 0) {
-        pinfo("   Mesh had no deformers, not exporting animation");
-        return;
-    }
-
-    FbxAnimEvaluator *evaluator = scene->GetAnimationEvaluator();
-    
-    /*
-     Iterate through each animation stack. Each stack corresponds to a separate skeletal animation.
-     */
-    int numStacks = scene->GetSrcObjectCount(FbxCriteria::ObjectType(FbxAnimStack::ClassId));
-    for (int i = 0; i < numStacks; i++) {
-        viro::Node::SkeletalAnimation *skeletalAnimation = outNode->add_skeletal_animation();
-        
-        /*
-         Get metadata for the animation.
-         */
-        FbxAnimStack *animStack = scene->GetSrcObject<FbxAnimStack>(i);
-        FbxString animStackName = animStack->GetName();
-        FbxTakeInfo *take = scene->GetTakeInfo(animStackName);
-        FbxTime start = take->mLocalTimeSpan.GetStart();
-        FbxTime end = take->mLocalTimeSpan.GetStop();
-        FbxLongLong duration = end.GetFrameCount(FbxTime::eFrames30) - start.GetFrameCount(FbxTime::eFrames30) + 1;
-        
-        pinfo("      Animation duration %lld", duration);
-        skeletalAnimation->set_name(animStackName.Buffer());
-
-        for (FbxLongLong i = start.GetFrameCount(FbxTime::eFrames30); i <= end.GetFrameCount(FbxTime::eFrames30); ++i) {
-            viro::Node::SkeletalAnimation::Frame *frame = skeletalAnimation->add_frame();
-            
-            FbxTime time;
-            time.SetFrame(i, FbxTime::eFrames30);
-            
-            frame->set_time(time.GetMilliSeconds());
-            pinfo("      Frame %lld set milliseconds %lld", i, frame->time());
-            
-            for (unsigned int deformerIndex = 0; deformerIndex < numDeformers; ++deformerIndex) {
-                // There are many types of deformers in Maya, we only use skins
-                FbxSkin *skin = reinterpret_cast<FbxSkin*>(mesh->GetDeformer(deformerIndex, FbxDeformer::eSkin));
-                if (!skin) {
-                    continue;
-                }
-                
-                unsigned int numClusters = skin->GetClusterCount();
-                for (unsigned int clusterIndex = 0; clusterIndex < numClusters; ++clusterIndex) {
-                    FbxCluster *cluster = skin->GetCluster(clusterIndex);
-                    
-                    FbxNode *bone = cluster->GetLink();
-                    unsigned int boneIndex = findBoneIndexUsingName(bone->GetName(), skeleton);
-                    
-                    frame->add_bone_index(boneIndex);
-                    // pinfo("      Animating bone index %d", boneIndex);
-                    
-                    FbxAMatrix &localTransform = evaluator->GetNodeLocalTransform(bone, time);
-                    viro::Node::Matrix *transform = frame->add_transform();
-                    for (int t = 0; t < 16; t++) {
-                        transform->add_value(localTransform.Get(t % 4, t / 4));
-                        // pinfo("       mtx[%d]: %f", t, localTransform.Get(t % 4, t / 4));
-                    }
-                }
-            }
-        }
-    }
-}
-
-unsigned int VROFBXExporter::findBoneIndexUsingName(const std::string &name, const viro::Node::Skeleton &skeleton) {
-    for (unsigned int i = 0; i < skeleton.bone_size(); ++i) {
-        if (skeleton.bone(i).name() == name) {
-            return i;
-        }
-    }
-    pabort("Skeleton information in FBX file is corrupted");
 }
 
 #pragma mark - Printing (Debug)
@@ -1269,12 +1388,21 @@ void VROFBXExporter::printGeometry(FbxGeometry *pGeometry) {
 
 std::string VROFBXExporter::extractTextureName(FbxFileTexture *texture) {
     std::string fileName = std::string(texture->GetFileName());
-    size_t lastPathComponent = fileName.find_last_of("/");
-    
     std::string textureName = fileName;
+    
+    // First check '/' path separator
+    size_t lastPathComponent = fileName.find_last_of("/");
     if (lastPathComponent != std::string::npos) {
         textureName = fileName.substr(lastPathComponent + 1, fileName.size() - lastPathComponent - 1);
     }
+    // Otherwise try '\\' path separator
+    else {
+        lastPathComponent = fileName.find_last_of("\\");
+        if (lastPathComponent != std::string::npos) {
+            textureName = fileName.substr(lastPathComponent + 1, fileName.size() - lastPathComponent - 1);
+        }
+    }
+    
     return textureName;
 }
 

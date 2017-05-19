@@ -9,12 +9,14 @@ message Node {
         repeated float value = 1;
     }
 
-    repeated float position = 1;
-    repeated float scale = 2;
-    repeated float rotation = 3;
+    string name = 1;
 
-    int32 rendering_order = 4;
-    float opacity = 5;
+    repeated float position = 2;
+    repeated float scale = 3;
+    repeated float rotation = 4;
+
+    int32 rendering_order = 5;
+    float opacity = 6;
 
     message Geometry {
         string name = 1;
@@ -132,13 +134,14 @@ message Node {
         repeated Material material = 5;
 
         message Skin {
-            repeated Matrix bind_transform = 1;
-            Source bone_indices = 2;
-            Source bone_weights = 3;
+            Matrix geometry_bind_transform = 1;
+            repeated Matrix bind_transform = 2;
+            Source bone_indices = 3;
+            Source bone_weights = 4;
         }
         Skin skin = 6;
     }
-    Geometry geometry = 6;
+    Geometry geometry = 7;
 
     message Skeleton {
         message Bone {
@@ -147,19 +150,21 @@ message Node {
         }
         repeated Bone bone = 1;
     }
-    Skeleton skeleton = 7;
+    Skeleton skeleton = 8;
 
     message SkeletalAnimation {
         message Frame {
-            int64 time = 1;
+            // Time ranges from 0 to 1, indicates fraction of duration
+            float time = 1;
             repeated int32 bone_index = 2;
             repeated Matrix transform = 3;
         }
 
         string name = 1;
         repeated Frame frame = 2;
+        int64 duration = 3;
     }
-    repeated SkeletalAnimation skeletal_animation = 8;
+    repeated SkeletalAnimation skeletal_animation = 9;
 
     message Light {
         string name = 1;
@@ -186,12 +191,12 @@ message Node {
         float spot_inner_angle = 11;
         float spot_outer_angle = 12;
     }
-    repeated Light light = 9;
+    repeated Light light = 10;
 
     message Camera {
         repeated float position = 1;
     }
-    Camera camera = 10;
+    Camera camera = 11;
 
-    repeated Node subnode = 11;
+    repeated Node subnode = 12;
 }

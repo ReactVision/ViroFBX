@@ -20,12 +20,20 @@ int main(int argc, const char * argv[]) {
       std::string svenFBX = "/Users/radvani/Source/ViroFBX/macos/ViroFBX/Hyperspace_Madness_Sven.fbx";
       std::string svenProto = "/Users/radvani/Source/ViroRenderer/ios/ViroSample/sven.proto";
 
+      std::string wormFBX = "/Users/radvani/Source/ViroFBX/macos/ViroFBX/worm_test.fbx";
+      std::string wormProto = "/Users/radvani/Source/ViroRenderer/ios/ViroSample/worm.proto";
+      
+      std::string foxFBX = "/Users/radvani/Source/ViroFBX/macos/ViroFBX/fox.fbx";
+      std::string foxProto = "/Users/radvani/Source/ViroRenderer/ios/ViroSample/fox.proto";
 
       VROFBXExporter *exporter = new VROFBXExporter();
-//      exporter->exportFBX(heartFBX, heartProto);
-      exporter->exportFBX(minionFBX, minionProto);
-//      exporter->debugPrint(minionFBX);
-//      exporter->exportFBX(svenFBX, svenProto);
+//    exporter->exportFBX(heartFBX, heartProto);
+//    exporter->exportFBX(minionFBX, minionProto);
+//    exporter->debugPrint(minionFBX);
+//    exporter->debugPrint(foxFBX);
+//    exporter->exportFBX(svenFBX, svenProto);
+      exporter->exportFBX(wormFBX, wormProto);
+      exporter->exportFBX(foxFBX, foxProto);
       
   }
   return 0;
