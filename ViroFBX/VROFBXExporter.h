@@ -69,6 +69,7 @@ private:
     std::vector<int> readMaterialToMeshMapping(FbxMesh *mesh, int numPolygons);
     unsigned int findBoneIndexUsingName(const std::string &name, const viro::Node::Skeleton &skeleton);
     bool isExportableNode(FbxNode *node);
+    FbxAMatrix getGeometryMatrix(FbxNode *node);
     
 #pragma mark - Print Methods
     

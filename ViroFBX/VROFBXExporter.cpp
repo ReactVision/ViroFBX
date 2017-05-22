@@ -160,6 +160,7 @@ void VROFBXExporter::exportNode(FbxScene *scene, FbxNode *node, const viro::Node
     
     FbxVector4 geoTranslation = node->GetGeometricTranslation(FbxNode::eSourcePivot);
     FbxVector4 geoRotation = node->GetGeometricRotation(FbxNode::eSourcePivot);
+    FbxVector4 geoScale = node->GetGeometricScaling(FbxNode::eSourcePivot);
     
     pinfo("   Geo-only translation %f, %f, %f", geoTranslation[0], geoTranslation[1], geoTranslation[2]);
     pinfo("   Geo-only rotation %f, %f, %f", geoRotation[0], geoRotation[1], geoRotation[2]);
@@ -476,6 +477,18 @@ FbxVector4 VROFBXExporter::readTangent(FbxMesh *mesh, int controlPointIndex, int
     return {};
 }
 
+FbxAMatrix VROFBXExporter::getGeometryMatrix(FbxNode *node) {
+    /*
+     The geometry transform only applies to the geometry of a node, and does
+     not cascade into child nodes.
+     */
+    const FbxVector4 lT = node->GetGeometricTranslation(FbxNode::eSourcePivot);
+    const FbxVector4 lR = node->GetGeometricRotation(FbxNode::eSourcePivot);
+    const FbxVector4 lS = node->GetGeometricScaling(FbxNode::eSourcePivot);
+    
+    return FbxAMatrix(lT, lR, lS);
+}
+
 #pragma mark - Export Skeleton and Animations
 
 void VROFBXExporter::exportSkeleton(FbxNode *rootNode, viro::Node::Skeleton *outSkeleton) {
@@ -539,6 +552,7 @@ void VROFBXExporter::exportSkin(FbxNode *node, const viro::Node::Skeleton &skele
         FbxAMatrix geometryBindingTransform;
         if (numClusters > 0) {
             skin->GetCluster(0)->GetTransformMatrix(geometryBindingTransform);
+            geometryBindingTransform *= getGeometryMatrix(node);
             
             viro::Node::Matrix *gbt = outSkin->mutable_geometry_bind_transform();
             for (int i = 0; i < 16; i++) {
@@ -563,6 +577,8 @@ void VROFBXExporter::exportSkin(FbxNode *node, const viro::Node::Skeleton &skele
              */
             FbxAMatrix meshBindingTransform;
             cluster->GetTransformMatrix(meshBindingTransform);
+            meshBindingTransform *= getGeometryMatrix(node);
+            
             for (int i = 0; i < 4; i++) {
                 for (int j = 0; j < 4; j++) {
                     passert (fabs(geometryBindingTransform.Get(i, j) - meshBindingTransform.Get(i, j)) < .0001);
