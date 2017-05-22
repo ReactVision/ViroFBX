@@ -1,6 +1,6 @@
 /****************************************************************************************
  
-   Copyright (C) 2015 Autodesk, Inc.
+   Copyright (C) 2014 Autodesk, Inc.
    All rights reserved.
  
    Use of this software is subject to the terms of the Autodesk license agreement
@@ -294,9 +294,9 @@ public:
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 	virtual FbxObject& Copy(const FbxObject& pObject);
 
-    static const char* CurveNodeNameFrom(const char* pName);
-	static bool EvaluateChannels(FbxAnimCurveNode* pCurveNode, double* pData, unsigned int pCount, FbxTime pTime);
+    void Evaluate(double* pData, FbxTime pTime);
 
+    KFCurveNode* GetKFCurveNode(bool pNoCreate=false);
     void ReleaseKFCurveNode();
     void SyncChannelsWithKFCurve();
 
@@ -304,13 +304,9 @@ public:
 	bool SetQuaternionInterpolation(unsigned short pVal); 
     unsigned short GetQuaternionInterpolation() { return mQuaternionInterpolation; };
     void SetKFCurveNodeLayerType(FbxProperty& pProp);
-	KFCurveNode* GetKFCurveNode(bool pNoCreate=false);
 
-private:
-	friend class FbxAnimCurveFilterMatrixConverter;
-	friend class FbxAnimEvalClassic;
-    void Evaluate(double* pData, FbxTime pTime);
-    
+    static const char* CurveNodeNameFrom(const char* pName);
+
 protected:
 	virtual void Construct(const FbxObject* pFrom);
     virtual void Destruct(bool pRecursive);

@@ -73,6 +73,37 @@ FbxScene *VROFBXExporter::loadFBX(std::string fbxPath) {
     importer->Import(scene);
     importer->Destroy();
     
+   /*
+    Convert the file to the default axis sytem.
+    */
+    FbxAxisSystem axisSystem;
+    static const FbxAxisSystem::EUpVector defaultUpAxis = FbxAxisSystem::eYAxis;
+    static const FbxAxisSystem::EFrontVector defaultFrontAxis = FbxAxisSystem::eParityOdd;
+    static const FbxAxisSystem::ECoordSystem defaultCoordSystem = FbxAxisSystem::eRightHanded;
+    
+    FbxAxisSystem origAxisSystem = scene->GetGlobalSettings().GetAxisSystem();
+    int upAxisSign;
+    FbxAxisSystem::EUpVector upAxis = origAxisSystem.GetUpVector(upAxisSign);
+    pinfo("   Original up axis %d, sign %d", (int)upAxis, upAxisSign);
+    
+    int forwardAxisSign;
+    FbxAxisSystem::EFrontVector forwardAxis = origAxisSystem.GetFrontVector(forwardAxisSign);
+    pinfo("   Original forward axis %d, sign %d", (int)forwardAxis, forwardAxisSign);
+    
+    FbxAxisSystem::ECoordSystem coordSystem = origAxisSystem.GetCoorSystem();
+    pinfo("   Coordinate system %d", (int)coordSystem);
+
+    FbxAxisSystem axis(defaultUpAxis, defaultFrontAxis, defaultCoordSystem);
+    axis.ConvertScene(scene);
+    
+    // Bake in the pivot information: pre-rotation, post-rotation, rotation pivot, scale pivot,
+    // etc., into the local transforms (node rotation, translation scale). While Viro supports
+    // pivots, it does not support rotation and scale offsets
+    //
+    // NOTE: This apparently stopped working after FBX SDK 2015 (tried in versions 2016 and 2018)
+    //       https://forums.autodesk.com/t5/fbx-forum/issue-with-convertpivotanimationrecursive-and-default-transform/td-p/6887073
+    scene->GetRootNode()->ResetPivotSetAndConvertAnimation(kAnimationFPS);
+
     return scene;
 }
 
@@ -90,6 +121,22 @@ void VROFBXExporter::exportFBX(std::string fbxPath, std::string destPath) {
     viro::Node *outNode = new viro::Node();
 
     FbxNode *rootNode = scene->GetRootNode();
+    
+    FbxDouble3 translation = rootNode->LclTranslation.Get();
+    outNode->add_position(translation[0]);
+    outNode->add_position(translation[1]);
+    outNode->add_position(translation[2]);
+    
+    FbxDouble3 scaling = rootNode->LclScaling.Get();
+    outNode->add_scale(scaling[0]);
+    outNode->add_scale(scaling[1]);
+    outNode->add_scale(scaling[2]);
+    
+    FbxDouble3 rotation = rootNode->LclRotation.Get();
+    outNode->add_rotation(rotation[0]);
+    outNode->add_rotation(rotation[1]);
+    outNode->add_rotation(rotation[2]);
+    
     if (rootNode) {
         pinfo("Exporting skeleton");
         // The skeleton is exported into the root node
@@ -143,20 +190,19 @@ void VROFBXExporter::exportNode(FbxScene *scene, FbxNode *node, const viro::Node
     outNode->add_position(translation[0]);
     outNode->add_position(translation[1]);
     outNode->add_position(translation[2]);
+    pinfo("   Node translation %f, %f, %f", translation[0], translation[1], translation[2]);
     
     FbxDouble3 scaling = node->LclScaling.Get();
     outNode->add_scale(scaling[0]);
     outNode->add_scale(scaling[1]);
     outNode->add_scale(scaling[2]);
-    
+    pinfo("   Node scale %f, %f, %f", scaling[0], scaling[1], scaling[2]);
+
     FbxDouble3 rotation = node->LclRotation.Get();
     outNode->add_rotation(rotation[0]);
     outNode->add_rotation(rotation[1]);
     outNode->add_rotation(rotation[2]);
-    
-    pinfo("   Node translation %f, %f, %f", translation[0], translation[1], translation[2]);
     pinfo("   Node rotation %f, %f, %f", rotation[0], rotation[1], rotation[2]);
-    pinfo("   Node scale %f, %f, %f", scaling[0], scaling[1], scaling[2]);
     
     FbxVector4 geoTranslation = node->GetGeometricTranslation(FbxNode::eSourcePivot);
     FbxVector4 geoRotation = node->GetGeometricRotation(FbxNode::eSourcePivot);
