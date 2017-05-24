@@ -102,6 +102,7 @@ FbxScene *VROFBXExporter::loadFBX(std::string fbxPath) {
     //
     // NOTE: This apparently stopped working after FBX SDK 2015 (tried in versions 2016 and 2018)
     //       https://forums.autodesk.com/t5/fbx-forum/issue-with-convertpivotanimationrecursive-and-default-transform/td-p/6887073
+    pinfo("Baking pivots...");
     scene->GetRootNode()->ResetPivotSetAndConvertAnimation(kAnimationFPS);
 
     return scene;
@@ -566,14 +567,12 @@ bool SortByBoneWeight(const VROBoneIndexWeight &i, const VROBoneIndexWeight &j) 
 
 void VROFBXExporter::exportSkin(FbxNode *node, const viro::Node::Skeleton &skeleton, viro::Node::Geometry::Skin *outSkin) {
     FbxMesh *mesh = node->GetMesh();
+    
+    /*
+     Each FBX deformer contains clusters. Clusters each contain a link (which is a
+     bone). Normally only one deformer per mesh.
+     */
     unsigned int numDeformers = mesh->GetDeformerCount();
-    
-    // Not understood, typically identity matrix
-    // FbxAMatrix geometryTransform = Utilities::GetGeometryTransformation(node);
-    
-    // Each FBX deformer contains clusters. Clusters each contain a link (which is a
-    // bone). Normally only one deformer per mesh.
-    
     std::map<int, std::vector<VROBoneIndexWeight>> bones;
     
     for (unsigned int deformerIndex = 0; deformerIndex < numDeformers; ++deformerIndex) {
@@ -616,6 +615,16 @@ void VROFBXExporter::exportSkin(FbxNode *node, const viro::Node::Skeleton &skele
              */
             std::string boneName = cluster->GetLink()->GetName();
             unsigned int boneIndex = findBoneIndexUsingName(boneName, skeleton);
+            
+            /*
+             If a model has more bones that we support, we ignore the bones that are beyond
+             our max bone index. This will likely ruin the animation, so log a warning.
+             */
+            if (boneIndex >= kMaxBones) {
+                pinfo("Warning: Viro only supports %d bones: bone %d will be discarded, animations may be skewed",
+                      kMaxBones, boneIndex);
+                continue;
+            }
         
             /*
              Sanity check: the transform matrix for each cluster's parent node should
@@ -652,8 +661,10 @@ void VROFBXExporter::exportSkin(FbxNode *node, const viro::Node::Skeleton &skele
                 int controlPointIndex = cluster->GetControlPointIndices()[i];
                 float boneWeight = cluster->GetControlPointWeights()[i];
                 
-                // Associates a control point (vertex) with a bone, and gives
-                // the bone a weight on that control point
+                /*
+                 Associates a control point (vertex) with a bone, and gives
+                 the bone a weight on that control point.
+                 */
                 VROBoneIndexWeight bone(boneIndex, boneWeight);
                 bones[controlPointIndex].push_back(bone);
             }
@@ -663,11 +674,11 @@ void VROFBXExporter::exportSkin(FbxNode *node, const viro::Node::Skeleton &skele
     for (auto &kv : bones) {
         std::vector<VROBoneIndexWeight> &bones = kv.second;
         
-        // If there are more than kMaxBones bones, use only those with greatest
+        // If there are more than kMaxBoneInfluences bones, use only those with greatest
         // weight, and renormalize
-        if (bones.size() > kMaxBones) {
+        if (bones.size() > kMaxBoneInfluences) {
             std::sort(bones.begin(), bones.end(), SortByBoneWeight);
-            bones.erase(bones.begin() + kMaxBones, bones.end());
+            bones.erase(bones.begin() + kMaxBoneInfluences, bones.end());
             
             float total = 0;
             for (VROBoneIndexWeight &bone : bones) {
@@ -679,8 +690,8 @@ void VROFBXExporter::exportSkin(FbxNode *node, const viro::Node::Skeleton &skele
         }
         
         // Add extra dummy bones to each control point that has fewer than
-        // kMaxBones
-        for (size_t i = bones.size(); i < kMaxBones; ++i) {
+        // kMaxBoneInfluences
+        for (size_t i = bones.size(); i < kMaxBoneInfluences; ++i) {
             bones.push_back({0, 0});
         }
     }
@@ -713,14 +724,14 @@ void VROFBXExporter::exportSkin(FbxNode *node, const viro::Node::Skeleton &skele
                     pinfo("         No bones found for control point %d", controlPointIndex);
                 }
                 
-                for (int b = 0; b < kMaxBones; b++) {
+                for (int b = 0; b < kMaxBoneInfluences; b++) {
                     boneIndicesData.push_back(0);
                     boneWeightsData.push_back(0);
                 }
             }
             else {
                 std::vector<VROBoneIndexWeight> &boneData = it->second;
-                passert (boneData.size() == kMaxBones);
+                passert (boneData.size() == kMaxBoneInfluences);
                 
                 if (kDebugGeometrySource) {
                     pinfo("      Control point %d", controlPointIndex);
@@ -738,27 +749,27 @@ void VROFBXExporter::exportSkin(FbxNode *node, const viro::Node::Skeleton &skele
         }
     }
     
-    int intsPerVertex = kMaxBones;
+    int intsPerVertex = kMaxBoneInfluences;
     int numVertices = (uint32_t)boneIndicesData.size() / intsPerVertex;
     
     viro::Node::Geometry::Source *boneIndices = outSkin->mutable_bone_indices();
     boneIndices->set_semantic(viro::Node_Geometry_Source_Semantic_BoneIndices);
     boneIndices->set_vertex_count(numVertices);
     boneIndices->set_float_components(false);
-    boneIndices->set_components_per_vertex(kMaxBones);
+    boneIndices->set_components_per_vertex(kMaxBoneInfluences);
     boneIndices->set_bytes_per_component(sizeof(int));
     boneIndices->set_data_offset(0);
-    boneIndices->set_data_stride(sizeof(int) * kMaxBones);
+    boneIndices->set_data_stride(sizeof(int) * kMaxBoneInfluences);
     boneIndices->set_data(boneIndicesData.data(), boneIndicesData.size() * sizeof(int));
 
     viro::Node::Geometry::Source *boneWeights = outSkin->mutable_bone_weights();
     boneWeights->set_semantic(viro::Node_Geometry_Source_Semantic_BoneWeights);
     boneWeights->set_vertex_count(numVertices);
     boneWeights->set_float_components(true);
-    boneWeights->set_components_per_vertex(kMaxBones);
+    boneWeights->set_components_per_vertex(kMaxBoneInfluences);
     boneWeights->set_bytes_per_component(sizeof(float));
     boneWeights->set_data_offset(0);
-    boneWeights->set_data_stride(sizeof(float) * kMaxBones);
+    boneWeights->set_data_stride(sizeof(float) * kMaxBoneInfluences);
     boneWeights->set_data(boneWeightsData.data(), boneWeightsData.size() * sizeof(float));
 }
 

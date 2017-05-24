@@ -15,7 +15,18 @@
 #include <map>
 #include "Nodes.pb.h"
 
-static const int kMaxBones = 4;
+/*
+ Maximum number of bones that can influence each vertex.
+ */
+static const int kMaxBoneInfluences = 4;
+
+/*
+ Maximum number of bones in a node. Keep in sync with:
+ 
+ ViroRenderer::VROBoneUBO.h and
+ ViroRenderer::skinning_vsh.glsl
+ */
+static const int kMaxBones = 192;
 
 class VROBoneIndexWeight {
 public:
