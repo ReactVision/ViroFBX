@@ -163,6 +163,7 @@ message Node {
         string name = 1;
         repeated Frame frame = 2;
         int64 duration = 3;
+        bool has_scaling = 4;
     }
     repeated SkeletalAnimation skeletal_animation = 9;
 

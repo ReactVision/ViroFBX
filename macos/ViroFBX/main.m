@@ -11,7 +11,7 @@
 
 int main(int argc, const char * argv[]) {
   @autoreleasepool {
-      std::string heartFBX = "/Users/radvani/Source/ViroFBX/macos/ViroFBX/heart_beat_triangles.fbx";
+      std::string heartFBX = "/Users/radvani/Source/ViroFBX/macos/ViroFBX/heart_beat_anim.fbx";
       std::string heartProto = "/Users/radvani/Source/ViroRenderer/ios/ViroSample/heart.vrx";
       
       std::string minionFBX = "/Users/radvani/Source/ViroFBX/macos/ViroFBX/Hyperspace_Madness_Killamari_Minion.fbx";
@@ -27,12 +27,12 @@ int main(int argc, const char * argv[]) {
       std::string foxProto = "/Users/radvani/Source/ViroRenderer/ios/ViroSample/fox.vrx";
 
       VROFBXExporter *exporter = new VROFBXExporter();
+      //exporter->debugPrint(heartFBX);
       exporter->exportFBX(heartFBX, heartProto);
-      exporter->exportFBX(minionFBX, minionProto);
-      exporter->exportFBX(svenFBX, svenProto);
-      exporter->exportFBX(wormFBX, wormProto);
-      exporter->exportFBX(foxFBX, foxProto);
-      
+      //exporter->exportFBX(minionFBX, minionProto);
+      //exporter->exportFBX(svenFBX, svenProto);
+      //exporter->exportFBX(wormFBX, wormProto);
+      //exporter->exportFBX(foxFBX, foxProto);
   }
   return 0;
 }

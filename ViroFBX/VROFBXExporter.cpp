@@ -14,6 +14,7 @@
 
 static const bool kDebugGeometrySource = false;
 static const int kAnimationFPS = 30;
+static const float kEpsilon = 0.00000001;
 
 FbxString GetAttributeTypeName(FbxNodeAttribute::EType type) {
     switch(type) {
@@ -579,6 +580,7 @@ void VROFBXExporter::exportSkin(FbxNode *node, const viro::Node::Skeleton &skele
         // There are many types of deformers in Maya, we only use skins
         FbxSkin *skin = reinterpret_cast<FbxSkin*>(mesh->GetDeformer(deformerIndex, FbxDeformer::eSkin));
         if (!skin) {
+            pinfo("Unsupported deformer");
             continue;
         }
         
@@ -805,6 +807,7 @@ void VROFBXExporter::exportAnimations(FbxScene *scene, FbxNode *node, const viro
         
         skeletalAnimation->set_name(animStackName.Buffer());
         skeletalAnimation->set_duration(duration);
+        skeletalAnimation->set_has_scaling(false);
 
         for (FbxLongLong i = start.GetFrameCount(FbxTime::eFrames30); i <= end.GetFrameCount(FbxTime::eFrames30); ++i) {
             viro::Node::SkeletalAnimation::Frame *frame = skeletalAnimation->add_frame();
@@ -862,7 +865,6 @@ void VROFBXExporter::exportAnimations(FbxScene *scene, FbxNode *node, const viro
                      3. Bone space, bind position      --> [boneWorldTransform]          --> World space, animated position
                      4. World space, animated position --> [inverseBoneBindingTransform] --> Bone space, animated position
                      */
-                    FbxAMatrix inverseNodeWorldTransform = evaluator->GetNodeGlobalTransform(node, time).Inverse();
                     FbxAMatrix boneWorldTransform = evaluator->GetNodeGlobalTransform(bone, time);
         
                     FbxAMatrix boneBindingTransform;
@@ -872,6 +874,14 @@ void VROFBXExporter::exportAnimations(FbxScene *scene, FbxNode *node, const viro
                     viro::Node::Matrix *transform = frame->add_transform();
                     for (int t = 0; t < 16; t++) {
                         transform->add_value(animationTransform.Get(t / 4, t % 4));
+                    }
+                    
+                    // Indicate if there is a scaling component of the transform
+                    FbxVector4 scaleT = animationTransform.GetS();
+                    if (fabs(scaleT.mData[0] - 1.0) > kEpsilon ||
+                        fabs(scaleT.mData[1] - 1.0) > kEpsilon ||
+                        fabs(scaleT.mData[2] - 1.0) > kEpsilon) {
+                        skeletalAnimation->set_has_scaling(true);
                     }
                 }
             }
