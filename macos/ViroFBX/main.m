@@ -29,10 +29,10 @@ int main(int argc, const char * argv[]) {
       VROFBXExporter *exporter = new VROFBXExporter();
       //exporter->debugPrint(heartFBX);
       exporter->exportFBX(heartFBX, heartProto);
-      //exporter->exportFBX(minionFBX, minionProto);
-      //exporter->exportFBX(svenFBX, svenProto);
-      //exporter->exportFBX(wormFBX, wormProto);
-      //exporter->exportFBX(foxFBX, foxProto);
+      exporter->exportFBX(minionFBX, minionProto);
+      exporter->exportFBX(svenFBX, svenProto);
+      exporter->exportFBX(wormFBX, wormProto);
+      exporter->exportFBX(foxFBX, foxProto);
   }
   return 0;
 }

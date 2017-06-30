@@ -1065,12 +1065,27 @@ void VROFBXExporter::exportMaterial(FbxSurfaceMaterial *inMaterial, viro::Node::
                             
                             if (textureType == "DiffuseColor") {
                                 outMaterial->mutable_diffuse()->set_texture(textureName);
+                                outMaterial->mutable_diffuse()->set_wrap_mode_s(convert(texture->GetWrapModeU()));
+                                outMaterial->mutable_diffuse()->set_wrap_mode_t(convert(texture->GetWrapModeV()));
+                                outMaterial->mutable_diffuse()->set_minification_filter(viro::Node_Geometry_Material_Visual_FilterMode_Linear);
+                                outMaterial->mutable_diffuse()->set_magnification_filter(viro::Node_Geometry_Material_Visual_FilterMode_Linear);
+                                outMaterial->mutable_diffuse()->set_mip_filter(viro::Node_Geometry_Material_Visual_FilterMode_Linear);
                             }
                             else if (textureType == "SpecularColor") {
                                 outMaterial->mutable_specular()->set_texture(textureName);
+                                outMaterial->mutable_specular()->set_wrap_mode_s(convert(texture->GetWrapModeU()));
+                                outMaterial->mutable_specular()->set_wrap_mode_t(convert(texture->GetWrapModeV()));
+                                outMaterial->mutable_specular()->set_minification_filter(viro::Node_Geometry_Material_Visual_FilterMode_Linear);
+                                outMaterial->mutable_specular()->set_magnification_filter(viro::Node_Geometry_Material_Visual_FilterMode_Linear);
+                                outMaterial->mutable_specular()->set_mip_filter(viro::Node_Geometry_Material_Visual_FilterMode_Linear);
                             }
                             else if (textureType == "Bump") {
                                 outMaterial->mutable_normal()->set_texture(textureName);
+                                outMaterial->mutable_normal()->set_wrap_mode_s(convert(texture->GetWrapModeU()));
+                                outMaterial->mutable_normal()->set_wrap_mode_t(convert(texture->GetWrapModeV()));
+                                outMaterial->mutable_normal()->set_minification_filter(viro::Node_Geometry_Material_Visual_FilterMode_Linear);
+                                outMaterial->mutable_normal()->set_magnification_filter(viro::Node_Geometry_Material_Visual_FilterMode_Linear);
+                                outMaterial->mutable_normal()->set_mip_filter(viro::Node_Geometry_Material_Visual_FilterMode_Linear);
                             }
                         }
                     }
@@ -1135,12 +1150,27 @@ void VROFBXExporter::exportHardwareMaterial(FbxSurfaceMaterial *inMaterial, cons
                     
                     if (endsWith(entryText, "DiffuseTexture")) {
                         outMaterial->mutable_diffuse()->set_texture(textureName);
+                        outMaterial->mutable_diffuse()->set_wrap_mode_s(viro::Node_Geometry_Material_Visual_WrapMode_Clamp);
+                        outMaterial->mutable_diffuse()->set_wrap_mode_t(viro::Node_Geometry_Material_Visual_WrapMode_Clamp);
+                        outMaterial->mutable_diffuse()->set_minification_filter(viro::Node_Geometry_Material_Visual_FilterMode_Linear);
+                        outMaterial->mutable_diffuse()->set_magnification_filter(viro::Node_Geometry_Material_Visual_FilterMode_Linear);
+                        outMaterial->mutable_diffuse()->set_mip_filter(viro::Node_Geometry_Material_Visual_FilterMode_Linear);
                     }
                     else if (endsWith(entryText, "SpecularTexture")) {
                         outMaterial->mutable_specular()->set_texture(textureName);
+                        outMaterial->mutable_specular()->set_wrap_mode_s(viro::Node_Geometry_Material_Visual_WrapMode_Clamp);
+                        outMaterial->mutable_specular()->set_wrap_mode_t(viro::Node_Geometry_Material_Visual_WrapMode_Clamp);
+                        outMaterial->mutable_specular()->set_minification_filter(viro::Node_Geometry_Material_Visual_FilterMode_Linear);
+                        outMaterial->mutable_specular()->set_magnification_filter(viro::Node_Geometry_Material_Visual_FilterMode_Linear);
+                        outMaterial->mutable_specular()->set_mip_filter(viro::Node_Geometry_Material_Visual_FilterMode_Linear);
                     }
                     else if (endsWith(entryText, "NormalTexture")) {
                         outMaterial->mutable_normal()->set_texture(textureName);
+                        outMaterial->mutable_normal()->set_wrap_mode_s(viro::Node_Geometry_Material_Visual_WrapMode_Clamp);
+                        outMaterial->mutable_normal()->set_wrap_mode_t(viro::Node_Geometry_Material_Visual_WrapMode_Clamp);
+                        outMaterial->mutable_normal()->set_minification_filter(viro::Node_Geometry_Material_Visual_FilterMode_Linear);
+                        outMaterial->mutable_normal()->set_magnification_filter(viro::Node_Geometry_Material_Visual_FilterMode_Linear);
+                        outMaterial->mutable_normal()->set_mip_filter(viro::Node_Geometry_Material_Visual_FilterMode_Linear);
                     }
                 }
                 for(int j = 0; j < fbxProp.GetSrcObjectCount<FbxLayeredTexture>(); ++j) {
@@ -1164,6 +1194,16 @@ void VROFBXExporter::exportHardwareMaterial(FbxSurfaceMaterial *inMaterial, cons
     }
     if (outMaterial->has_normal()) {
         outMaterial->mutable_normal()->set_intensity(1.0);
+    }
+}
+
+viro::Node_Geometry_Material_Visual_WrapMode VROFBXExporter::convert(FbxTexture::EWrapMode wrapMode) {
+    switch (wrapMode) {
+        case FbxTexture::eRepeat:
+            return viro::Node_Geometry_Material_Visual_WrapMode_Repeat;
+            
+        default:
+            return viro::Node_Geometry_Material_Visual_WrapMode_Clamp;
     }
 }
 

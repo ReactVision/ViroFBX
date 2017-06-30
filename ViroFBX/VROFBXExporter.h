@@ -82,6 +82,8 @@ private:
     bool isExportableNode(FbxNode *node);
     FbxAMatrix getGeometryMatrix(FbxNode *node);
     
+    viro::Node_Geometry_Material_Visual_WrapMode convert(FbxTexture::EWrapMode wrapMode);
+    
 #pragma mark - Print Methods
     
     int _numTabs;

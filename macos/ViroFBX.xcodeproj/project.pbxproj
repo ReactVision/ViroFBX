@@ -28,7 +28,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		8F618E2C1EB92BD10020B33B /* heart_beat_triangles.fbx */ = {isa = PBXFileReference; lastKnownFileType = file; path = heart_beat_triangles.fbx; sourceTree = "<group>"; };
 		8F618E341EB9828F0020B33B /* libprotobuf-lite.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libprotobuf-lite.a"; path = "Libraries/protobuf/lib/libprotobuf-lite.a"; sourceTree = "<group>"; };
 		8F618E3E1EBB8B090020B33B /* Hyperspace_Madness_Killamari_Minion.fbx */ = {isa = PBXFileReference; lastKnownFileType = file; path = Hyperspace_Madness_Killamari_Minion.fbx; sourceTree = "<group>"; };
 		8F618E3F1EBB8B090020B33B /* Hyperspace_Madness_Sven.fbx */ = {isa = PBXFileReference; lastKnownFileType = file; path = Hyperspace_Madness_Sven.fbx; sourceTree = "<group>"; };
@@ -39,7 +38,6 @@
 		8FDC5A121EB00632006D450F /* VRODefines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VRODefines.h; sourceTree = "<group>"; };
 		8FDC5A131EB00632006D450F /* VROLog.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = VROLog.cpp; sourceTree = "<group>"; };
 		8FDC5A141EB00632006D450F /* VROLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VROLog.h; sourceTree = "<group>"; };
-		8FDC5A1B1EB2FF2E006D450F /* heart_beat.fbx */ = {isa = PBXFileReference; lastKnownFileType = file; path = heart_beat.fbx; sourceTree = "<group>"; };
 		8FDC5A1C1EB301E7006D450F /* libfbxsdk.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libfbxsdk.a; path = Libraries/fbx/lib/libfbxsdk.a; sourceTree = "<group>"; };
 		8FDC5A1F1EB40F53006D450F /* Nodes.pb.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Nodes.pb.cc; sourceTree = "<group>"; };
 		8FDC5A201EB40F53006D450F /* Nodes.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Nodes.pb.h; sourceTree = "<group>"; };
@@ -115,8 +113,6 @@
 			children = (
 				8F618E3E1EBB8B090020B33B /* Hyperspace_Madness_Killamari_Minion.fbx */,
 				8F618E3F1EBB8B090020B33B /* Hyperspace_Madness_Sven.fbx */,
-				8F618E2C1EB92BD10020B33B /* heart_beat_triangles.fbx */,
-				8FDC5A1B1EB2FF2E006D450F /* heart_beat.fbx */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
