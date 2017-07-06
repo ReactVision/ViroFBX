@@ -11,6 +11,7 @@
 #include <set>
 #include <fstream>
 #include <algorithm>
+#include "VROUtil.h"
 
 static const bool kDebugGeometrySource = false;
 static const int kAnimationFPS = 30;
@@ -154,9 +155,12 @@ void VROFBXExporter::exportFBX(std::string fbxPath, std::string destPath) {
     
     int byteSize = outNode->ByteSize();
     
-    pinfo("Writing protobuf [%d bytes]...", byteSize);
+    pinfo("Encoding protobuf [%d bytes]...", byteSize);
     std::string encoded = outNode->SerializeAsString();
-    std::ofstream(destPath.c_str(), std::ios::binary).write(encoded.c_str(), encoded.size());
+    pinfo("Compressing...");
+    std::string compressed = compressString(encoded);
+    pinfo("Writing protobuf [%d bytes]", (int)compressed.size());
+    std::ofstream(destPath.c_str(), std::ios::binary).write(compressed.c_str(), compressed.size());
     
     pinfo("Export complete");
 }
@@ -967,6 +971,7 @@ void VROFBXExporter::exportMaterial(FbxSurfaceMaterial *inMaterial, viro::Node::
         diffuse->add_color(static_cast<float>(inDiffuse.mData[0]));
         diffuse->add_color(static_cast<float>(inDiffuse.mData[1]));
         diffuse->add_color(static_cast<float>(inDiffuse.mData[2]));
+        diffuse->set_intensity(phong->DiffuseFactor);
         
         // Specular Color
         // double3 = reinterpret_cast<FbxSurfacePhong *>(inMaterial)->Specular;
@@ -1019,9 +1024,11 @@ void VROFBXExporter::exportMaterial(FbxSurfaceMaterial *inMaterial, viro::Node::
         diffuse->add_color(static_cast<float>(inDiffuse.mData[0]));
         diffuse->add_color(static_cast<float>(inDiffuse.mData[1]));
         diffuse->add_color(static_cast<float>(inDiffuse.mData[2]));
-        
+        diffuse->set_intensity(lambert->DiffuseFactor);
+      
         // Emissive Color
         // double3 = reinterpret_cast<FbxSurfaceLambert *>(inMaterial)->Emissive;
+        // set emissive intensity here as well
         
         // Transparency
         if (lambert->TransparencyFactor.IsValid() && lambert->TransparentColor.IsValid()) {
@@ -1094,9 +1101,6 @@ void VROFBXExporter::exportMaterial(FbxSurfaceMaterial *inMaterial, viro::Node::
         }
     }
     
-    if (outMaterial->has_diffuse()) {
-        outMaterial->mutable_diffuse()->set_intensity(1.0);
-    }
     if (outMaterial->has_specular()) {
         outMaterial->mutable_specular()->set_intensity(1.0);
     }

@@ -25,6 +25,9 @@ int main(int argc, const char * argv[]) {
       
       std::string foxFBX = "/Users/radvani/Source/ViroFBX/macos/ViroFBX/fox.fbx";
       std::string foxProto = "/Users/radvani/Source/ViroRenderer/ios/ViroSample/fox.vrx";
+      
+      std::string gorillaFBX = "/Users/radvani/Source/ViroFBX/macos/ViroFBX/gorilla.fbx";
+      std::string gorillaProto = "/Users/radvani/Source/ViroRenderer/ios/ViroSample/gorilla.vrx";
 
       VROFBXExporter *exporter = new VROFBXExporter();
       //exporter->debugPrint(heartFBX);
@@ -33,6 +36,7 @@ int main(int argc, const char * argv[]) {
       exporter->exportFBX(svenFBX, svenProto);
       exporter->exportFBX(wormFBX, wormProto);
       exporter->exportFBX(foxFBX, foxProto);
+      exporter->exportFBX(gorillaFBX, gorillaProto);
   }
   return 0;
 }

@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8F2657411F0E7EDE0031DE17 /* VROUtil.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8F26573F1F0E7EDE0031DE17 /* VROUtil.cpp */; };
+		8F2657431F0E7F810031DE17 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 8F2657421F0E7F810031DE17 /* libz.tbd */; };
 		8F618E351EB9828F0020B33B /* libprotobuf-lite.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8F618E341EB9828F0020B33B /* libprotobuf-lite.a */; };
 		8FDC5A081EAFE94B006D450F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 8FDC5A071EAFE94B006D450F /* main.m */; };
 		8FDC5A101EB00588006D450F /* VROFBXExporter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8FDC5A0E1EB00588006D450F /* VROFBXExporter.cpp */; };
@@ -28,6 +30,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		8F26573F1F0E7EDE0031DE17 /* VROUtil.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VROUtil.cpp; sourceTree = "<group>"; };
+		8F2657401F0E7EDE0031DE17 /* VROUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VROUtil.h; sourceTree = "<group>"; };
+		8F2657421F0E7F810031DE17 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		8F618E341EB9828F0020B33B /* libprotobuf-lite.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libprotobuf-lite.a"; path = "Libraries/protobuf/lib/libprotobuf-lite.a"; sourceTree = "<group>"; };
 		8F618E3E1EBB8B090020B33B /* Hyperspace_Madness_Killamari_Minion.fbx */ = {isa = PBXFileReference; lastKnownFileType = file; path = Hyperspace_Madness_Killamari_Minion.fbx; sourceTree = "<group>"; };
 		8F618E3F1EBB8B090020B33B /* Hyperspace_Madness_Sven.fbx */ = {isa = PBXFileReference; lastKnownFileType = file; path = Hyperspace_Madness_Sven.fbx; sourceTree = "<group>"; };
@@ -48,6 +53,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8F2657431F0E7F810031DE17 /* libz.tbd in Frameworks */,
 				8F618E351EB9828F0020B33B /* libprotobuf-lite.a in Frameworks */,
 				8FDC5A1D1EB301E7006D450F /* libfbxsdk.a in Frameworks */,
 			);
@@ -92,6 +98,8 @@
 				8FDC5A121EB00632006D450F /* VRODefines.h */,
 				8FDC5A141EB00632006D450F /* VROLog.h */,
 				8FDC5A131EB00632006D450F /* VROLog.cpp */,
+				8F2657401F0E7EDE0031DE17 /* VROUtil.h */,
+				8F26573F1F0E7EDE0031DE17 /* VROUtil.cpp */,
 				8FDC5A0F1EB00588006D450F /* VROFBXExporter.h */,
 				8FDC5A0E1EB00588006D450F /* VROFBXExporter.cpp */,
 			);
@@ -102,6 +110,7 @@
 		8FDC5A171EB2FE27006D450F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				8F2657421F0E7F810031DE17 /* libz.tbd */,
 				8F618E341EB9828F0020B33B /* libprotobuf-lite.a */,
 				8FDC5A1C1EB301E7006D450F /* libfbxsdk.a */,
 			);
@@ -177,6 +186,7 @@
 			files = (
 				8FDC5A211EB40F53006D450F /* Nodes.pb.cc in Sources */,
 				8FDC5A081EAFE94B006D450F /* main.m in Sources */,
+				8F2657411F0E7EDE0031DE17 /* VROUtil.cpp in Sources */,
 				8FDC5A151EB00632006D450F /* VROLog.cpp in Sources */,
 				8FDC5A101EB00588006D450F /* VROFBXExporter.cpp in Sources */,
 			);
