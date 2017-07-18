@@ -8,35 +8,55 @@
 
 #import <Foundation/Foundation.h>
 #import "VROFBXExporter.h"
+#import "VROLog.h"
+
+const bool kTestMode = NO;
+
+void printUsage() {
+    pinfo("Usage: ViroFBX [source FBX file] [destination VRX file]");
+}
 
 int main(int argc, const char * argv[]) {
   @autoreleasepool {
-      std::string heartFBX = "/Users/radvani/Source/ViroFBX/macos/ViroFBX/heart_beat_anim.fbx";
-      std::string heartProto = "/Users/radvani/Source/ViroRenderer/ios/ViroSample/heart.vrx";
-      
-      std::string minionFBX = "/Users/radvani/Source/ViroFBX/macos/ViroFBX/Hyperspace_Madness_Killamari_Minion.fbx";
-      std::string minionProto = "/Users/radvani/Source/ViroRenderer/ios/ViroSample/minion.vrx";
-      
-      std::string svenFBX = "/Users/radvani/Source/ViroFBX/macos/ViroFBX/Hyperspace_Madness_Sven.fbx";
-      std::string svenProto = "/Users/radvani/Source/ViroRenderer/ios/ViroSample/sven.vrx";
-
-      std::string wormFBX = "/Users/radvani/Source/ViroFBX/macos/ViroFBX/worm_test.fbx";
-      std::string wormProto = "/Users/radvani/Source/ViroRenderer/ios/ViroSample/worm.vrx";
-      
-      std::string foxFBX = "/Users/radvani/Source/ViroFBX/macos/ViroFBX/fox.fbx";
-      std::string foxProto = "/Users/radvani/Source/ViroRenderer/ios/ViroSample/fox.vrx";
-      
-      std::string gorillaFBX = "/Users/radvani/Source/ViroFBX/macos/ViroFBX/gorilla.fbx";
-      std::string gorillaProto = "/Users/radvani/Source/ViroRenderer/ios/ViroSample/gorilla.vrx";
-
-      VROFBXExporter *exporter = new VROFBXExporter();
-      //exporter->debugPrint(heartFBX);
-      exporter->exportFBX(heartFBX, heartProto);
-      exporter->exportFBX(minionFBX, minionProto);
-      exporter->exportFBX(svenFBX, svenProto);
-      exporter->exportFBX(wormFBX, wormProto);
-      exporter->exportFBX(foxFBX, foxProto);
-      exporter->exportFBX(gorillaFBX, gorillaProto);
+      if (kTestMode) {
+          std::string heartFBX = "/Users/radvani/Source/ViroFBX/macos/ViroFBX/heart_beat_anim.fbx";
+          std::string heartProto = "/Users/radvani/Source/ViroRenderer/ios/ViroSample/heart.vrx";
+          
+          std::string minionFBX = "/Users/radvani/Source/ViroFBX/macos/ViroFBX/Hyperspace_Madness_Killamari_Minion.fbx";
+          std::string minionProto = "/Users/radvani/Source/ViroRenderer/ios/ViroSample/minion.vrx";
+          
+          std::string svenFBX = "/Users/radvani/Source/ViroFBX/macos/ViroFBX/Hyperspace_Madness_Sven.fbx";
+          std::string svenProto = "/Users/radvani/Source/ViroRenderer/ios/ViroSample/sven.vrx";
+          
+          std::string wormFBX = "/Users/radvani/Source/ViroFBX/macos/ViroFBX/worm_test.fbx";
+          std::string wormProto = "/Users/radvani/Source/ViroRenderer/ios/ViroSample/worm.vrx";
+          
+          std::string foxFBX = "/Users/radvani/Source/ViroFBX/macos/ViroFBX/fox.fbx";
+          std::string foxProto = "/Users/radvani/Source/ViroRenderer/ios/ViroSample/fox.vrx";
+          
+          std::string gorillaFBX = "/Users/radvani/Source/ViroFBX/macos/ViroFBX/gorilla.fbx";
+          std::string gorillaProto = "/Users/radvani/Source/ViroRenderer/ios/ViroSample/gorilla.vrx";
+          
+          VROFBXExporter *exporter = new VROFBXExporter();
+          //exporter->debugPrint(heartFBX);
+          exporter->exportFBX(heartFBX, heartProto);
+          exporter->exportFBX(minionFBX, minionProto);
+          exporter->exportFBX(svenFBX, svenProto);
+          exporter->exportFBX(wormFBX, wormProto);
+          exporter->exportFBX(foxFBX, foxProto);
+          exporter->exportFBX(gorillaFBX, gorillaProto);
+      }
+      else {
+          if (argc != 3) {
+              printUsage();
+              return 1;
+          }
+          
+          VROFBXExporter *exporter = new VROFBXExporter();
+          exporter->exportFBX(std::string(argv[1]), std::string(argv[2]));
+          
+          return 0;
+      }
   }
   return 0;
 }

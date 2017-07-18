@@ -66,6 +66,8 @@ FbxScene *VROFBXExporter::loadFBX(std::string fbxPath) {
     if (!importStatus) {
         pinfo("Call to FBXImporter::Initialize() failed");
         pinfo("Error returned: %s", importer->GetStatus().GetErrorString());
+        
+        return nullptr;
     }
     else {
         pinfo("Import successful");
@@ -114,6 +116,9 @@ FbxScene *VROFBXExporter::loadFBX(std::string fbxPath) {
 
 void VROFBXExporter::exportFBX(std::string fbxPath, std::string destPath) {
     FbxScene *scene = loadFBX(fbxPath);
+    if (scene == nullptr) {
+        return;
+    }
     
     pinfo("Triangulating scene...");
     

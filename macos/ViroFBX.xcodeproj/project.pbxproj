@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		8F2657411F0E7EDE0031DE17 /* VROUtil.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8F26573F1F0E7EDE0031DE17 /* VROUtil.cpp */; };
 		8F2657431F0E7F810031DE17 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 8F2657421F0E7F810031DE17 /* libz.tbd */; };
+		8F5CAA151F1E8F0000FEEC7E /* ViroFBX in CopyFiles */ = {isa = PBXBuildFile; fileRef = 8FDC5A041EAFE94B006D450F /* ViroFBX */; };
 		8F618E351EB9828F0020B33B /* libprotobuf-lite.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8F618E341EB9828F0020B33B /* libprotobuf-lite.a */; };
 		8FDC5A081EAFE94B006D450F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 8FDC5A071EAFE94B006D450F /* main.m */; };
 		8FDC5A101EB00588006D450F /* VROFBXExporter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8FDC5A0E1EB00588006D450F /* VROFBXExporter.cpp */; };
@@ -20,12 +21,13 @@
 /* Begin PBXCopyFilesBuildPhase section */
 		8FDC5A021EAFE94B006D450F /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
+			buildActionMask = 12;
+			dstPath = "$(PROJECT_DIR)/../../react-viro/bin";
 			dstSubfolderSpec = 0;
 			files = (
+				8F5CAA151F1E8F0000FEEC7E /* ViroFBX in CopyFiles */,
 			);
-			runOnlyForDeploymentPostprocessing = 1;
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
