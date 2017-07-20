@@ -167,6 +167,23 @@ message Node {
     }
     repeated SkeletalAnimation skeletal_animation = 9;
 
+    message KeyframeAnimation {
+        message Frame {
+            // Time ranges from 0 to 1, indicates fraction of duration
+            float time = 1;
+
+            // Each frame may contain one or more of these
+            repeated float translation = 2;
+            repeated float rotation = 3;
+            repeated float scale = 4;
+        }
+
+        string name = 1;
+        repeated Frame frame = 2;
+        int64 duration = 3;
+    }
+    repeated KeyframeAnimation keyframe_animation = 10;
+
     message Light {
         string name = 1;
 
@@ -192,12 +209,12 @@ message Node {
         float spot_inner_angle = 11;
         float spot_outer_angle = 12;
     }
-    repeated Light light = 10;
+    repeated Light light = 11;
 
     message Camera {
         repeated float position = 1;
     }
-    Camera camera = 11;
+    Camera camera = 12;
 
-    repeated Node subnode = 12;
+    repeated Node subnode = 13;
 }

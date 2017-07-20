@@ -71,7 +71,11 @@ private:
     void exportSkeleton(FbxNode *rootNode, viro::Node::Skeleton *outSkeleton);
     void exportSkeletonRecursive(FbxNode *node, int depth, int index, int parentIndex, viro::Node::Skeleton *outSkeleton);
     void exportSkin(FbxNode *node, const viro::Node::Skeleton &skeleton, viro::Node::Geometry::Skin *outSkin);
-    void exportAnimations(FbxScene *scene, FbxNode *node, const viro::Node::Skeleton &skeleton, viro::Node *outNode);
+    
+    void exportKeyframeAnimations(FbxScene *scene, FbxNode *node, viro::Node *outNode);
+    void exportSampledKeyframeAnimations(FbxScene *scene, FbxNode *node, viro::Node *outNode);
+    void exportSkeletalAnimations(FbxScene *scene, FbxNode *node, const viro::Node::Skeleton &skeleton, viro::Node *outNode);
+    void exportBlendShapeAnimations(FbxScene *scene, FbxNode *node, viro::Node *outNode);
     
 #pragma mark - Export Helpers
     

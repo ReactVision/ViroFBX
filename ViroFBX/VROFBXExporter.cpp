@@ -237,8 +237,17 @@ void VROFBXExporter::exportNode(FbxScene *scene, FbxNode *node, const viro::Node
             exportSkin(node, skeleton, outNode->mutable_geometry()->mutable_skin());
             
             pinfo("   Exporting skeletal animations");
-            exportAnimations(scene, node, skeleton, outNode);
+            exportSkeletalAnimations(scene, node, skeleton, outNode);
         }
+        else {
+            pinfo("   No skeleton found, will not export skin");
+        }
+        
+        pinfo("   Exporting keyframe animations");
+        exportSampledKeyframeAnimations(scene, node, outNode);
+        
+        pinfo("   Exporting blend shape animations");
+        exportBlendShapeAnimations(scene, node, outNode);
     }
     for (int i = 0; i < node->GetChildCount(); i++) {
         if (isExportableNode(node->GetChild(i))) {
@@ -586,7 +595,7 @@ void VROFBXExporter::exportSkin(FbxNode *node, const viro::Node::Skeleton &skele
     std::map<int, std::vector<VROBoneIndexWeight>> bones;
     
     for (unsigned int deformerIndex = 0; deformerIndex < numDeformers; ++deformerIndex) {
-        // There are many types of deformers in Maya, we only use skins
+        // We only use skin deformers for skeletal animation
         FbxSkin *skin = reinterpret_cast<FbxSkin*>(mesh->GetDeformer(deformerIndex, FbxDeformer::eSkin));
         if (!skin) {
             pinfo("Unsupported deformer");
@@ -784,7 +793,7 @@ void VROFBXExporter::exportSkin(FbxNode *node, const viro::Node::Skeleton &skele
     boneWeights->set_data(boneWeightsData.data(), boneWeightsData.size() * sizeof(float));
 }
 
-void VROFBXExporter::exportAnimations(FbxScene *scene, FbxNode *node, const viro::Node::Skeleton &skeleton, viro::Node *outNode) {
+void VROFBXExporter::exportSkeletalAnimations(FbxScene *scene, FbxNode *node, const viro::Node::Skeleton &skeleton, viro::Node *outNode) {
     FbxMesh *mesh = node->GetMesh();
     
     unsigned int numDeformers = mesh->GetDeformerCount();
@@ -826,7 +835,7 @@ void VROFBXExporter::exportAnimations(FbxScene *scene, FbxNode *node, const viro
             
             frame->set_time(fmin(1.0, (float) time.GetMilliSeconds() / (float) duration));
             for (unsigned int deformerIndex = 0; deformerIndex < numDeformers; ++deformerIndex) {
-                // There are many types of deformers in Maya, we only use skins
+                // We only use skin deformers for skeletal animation
                 FbxSkin *skin = reinterpret_cast<FbxSkin*>(mesh->GetDeformer(deformerIndex, FbxDeformer::eSkin));
                 if (!skin) {
                     continue;
@@ -893,6 +902,204 @@ void VROFBXExporter::exportAnimations(FbxScene *scene, FbxNode *node, const viro
                         skeletalAnimation->set_has_scaling(true);
                     }
                 }
+            }
+        }
+    }
+}
+
+void VROFBXExporter::exportBlendShapeAnimations(FbxScene *scene, FbxNode *node, viro::Node *outNode) {
+    FbxMesh *mesh = node->GetMesh();
+    
+    unsigned int numDeformers = mesh->GetDeformerCount();
+    if (numDeformers <= 0) {
+        pinfo("   Mesh had no deformers, not exporting blend shape animations");
+        return;
+    }
+    
+    /*
+     Iterate through each animation stack. Each stack corresponds to a separate skeletal animation.
+     */
+    int numStacks = scene->GetSrcObjectCount(FbxCriteria::ObjectType(FbxAnimStack::ClassId));
+    for (int i = 0; i < numStacks; i++) {
+        /*
+         Get metadata for the animation.
+         */
+        FbxAnimStack *animStack = scene->GetSrcObject<FbxAnimStack>(i);
+        FbxString animStackName = animStack->GetName();
+        FbxTakeInfo *take = scene->GetTakeInfo(animStackName);
+        FbxTime start = take->mLocalTimeSpan.GetStart();
+        FbxTime end = take->mLocalTimeSpan.GetStop();
+        //FbxLongLong duration = end.GetMilliSeconds() - start.GetMilliSeconds();
+        
+        for (FbxLongLong i = start.GetFrameCount(FbxTime::eFrames30); i <= end.GetFrameCount(FbxTime::eFrames30); ++i) {
+            for (unsigned int deformerIndex = 0; deformerIndex < numDeformers; ++deformerIndex) {
+                FbxBlendShape *blendShape = reinterpret_cast<FbxBlendShape *>(mesh->GetDeformer(deformerIndex, FbxDeformer::eBlendShape));
+                if (!blendShape) {
+                    continue;
+                }
+                
+                pinfo("   Found blend shape deformer, but not yet supported. Will not export!");
+                
+                // TODO Add support for blend shape animations
+            }
+        }
+    }
+}
+
+/*
+ This method samples the animation of the global transformation matrix of the node, and returns
+ keyframes accordingly. Inefficient but widely compatible.
+ */
+void VROFBXExporter::exportSampledKeyframeAnimations(FbxScene *scene, FbxNode *node, viro::Node *outNode) {
+    FbxAnimEvaluator *evaluator = scene->GetAnimationEvaluator();
+    
+    /*
+     Iterate through each animation stack. Each stack corresponds to a separate skeletal animation.
+     */
+    int numStacks = scene->GetSrcObjectCount(FbxCriteria::ObjectType(FbxAnimStack::ClassId));
+    for (int i = 0; i < numStacks; i++) {
+        viro::Node::KeyframeAnimation *keyframeAnimation = outNode->add_keyframe_animation();
+        
+        /*
+         Get metadata for the animation.
+         */
+        FbxAnimStack *animStack = scene->GetSrcObject<FbxAnimStack>(i);
+        FbxString animStackName = animStack->GetName();
+        FbxTakeInfo *take = scene->GetTakeInfo(animStackName);
+        FbxTime start = take->mLocalTimeSpan.GetStart();
+        FbxTime end = take->mLocalTimeSpan.GetStop();
+        FbxLongLong duration = end.GetMilliSeconds() - start.GetMilliSeconds();
+        
+        pinfo("      Animation duration %lld ms", duration);
+        
+        keyframeAnimation->set_name(animStackName.Buffer());
+        keyframeAnimation->set_duration(duration);
+        
+        for (FbxLongLong i = start.GetFrameCount(FbxTime::eFrames30); i <= end.GetFrameCount(FbxTime::eFrames30); ++i) {
+            viro::Node::KeyframeAnimation::Frame *kf = keyframeAnimation->add_frame();
+            
+            FbxTime time;
+            time.SetFrame(i, FbxTime::eFrames30);
+            kf->set_time(fmin(1.0, (float) time.GetMilliSeconds() / (float) duration));
+            
+            FbxAMatrix localTransform = evaluator->GetNodeGlobalTransform(node, time);
+            
+            FbxVector4 localScale = localTransform.GetS();
+            kf->add_scale(localScale.mData[0]);
+            kf->add_scale(localScale.mData[1]);
+            kf->add_scale(localScale.mData[2]);
+            
+            FbxVector4 localTranslation = localTransform.GetT();
+            kf->add_translation(localTranslation.mData[0]);
+            kf->add_translation(localTranslation.mData[1]);
+            kf->add_translation(localTranslation.mData[2]);
+            
+            FbxQuaternion localRotation = localTransform.GetQ();
+            kf->add_rotation(localRotation.mData[0]);
+            kf->add_rotation(localRotation.mData[1]);
+            kf->add_rotation(localRotation.mData[2]);
+            kf->add_rotation(localRotation.mData[3]);
+        }
+    }
+}
+
+/*
+ This method directly exports the keyframes using the individual animation curves. Unfortunately
+ it is not supported by many popular FBX export packages, e.g. Maya.
+ */
+void VROFBXExporter::exportKeyframeAnimations(FbxScene *scene, FbxNode *node, viro::Node *outNode) {
+    /*
+     Iterate through each animation stack. Each stack corresponds to a separate animation.
+     */
+    int numStacks = scene->GetSrcObjectCount(FbxCriteria::ObjectType(FbxAnimStack::ClassId));
+    for (int i = 0; i < numStacks; i++) {
+        /*
+         Get metadata for the animation.
+         */
+        FbxAnimStack *animStack = scene->GetSrcObject<FbxAnimStack>(i);
+        FbxString animStackName = animStack->GetName();
+        FbxTakeInfo *take = scene->GetTakeInfo(animStackName);
+        FbxTime start = take->mLocalTimeSpan.GetStart();
+        FbxTime end = take->mLocalTimeSpan.GetStop();
+        FbxLongLong duration = end.GetMilliSeconds() - start.GetMilliSeconds();
+        
+        pinfo("      Animation duration %lld ms", duration);
+        
+        const int layerCount = animStack->GetMemberCount<FbxAnimLayer>();
+        if (layerCount > 1) {
+            pinfo("Blended animations not supported, will not export all animation layers");
+        }
+        int layerIndex = 0;
+        
+        scene->SetCurrentAnimationStack(animStack);
+
+        FbxAnimLayer *layer = animStack->GetMember<FbxAnimLayer>(layerIndex);
+        
+        FbxAnimCurve *translationCurve = node->LclTranslation.GetCurve(layer);
+        if (translationCurve != NULL) {
+            viro::Node::KeyframeAnimation *keyframeAnimation = outNode->add_keyframe_animation();
+            keyframeAnimation->set_name(animStackName.Buffer());
+            keyframeAnimation->set_duration(duration);
+            
+            int keyCount = translationCurve->KeyGetCount();
+            for (int keyIndex = 0; keyIndex < keyCount; ++keyIndex) {
+                FbxTime keyTime = translationCurve->KeyGetTime(keyIndex);
+                FbxVector4 localTranslation = node->EvaluateLocalTranslation(keyTime);
+                
+                viro::Node::KeyframeAnimation::Frame *kf = keyframeAnimation->add_frame();
+                kf->set_time((float) keyTime.GetMilliSeconds() / (float) duration);
+                kf->add_translation(localTranslation.mData[0]);
+                kf->add_translation(localTranslation.mData[1]);
+                kf->add_translation(localTranslation.mData[2]);
+                
+                pinfo("Added time %f, translation %f, %f, %f", kf->time(), kf->translation(0), kf->translation(1), kf->translation(2));
+            }
+        }
+        
+        FbxAnimCurve *rotationCurve = node->LclRotation.GetCurve(layer);
+        if (rotationCurve != NULL) {
+            viro::Node::KeyframeAnimation *keyframeAnimation = outNode->add_keyframe_animation();
+            keyframeAnimation->set_name(animStackName.Buffer());
+            keyframeAnimation->set_duration(duration);
+            
+            int keyCount = rotationCurve->KeyGetCount();
+            for (int keyIndex = 0; keyIndex < keyCount; ++keyIndex) {
+                FbxTime keyTime = rotationCurve->KeyGetTime(keyIndex);
+                
+                FbxAMatrix tmp;
+                tmp.SetR(node->EvaluateLocalRotation(keyTime));
+                FbxQuaternion localRotation = tmp.GetQ();
+                
+                viro::Node::KeyframeAnimation::Frame *kf = keyframeAnimation->add_frame();
+                kf->set_time((float) keyTime.GetMilliSeconds() / (float) duration);
+                kf->add_rotation(localRotation.mData[0]);
+                kf->add_rotation(localRotation.mData[1]);
+                kf->add_rotation(localRotation.mData[2]);
+                kf->add_rotation(localRotation.mData[3]);
+                
+                pinfo("Added time %f, rotation %f, %f, %f", kf->time(), kf->rotation(0), kf->rotation(1), kf->rotation(2));
+            }
+
+        }
+        
+        FbxAnimCurve *scaleCurve = node->LclScaling.GetCurve(layer);
+        if (scaleCurve != NULL) {
+            viro::Node::KeyframeAnimation *keyframeAnimation = outNode->add_keyframe_animation();
+            keyframeAnimation->set_name(animStackName.Buffer());
+            keyframeAnimation->set_duration(duration);
+            
+            int keyCount = scaleCurve->KeyGetCount();
+            for (int keyIndex = 0; keyIndex < keyCount; ++keyIndex) {
+                FbxTime keyTime = scaleCurve->KeyGetTime(keyIndex);
+                FbxVector4 localScale = node->EvaluateLocalScaling(keyTime);
+                
+                viro::Node::KeyframeAnimation::Frame *kf = keyframeAnimation->add_frame();
+                kf->set_time((float) keyTime.GetMilliSeconds() / (float) duration);
+                kf->add_scale(localScale.mData[0]);
+                kf->add_scale(localScale.mData[1]);
+                kf->add_scale(localScale.mData[2]);
+                
+                pinfo("Added time %f, scale %f, %f, %f", kf->time(), kf->scale(0), kf->scale(1), kf->scale(2));
             }
         }
     }
