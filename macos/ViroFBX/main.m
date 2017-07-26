@@ -22,6 +22,12 @@ int main(int argc, const char * argv[]) {
           std::string heartFBX = "/Users/radvani/Source/ViroFBX/macos/ViroFBX/heart_beat_noskel.fbx";
           std::string heartProto = "/Users/radvani/Source/ViroRenderer/ios/ViroSample/heart.vrx";
           
+          std::string alienFBX = "/Users/radvani/Source/ViroFBX/macos/ViroFBX/aliengirl_mmastance_v2.fbx";
+          std::string alienProto = "/Users/radvani/Source/ViroRenderer/ios/ViroSample/aliengirl.vrx";
+          
+          std::string porscheFBX = "/Users/radvani/Source/ViroFBX/macos/ViroFBX/porsche911.fbx";
+          std::string porscheProto = "/Users/radvani/Source/ViroRenderer/ios/ViroSample/porsche911.vrx";
+          
           std::string heartSkelFBX = "/Users/radvani/Source/ViroFBX/macos/ViroFBX/heart_beat_skel.fbx";
           std::string heartSkelProto = "/Users/radvani/Source/ViroRenderer/ios/ViroSample/heart.vrx";
           
@@ -45,6 +51,11 @@ int main(int argc, const char * argv[]) {
           
           VROFBXExporter *exporter = new VROFBXExporter();
           //exporter->debugPrint(heartFBX);
+          
+          exporter->exportFBX(alienFBX, alienProto);
+
+          /*
+          exporter->exportFBX(porscheFBX, porscheProto);
           exporter->exportFBX(bballFBX, bballProto);
           exporter->exportFBX(heartSkelFBX, heartSkelProto);
           exporter->exportFBX(minionFBX, minionProto);
@@ -52,6 +63,7 @@ int main(int argc, const char * argv[]) {
           exporter->exportFBX(wormFBX, wormProto);
           exporter->exportFBX(foxFBX, foxProto);
           exporter->exportFBX(gorillaFBX, gorillaProto);
+           */
       }
       else {
           if (argc != 3) {

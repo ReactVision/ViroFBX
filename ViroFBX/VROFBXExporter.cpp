@@ -417,22 +417,45 @@ void VROFBXExporter::exportGeometry(FbxNode *node, viro::Node::Geometry *geo) {
     /*
      Export the elements and materials.
      */
-    std::vector<int> materialMapping = readMaterialToMeshMapping(mesh, numPolygons);
-    
     int numMaterials = node->GetMaterialCount();
     pinfo("   Exporting materials");
     pinfo("      Num materials %d", numMaterials);
     
-    for (int i = 0; i < numMaterials; i++) {
-        std::vector<int> triangles;
-        
-        for (int face = 0; face < materialMapping.size(); face++) {
-            int materialIndex = materialMapping[face];
-            if (materialIndex == i) {
-                triangles.push_back(face * 3 + 0);
-                triangles.push_back(face * 3 + 1);
-                triangles.push_back(face * 3 + 2);
+    std::vector<int> materialMapping = readMaterialToMeshMapping(mesh, numPolygons);
+    if (numMaterials > 0) {
+        for (int i = 0; i < numMaterials; i++) {
+            std::vector<int> triangles;
+            
+            for (int face = 0; face < materialMapping.size(); face++) {
+                int materialIndex = materialMapping[face];
+                if (materialIndex == i) {
+                    triangles.push_back(face * 3 + 0);
+                    triangles.push_back(face * 3 + 1);
+                    triangles.push_back(face * 3 + 2);
+                }
             }
+            
+            viro::Node::Geometry::Element *element = geo->add_element();
+            element->set_data(triangles.data(), triangles.size() * sizeof(int));
+            element->set_primitive(viro::Node_Geometry_Element_Primitive_Triangle);
+            element->set_bytes_per_index(sizeof(int));
+            element->set_primitive_count((int)triangles.size() / 3);
+            
+            pinfo("      Primitive count for material %d: %d", i, element->primitive_count());
+            
+            FbxSurfaceMaterial *fbxMaterial = node->GetMaterial(i);
+            viro::Node::Geometry::Material *material = geo->add_material();
+            
+            exportMaterial(fbxMaterial, material);
+        }
+    }
+    else {
+        // If there are no materials, export a default (blank) material
+        std::vector<int> triangles;
+        for (int face = 0; face < materialMapping.size(); face++) {
+            triangles.push_back(face * 3 + 0);
+            triangles.push_back(face * 3 + 1);
+            triangles.push_back(face * 3 + 2);
         }
         
         viro::Node::Geometry::Element *element = geo->add_element();
@@ -441,12 +464,14 @@ void VROFBXExporter::exportGeometry(FbxNode *node, viro::Node::Geometry *geo) {
         element->set_bytes_per_index(sizeof(int));
         element->set_primitive_count((int)triangles.size() / 3);
         
-        pinfo("      Primitive count for material %d: %d", i, element->primitive_count());
-        
-        FbxSurfaceMaterial *fbxMaterial = node->GetMaterial(i);
         viro::Node::Geometry::Material *material = geo->add_material();
-        
-        exportMaterial(fbxMaterial, material);
+        material->set_transparency(1.0);
+
+        viro::Node::Geometry::Material::Visual *diffuse = material->mutable_diffuse();
+        diffuse->add_color(1.0);
+        diffuse->add_color(1.0);
+        diffuse->add_color(1.0);
+        diffuse->set_intensity(1.0);
     }
 }
 
@@ -1152,7 +1177,10 @@ std::vector<int> VROFBXExporter::readMaterialToMeshMapping(FbxMesh *mesh, int nu
         }
     }
     else {
-        pabort("No material element found for mesh");
+        pinfo("No material element found for mesh; mapping all polygons to material 0");
+        for (unsigned int i = 0; i < numPolygons; ++i) {
+            materialMapping.push_back(0);
+        }
     }
     
     return materialMapping;
