@@ -56,18 +56,15 @@ int main(int argc, const char * argv[]) {
           //exporter->debugPrint(heartFBX);
           
           exporter->exportFBX(pugFBX, pugProto);
-          //exporter->exportFBX(alienFBX, alienProto);
-
-          
-          //exporter->exportFBX(porscheFBX, porscheProto);
-          //exporter->exportFBX(bballFBX, bballProto);
-          //exporter->exportFBX(heartSkelFBX, heartSkelProto);
-          //exporter->exportFBX(minionFBX, minionProto);
-          //exporter->exportFBX(svenFBX, svenProto);
-          //exporter->exportFBX(wormFBX, wormProto);
-          //exporter->exportFBX(foxFBX, foxProto);
-          //exporter->exportFBX(gorillaFBX, gorillaProto);
-          
+          exporter->exportFBX(alienFBX, alienProto);
+          exporter->exportFBX(porscheFBX, porscheProto);
+          exporter->exportFBX(bballFBX, bballProto);
+          exporter->exportFBX(heartSkelFBX, heartSkelProto);
+          exporter->exportFBX(minionFBX, minionProto);
+          exporter->exportFBX(svenFBX, svenProto);
+          exporter->exportFBX(wormFBX, wormProto);
+          exporter->exportFBX(foxFBX, foxProto);
+          exporter->exportFBX(gorillaFBX, gorillaProto);
       }
       else {
           if (argc != 3) {
