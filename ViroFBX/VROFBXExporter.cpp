@@ -14,6 +14,9 @@
 #include "VROUtil.h"
 
 static const bool kDebugGeometrySource = false;
+static const bool kDebugBones = false;
+static const bool kDebugNodeTransforms = false;
+
 static const int kAnimationFPS = 30;
 static const float kEpsilon = 0.00000001;
 
@@ -153,7 +156,7 @@ void VROFBXExporter::exportFBX(std::string fbxPath, std::string destPath) {
         
         for (int i = 0; i < rootNode->GetChildCount(); i++) {
             if (isExportableNode(rootNode->GetChild(i))) {
-                exportNode(scene, rootNode->GetChild(i), *skeleton, outNode->add_subnode());
+                exportNode(scene, rootNode->GetChild(i), 0, *skeleton, outNode->add_subnode());
             }
         }
     }
@@ -190,7 +193,7 @@ bool VROFBXExporter::isExportableNode(FbxNode *node) {
     return true;
 }
 
-void VROFBXExporter::exportNode(FbxScene *scene, FbxNode *node, const viro::Node::Skeleton &skeleton, viro::Node *outNode) {
+void VROFBXExporter::exportNode(FbxScene *scene, FbxNode *node, int depth, const viro::Node::Skeleton &skeleton, viro::Node *outNode) {
     passert (isExportableNode(node));
     
     pinfo("Exporting node [%s], type [%s]", node->GetName(),
@@ -201,33 +204,43 @@ void VROFBXExporter::exportNode(FbxScene *scene, FbxNode *node, const viro::Node
     outNode->add_position(translation[0]);
     outNode->add_position(translation[1]);
     outNode->add_position(translation[2]);
-    pinfo("   Node translation %f, %f, %f", translation[0], translation[1], translation[2]);
+    if (kDebugNodeTransforms && (translation[0] != 0 || translation[1] != 0 || translation[2] != 0)) {
+        pinfo("   Node translation %f, %f, %f", translation[0], translation[1], translation[2]);
+    }
     
     FbxDouble3 scaling = node->LclScaling.Get();
     outNode->add_scale(scaling[0]);
     outNode->add_scale(scaling[1]);
     outNode->add_scale(scaling[2]);
-    pinfo("   Node scale %f, %f, %f", scaling[0], scaling[1], scaling[2]);
+    if (kDebugNodeTransforms && (scaling[0] != 1 || scaling[1] != 1 || scaling[2] != 1)) {
+        pinfo("   Node scale %f, %f, %f", scaling[0], scaling[1], scaling[2]);
+    }
 
     FbxDouble3 rotation = node->LclRotation.Get();
     outNode->add_rotation(rotation[0]);
     outNode->add_rotation(rotation[1]);
     outNode->add_rotation(rotation[2]);
-    pinfo("   Node rotation %f, %f, %f", rotation[0], rotation[1], rotation[2]);
+    if (kDebugNodeTransforms && (rotation[0] != 0 || rotation[1] != 0 || rotation[2] != 0)) {
+        pinfo("   Node rotation %f, %f, %f", rotation[0], rotation[1], rotation[2]);
+    }
     
     FbxVector4 geoTranslation = node->GetGeometricTranslation(FbxNode::eSourcePivot);
     FbxVector4 geoRotation = node->GetGeometricRotation(FbxNode::eSourcePivot);
     FbxVector4 geoScale = node->GetGeometricScaling(FbxNode::eSourcePivot);
     
-    pinfo("   Geo-only translation %f, %f, %f", geoTranslation[0], geoTranslation[1], geoTranslation[2]);
-    pinfo("   Geo-only rotation %f, %f, %f", geoRotation[0], geoRotation[1], geoRotation[2]);
+    if (geoTranslation[0] != 0 || geoTranslation[1] != 0 || geoTranslation[2] != 0) {
+        pinfo("   Geo-only translation %f, %f, %f", geoTranslation[0], geoTranslation[1], geoTranslation[2]);
+    }
+    if (geoRotation[0] != 0 || geoRotation[1] != 0 || geoRotation[2] != 0) {
+        pinfo("   Geo-only rotation %f, %f, %f", geoRotation[0], geoRotation[1], geoRotation[2]);
+    }
     
     outNode->set_rendering_order(0);
     outNode->set_opacity(1.0);
     
     if (node->GetMesh() != nullptr) {
         pinfo("   Exporting geometry");
-        exportGeometry(node, outNode->mutable_geometry());
+        exportGeometry(node, depth, outNode->mutable_geometry());
         
         /*
          Export the skin, if there is a skeleton.
@@ -251,12 +264,19 @@ void VROFBXExporter::exportNode(FbxScene *scene, FbxNode *node, const viro::Node
     }
     for (int i = 0; i < node->GetChildCount(); i++) {
         if (isExportableNode(node->GetChild(i))) {
-            exportNode(scene, node->GetChild(i), skeleton, outNode->add_subnode());
+            exportNode(scene, node->GetChild(i), depth, skeleton, outNode->add_subnode());
         }
     }
 }
 
-void VROFBXExporter::exportGeometry(FbxNode *node, viro::Node::Geometry *geo) {
+void VROFBXExporter::exportGeometry(FbxNode *node, int depth, viro::Node::Geometry *geo) {
+    if (!node->GetNodeAttribute() ||
+        !node->GetNodeAttribute()->GetAttributeType() ||
+        node->GetNodeAttribute()->GetAttributeType() != FbxNodeAttribute::eMesh) {
+        
+        pinfo("Not exporting geometry of node [%s] -- wrong node type", node->GetName());
+        return;
+    }
     FbxMesh *mesh = node->GetMesh();
     passert_msg (mesh, "Failed to export, null mesh!");
     
@@ -716,12 +736,18 @@ void VROFBXExporter::exportSkin(FbxNode *node, const viro::Node::Skeleton &skele
         }
     }
     
+    int numPointsWithTooManyBones = 0;
     for (auto &kv : bones) {
         std::vector<VROBoneIndexWeight> &bones = kv.second;
         
         // If there are more than kMaxBoneInfluences bones, use only those with greatest
         // weight, and renormalize
         if (bones.size() > kMaxBoneInfluences) {
+            ++numPointsWithTooManyBones;
+            if (kDebugBones) {
+                pinfo("Control point has %d bones", (int)bones.size());
+            }
+            
             std::sort(bones.begin(), bones.end(), SortByBoneWeight);
             bones.erase(bones.begin() + kMaxBoneInfluences, bones.end());
             
@@ -730,6 +756,9 @@ void VROFBXExporter::exportSkin(FbxNode *node, const viro::Node::Skeleton &skele
                 total += bone.weight;
             }
             for (VROBoneIndexWeight &bone : bones) {
+                if (kDebugBones) {
+                    pinfo("   Refactoring bone weight from %f to %f", bone.weight, (bone.weight / total));
+                }
                 bone.weight = (bone.weight / total);
             }
         }
@@ -742,6 +771,11 @@ void VROFBXExporter::exportSkin(FbxNode *node, const viro::Node::Skeleton &skele
     }
     
     pinfo("      Found bones for %lu control points", bones.size());
+    if (numPointsWithTooManyBones > 0) {
+        pinfo("************************");
+        pinfo("WARN: Found %d control points with too many bone influences. Max 4 supported!", numPointsWithTooManyBones);
+        pinfo("************************");
+    }
     
     /*
      Export the geometry sources for the skin. Note this must be in the same order we 
@@ -995,7 +1029,7 @@ void VROFBXExporter::exportSampledKeyframeAnimations(FbxScene *scene, FbxNode *n
         FbxTime end = take->mLocalTimeSpan.GetStop();
         FbxLongLong duration = end.GetMilliSeconds() - start.GetMilliSeconds();
         
-        pinfo("      Animation duration %lld ms", duration);
+        pinfo("      Animation [%s] duration %lld ms", animStackName.Buffer(), duration);
         
         keyframeAnimation->set_name(animStackName.Buffer());
         keyframeAnimation->set_duration(duration);
@@ -1007,17 +1041,21 @@ void VROFBXExporter::exportSampledKeyframeAnimations(FbxScene *scene, FbxNode *n
             time.SetFrame(i, FbxTime::eFrames30);
             kf->set_time(fmin(1.0, (float) time.GetMilliSeconds() / (float) duration));
             
-            FbxAMatrix localTransform = evaluator->GetNodeGlobalTransform(node, time);
+            FbxAMatrix localTransform = evaluator->GetNodeLocalTransform(node, time);
             
             FbxVector4 localScale = localTransform.GetS();
             kf->add_scale(localScale.mData[0]);
             kf->add_scale(localScale.mData[1]);
             kf->add_scale(localScale.mData[2]);
             
+            //pinfo("Frame %d, scale %f, %f, %f", i, localScale.mData[0], localScale.mData[1], localScale.mData[2]);
+            
             FbxVector4 localTranslation = localTransform.GetT();
             kf->add_translation(localTranslation.mData[0]);
             kf->add_translation(localTranslation.mData[1]);
             kf->add_translation(localTranslation.mData[2]);
+            
+            //pinfo("Frame %d, translation %f, %f, %f", i, localTranslation.mData[0], localTranslation.mData[1], localTranslation.mData[2]);
             
             FbxQuaternion localRotation = localTransform.GetQ();
             kf->add_rotation(localRotation.mData[0]);

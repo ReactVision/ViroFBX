@@ -19,6 +19,9 @@ void printUsage() {
 int main(int argc, const char * argv[]) {
   @autoreleasepool {
       if (kTestMode) {
+          std::string pugFBX = "/Users/radvani/Source/ViroFBX/macos/ViroFBX/pug_animated.fbx";
+          std::string pugProto = "/Users/radvani/Source/ViroRenderer/ios/ViroSample/pug.vrx";
+          
           std::string heartFBX = "/Users/radvani/Source/ViroFBX/macos/ViroFBX/heart_beat_noskel.fbx";
           std::string heartProto = "/Users/radvani/Source/ViroRenderer/ios/ViroSample/heart.vrx";
           
@@ -52,18 +55,19 @@ int main(int argc, const char * argv[]) {
           VROFBXExporter *exporter = new VROFBXExporter();
           //exporter->debugPrint(heartFBX);
           
-          exporter->exportFBX(alienFBX, alienProto);
+          exporter->exportFBX(pugFBX, pugProto);
+          //exporter->exportFBX(alienFBX, alienProto);
 
-          /*
-          exporter->exportFBX(porscheFBX, porscheProto);
-          exporter->exportFBX(bballFBX, bballProto);
-          exporter->exportFBX(heartSkelFBX, heartSkelProto);
-          exporter->exportFBX(minionFBX, minionProto);
-          exporter->exportFBX(svenFBX, svenProto);
-          exporter->exportFBX(wormFBX, wormProto);
-          exporter->exportFBX(foxFBX, foxProto);
-          exporter->exportFBX(gorillaFBX, gorillaProto);
-           */
+          
+          //exporter->exportFBX(porscheFBX, porscheProto);
+          //exporter->exportFBX(bballFBX, bballProto);
+          //exporter->exportFBX(heartSkelFBX, heartSkelProto);
+          //exporter->exportFBX(minionFBX, minionProto);
+          //exporter->exportFBX(svenFBX, svenProto);
+          //exporter->exportFBX(wormFBX, wormProto);
+          //exporter->exportFBX(foxFBX, foxProto);
+          //exporter->exportFBX(gorillaFBX, gorillaProto);
+          
       }
       else {
           if (argc != 3) {

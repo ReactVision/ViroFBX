@@ -63,8 +63,8 @@ private:
     
 #pragma mark - Export Methods
     
-    void exportNode(FbxScene *scene, FbxNode *node, const viro::Node::Skeleton &skeleton, viro::Node *outNode);
-    void exportGeometry(FbxNode *node, viro::Node::Geometry *geo);
+    void exportNode(FbxScene *scene, FbxNode *node, int depth, const viro::Node::Skeleton &skeleton, viro::Node *outNode);
+    void exportGeometry(FbxNode *node, int depth, viro::Node::Geometry *geo);
     void exportMaterial(FbxSurfaceMaterial *inMaterial, viro::Node::Geometry::Material *outMaterial);
     void exportHardwareMaterial(FbxSurfaceMaterial *inMaterial, const FbxImplementation *implementation,
                                 viro::Node::Geometry::Material *outMaterial);
