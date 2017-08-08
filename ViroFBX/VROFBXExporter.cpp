@@ -190,6 +190,14 @@ bool VROFBXExporter::isExportableNode(FbxNode *node) {
         return false;
     }
     
+    // Skip invisible nodes
+    if (!node->GetVisibility()) {
+        if (node->GetMesh() != nullptr) {
+            pinfo("Not exporting geometry of node [%s] -- visibility is false", node->GetName());
+        }
+        return false;
+    }
+    
     return true;
 }
 
@@ -270,13 +278,6 @@ void VROFBXExporter::exportNode(FbxScene *scene, FbxNode *node, int depth, const
 }
 
 void VROFBXExporter::exportGeometry(FbxNode *node, int depth, viro::Node::Geometry *geo) {
-    if (!node->GetNodeAttribute() ||
-        !node->GetNodeAttribute()->GetAttributeType() ||
-        node->GetNodeAttribute()->GetAttributeType() != FbxNodeAttribute::eMesh) {
-        
-        pinfo("Not exporting geometry of node [%s] -- wrong node type", node->GetName());
-        return;
-    }
     FbxMesh *mesh = node->GetMesh();
     passert_msg (mesh, "Failed to export, null mesh!");
     
