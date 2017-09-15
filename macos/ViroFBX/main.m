@@ -10,7 +10,7 @@
 #import "VROFBXExporter.h"
 #import "VROLog.h"
 
-const bool kTestMode = NO;
+const bool kTestMode = YES;
 
 void printUsage() {
     pinfo("Usage: ViroFBX [source FBX file] [destination VRX file]");
@@ -19,7 +19,7 @@ void printUsage() {
 int main(int argc, const char * argv[]) {
   @autoreleasepool {
       if (kTestMode) {
-          std::string pugFBX = "/Users/radvani/Source/ViroFBX/macos/ViroFBX/pug_animated.fbx";
+          std::string pugFBX = "/Users/radvani/Source/ViroFBX/macos/ViroFBX/dog_animated_v3.fbx";
           std::string pugProto = "/Users/radvani/Source/ViroRenderer/ios/ViroSample/pug.vrx";
           
           std::string heartFBX = "/Users/radvani/Source/ViroFBX/macos/ViroFBX/heart_beat_noskel.fbx";
@@ -55,7 +55,8 @@ int main(int argc, const char * argv[]) {
           VROFBXExporter *exporter = new VROFBXExporter();
           //exporter->debugPrint(heartFBX);
           
-          exporter->exportFBX(pugFBX, pugProto);
+          exporter->exportFBX(pugFBX, pugProto, false);
+          /*
           exporter->exportFBX(alienFBX, alienProto);
           exporter->exportFBX(porscheFBX, porscheProto);
           exporter->exportFBX(bballFBX, bballProto);
@@ -65,6 +66,7 @@ int main(int argc, const char * argv[]) {
           exporter->exportFBX(wormFBX, wormProto);
           exporter->exportFBX(foxFBX, foxProto);
           exporter->exportFBX(gorillaFBX, gorillaProto);
+           */
       }
       else {
           if (argc != 3) {
@@ -73,7 +75,7 @@ int main(int argc, const char * argv[]) {
           }
           
           VROFBXExporter *exporter = new VROFBXExporter();
-          exporter->exportFBX(std::string(argv[1]), std::string(argv[2]));
+          exporter->exportFBX(std::string(argv[1]), std::string(argv[2]), true);
           
           return 0;
       }

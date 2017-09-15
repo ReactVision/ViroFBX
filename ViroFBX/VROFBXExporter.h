@@ -53,7 +53,7 @@ public:
     VROFBXExporter();
     virtual ~VROFBXExporter();
     
-    void exportFBX(std::string fbxPath, std::string protoPath);
+    void exportFBX(std::string fbxPath, std::string protoPath, bool compressTextures);
     void debugPrint(std::string fbxPath);
     
 private:
@@ -61,11 +61,17 @@ private:
     FbxManager *_fbxManager;
     FbxScene *loadFBX(std::string fbxPath);
     
+    /*
+     The path of the file we're currently exporting.
+     */
+    std::string _fbxPath;
+    
 #pragma mark - Export Methods
     
-    void exportNode(FbxScene *scene, FbxNode *node, int depth, const viro::Node::Skeleton &skeleton, viro::Node *outNode);
-    void exportGeometry(FbxNode *node, int depth, viro::Node::Geometry *geo);
-    void exportMaterial(FbxSurfaceMaterial *inMaterial, viro::Node::Geometry::Material *outMaterial);
+    void exportNode(FbxScene *scene, FbxNode *node, int depth, bool compressTextures,
+                    const viro::Node::Skeleton &skeleton, viro::Node *outNode);
+    void exportGeometry(FbxNode *node, int depth, bool compressTextures, viro::Node::Geometry *geo);
+    void exportMaterial(FbxSurfaceMaterial *inMaterial, bool compressTextures, viro::Node::Geometry::Material *outMaterial);
     void exportHardwareMaterial(FbxSurfaceMaterial *inMaterial, const FbxImplementation *implementation,
                                 viro::Node::Geometry::Material *outMaterial);
     void exportSkeleton(FbxNode *rootNode, viro::Node::Skeleton *outSkeleton);
@@ -88,6 +94,10 @@ private:
     
     viro::Node_Geometry_Material_Visual_WrapMode convert(FbxTexture::EWrapMode wrapMode);
     
+#pragma mark - Texture Compression
+    
+    bool compressTexture(std::string textureName);
+    
 #pragma mark - Print Methods
     
     int _numTabs;
@@ -99,6 +109,8 @@ private:
 #pragma mark - Utils
     
     std::string extractTextureName(FbxFileTexture *texture);
+    std::string getFileName(std::string file);
+    std::string getFileExtension(std::string file);
     bool endsWith(const std::string& candidate, const std::string& ending);
   
 };

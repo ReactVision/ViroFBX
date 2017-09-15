@@ -11,6 +11,9 @@
 #include <set>
 #include <fstream>
 #include <algorithm>
+#include <cstdio>
+#include <iostream>
+#include <array>
 #include "VROUtil.h"
 
 static const bool kDebugGeometrySource = false;
@@ -58,6 +61,8 @@ VROFBXExporter::~VROFBXExporter() {
 }
 
 FbxScene *VROFBXExporter::loadFBX(std::string fbxPath) {
+    _fbxPath = fbxPath;
+    
     FbxIOSettings *ios = FbxIOSettings::Create(_fbxManager, IOSROOT);
     _fbxManager->SetIOSettings(ios);
     
@@ -65,7 +70,6 @@ FbxScene *VROFBXExporter::loadFBX(std::string fbxPath) {
     
     pinfo("Loading file [%s]", fbxPath.c_str());
     bool importStatus = importer->Initialize(fbxPath.c_str());
-    
     if (!importStatus) {
         pinfo("Call to FBXImporter::Initialize() failed");
         pinfo("Error returned: %s", importer->GetStatus().GetErrorString());
@@ -117,7 +121,7 @@ FbxScene *VROFBXExporter::loadFBX(std::string fbxPath) {
 
 #pragma mark - Export Geometry
 
-void VROFBXExporter::exportFBX(std::string fbxPath, std::string destPath) {
+void VROFBXExporter::exportFBX(std::string fbxPath, std::string destPath, bool compressTextures) {
     FbxScene *scene = loadFBX(fbxPath);
     if (scene == nullptr) {
         return;
@@ -156,7 +160,8 @@ void VROFBXExporter::exportFBX(std::string fbxPath, std::string destPath) {
         
         for (int i = 0; i < rootNode->GetChildCount(); i++) {
             if (isExportableNode(rootNode->GetChild(i))) {
-                exportNode(scene, rootNode->GetChild(i), 0, *skeleton, outNode->add_subnode());
+                exportNode(scene, rootNode->GetChild(i), 0, compressTextures,
+                           *skeleton, outNode->add_subnode());
             }
         }
     }
@@ -201,7 +206,8 @@ bool VROFBXExporter::isExportableNode(FbxNode *node) {
     return true;
 }
 
-void VROFBXExporter::exportNode(FbxScene *scene, FbxNode *node, int depth, const viro::Node::Skeleton &skeleton, viro::Node *outNode) {
+void VROFBXExporter::exportNode(FbxScene *scene, FbxNode *node, int depth, bool compressTextures,
+                                const viro::Node::Skeleton &skeleton, viro::Node *outNode) {
     passert (isExportableNode(node));
     
     pinfo("Exporting node [%s], type [%s]", node->GetName(),
@@ -248,7 +254,7 @@ void VROFBXExporter::exportNode(FbxScene *scene, FbxNode *node, int depth, const
     
     if (node->GetMesh() != nullptr) {
         pinfo("   Exporting geometry");
-        exportGeometry(node, depth, outNode->mutable_geometry());
+        exportGeometry(node, depth, compressTextures, outNode->mutable_geometry());
         
         /*
          Export the skin, if there is a skeleton.
@@ -272,12 +278,13 @@ void VROFBXExporter::exportNode(FbxScene *scene, FbxNode *node, int depth, const
     }
     for (int i = 0; i < node->GetChildCount(); i++) {
         if (isExportableNode(node->GetChild(i))) {
-            exportNode(scene, node->GetChild(i), depth, skeleton, outNode->add_subnode());
+            exportNode(scene, node->GetChild(i), depth, compressTextures,
+                       skeleton, outNode->add_subnode());
         }
     }
 }
 
-void VROFBXExporter::exportGeometry(FbxNode *node, int depth, viro::Node::Geometry *geo) {
+void VROFBXExporter::exportGeometry(FbxNode *node, int depth, bool compressTextures, viro::Node::Geometry *geo) {
     FbxMesh *mesh = node->GetMesh();
     passert_msg (mesh, "Failed to export, null mesh!");
     
@@ -467,7 +474,7 @@ void VROFBXExporter::exportGeometry(FbxNode *node, int depth, viro::Node::Geomet
             FbxSurfaceMaterial *fbxMaterial = node->GetMaterial(i);
             viro::Node::Geometry::Material *material = geo->add_material();
             
-            exportMaterial(fbxMaterial, material);
+            exportMaterial(fbxMaterial, compressTextures, material);
         }
     }
     else {
@@ -1225,7 +1232,7 @@ std::vector<int> VROFBXExporter::readMaterialToMeshMapping(FbxMesh *mesh, int nu
     return materialMapping;
 }
 
-void VROFBXExporter::exportMaterial(FbxSurfaceMaterial *inMaterial, viro::Node::Geometry::Material *outMaterial) {
+void VROFBXExporter::exportMaterial(FbxSurfaceMaterial *inMaterial, bool compressTextures, viro::Node::Geometry::Material *outMaterial) {
     // Check if we're using a hardware material
     const FbxImplementation *implementation = GetImplementation(inMaterial, FBXSDK_IMPLEMENTATION_HLSL);
     if (!implementation) {
@@ -1347,9 +1354,13 @@ void VROFBXExporter::exportMaterial(FbxSurfaceMaterial *inMaterial, viro::Node::
                         
                         if (fileTexture) {
                             std::string textureName = extractTextureName(fileTexture);
-                            pinfo("         Texture index %d, texture type [%s], texture name [%s]", textureIndex, textureType.c_str(),  textureName.c_str());
+                            pinfo("         Texture index %d, texture type [%s], texture name [%s]", textureIndex, textureType.c_str(), textureName.c_str());
                             
                             if (textureType == "DiffuseColor") {
+                                if (compressTextures && compressTexture(textureName)) {
+                                    textureName = getFileName(textureName) + ".ktx";
+                                    pinfo("         Texture successfully compressed, renamed to %s", textureName.c_str());
+                                }
                                 outMaterial->mutable_diffuse()->set_texture(textureName);
                                 outMaterial->mutable_diffuse()->set_wrap_mode_s(convert(texture->GetWrapModeU()));
                                 outMaterial->mutable_diffuse()->set_wrap_mode_t(convert(texture->GetWrapModeV()));
@@ -1358,6 +1369,10 @@ void VROFBXExporter::exportMaterial(FbxSurfaceMaterial *inMaterial, viro::Node::
                                 outMaterial->mutable_diffuse()->set_mip_filter(viro::Node_Geometry_Material_Visual_FilterMode_Linear);
                             }
                             else if (textureType == "SpecularColor") {
+                                if (compressTextures && compressTexture(textureName)) {
+                                    textureName = getFileName(textureName) + ".ktx";
+                                    pinfo("         Texture successfully compressed, renamed to %s", textureName.c_str());
+                                }
                                 outMaterial->mutable_specular()->set_texture(textureName);
                                 outMaterial->mutable_specular()->set_wrap_mode_s(convert(texture->GetWrapModeU()));
                                 outMaterial->mutable_specular()->set_wrap_mode_t(convert(texture->GetWrapModeV()));
@@ -1488,6 +1503,47 @@ viro::Node_Geometry_Material_Visual_WrapMode VROFBXExporter::convert(FbxTexture:
         default:
             return viro::Node_Geometry_Material_Visual_WrapMode_Clamp;
     }
+}
+
+bool VROFBXExporter::compressTexture(std::string textureName) {
+    // Check if the texture exists in the .fbm folder that the importer
+    // automatically creates when we export an FBX with embedded textures
+    std::string fbmFolder = getFileName(_fbxPath) + ".fbm";
+    std::string texturePath = fbmFolder + "/" + textureName;
+    std::ifstream f(texturePath.c_str());
+    if (!f.good()) {
+        pinfo("Texture at path %s does not exist, will not compress", texturePath.c_str());
+        return false;
+    }
+    
+    // Currently we only support compressing PNG files
+    std::string name = getFileName(textureName);
+    std::string extension = getFileExtension(textureName);
+    if (extension != "png") {
+        pinfo("Texture %s is not a PNG, will not compress", texturePath.c_str());
+        return false;
+    }
+    
+    //std::string cmd = "./EtcTool " + texturePath + " -format RGBA8 -mipmaps 16 -output " + fbmFolder + "/" + name + ".ktx";
+    std::string cmd = "/Users/radvani/Source/react-viro/bin/EtcTool " + texturePath + " -format RGBA8 -mipmaps 16 -output " + fbmFolder + "/" + name + ".ktx";
+
+    pinfo("Running texture compression command [%s]", cmd.c_str());
+    
+    std::array<char, 128> buffer;
+    std::string result;
+    std::shared_ptr<FILE> pipe(popen(cmd.c_str(), "r"), pclose);
+    if (!pipe) {
+        pinfo("Failed to run texture compression command, will not compress texture");
+        return false;
+    }
+    
+    while (!feof(pipe.get())) {
+        if (fgets(buffer.data(), 128, pipe.get()) != nullptr) {
+            result += buffer.data();
+        }
+    }
+    pinfo("%s", result.c_str());
+    return true;
 }
 
 #pragma mark - Printing (Debug)
@@ -1810,6 +1866,26 @@ std::string VROFBXExporter::extractTextureName(FbxFileTexture *texture) {
     }
     
     return textureName;
+}
+
+std::string VROFBXExporter::getFileName(std::string file) {
+    std::string::size_type index = file.rfind('.');
+    if (index != std::string::npos) {
+        return file.substr(0, index);
+    }
+    else {
+        return file;
+    }
+}
+
+std::string VROFBXExporter::getFileExtension(std::string file) {
+    std::string::size_type index = file.rfind('.');
+    if (index != std::string::npos) {
+        return file.substr(index + 1);
+    }
+    else {
+        return "";
+    }
 }
 
 bool VROFBXExporter::endsWith(const std::string& candidate, const std::string& ending) {
