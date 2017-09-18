@@ -1524,8 +1524,8 @@ bool VROFBXExporter::compressTexture(std::string textureName) {
         return false;
     }
     
-    //std::string cmd = "./EtcTool " + texturePath + " -format RGBA8 -mipmaps 16 -output " + fbmFolder + "/" + name + ".ktx";
-    std::string cmd = "/Users/radvani/Source/react-viro/bin/EtcTool " + texturePath + " -format RGBA8 -mipmaps 16 -output " + fbmFolder + "/" + name + ".ktx";
+    std::string cmd = "./EtcTool " + texturePath + " -format RGBA8 -mipmaps 16 -output " + fbmFolder + "/" + name + ".ktx";
+    //std::string cmd = "/Users/radvani/Source/react-viro/bin/EtcTool " + texturePath + " -format RGBA8 -mipmaps 16 -output " + fbmFolder + "/" + name + ".ktx";
 
     pinfo("Running texture compression command [%s]", cmd.c_str());
     
