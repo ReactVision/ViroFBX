@@ -19,6 +19,12 @@ void printUsage() {
 int main(int argc, const char * argv[]) {
   @autoreleasepool {
       if (kTestMode) {
+          std::string smileFBX = "/Users/radvani/Source/ViroFBX/macos/ViroFBX/emoji_smile_anim_a.fbx";
+          std::string smileProto = "/Users/radvani/Source/ViroRenderer/ios/ViroSample/emoji_smile_anim.vrx";
+          
+          std::string starFBX = "/Users/radvani/Source/ViroFBX/macos/ViroFBX/object_star_anim.fbx";
+          std::string starProto = "/Users/radvani/Source/ViroRenderer/ios/ViroSample/object_star_anim.vrx";
+          
           std::string pugFBX = "/Users/radvani/Source/ViroFBX/macos/ViroFBX/dog_animated_v3.fbx";
           std::string pugProto = "/Users/radvani/Source/ViroRenderer/ios/ViroSample/pug.vrx";
           
@@ -55,7 +61,10 @@ int main(int argc, const char * argv[]) {
           VROFBXExporter *exporter = new VROFBXExporter();
           //exporter->debugPrint(heartFBX);
           
-          exporter->exportFBX(pugFBX, pugProto, false);
+          //exporter->exportFBX(starFBX, starProto, false);
+
+          exporter->exportFBX(smileFBX, smileProto, false);
+          //exporter->exportFBX(pugFBX, pugProto, false);
           /*
           exporter->exportFBX(alienFBX, alienProto);
           exporter->exportFBX(porscheFBX, porscheProto);

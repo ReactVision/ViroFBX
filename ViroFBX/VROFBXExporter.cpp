@@ -875,13 +875,13 @@ void VROFBXExporter::exportSkeletalAnimations(FbxScene *scene, FbxNode *node, co
      Iterate through each animation stack. Each stack corresponds to a separate skeletal animation.
      */
     int numStacks = scene->GetSrcObjectCount(FbxCriteria::ObjectType(FbxAnimStack::ClassId));
-    for (int i = 0; i < numStacks; i++) {
+    for (int s = 0; s < numStacks; s++) {
         viro::Node::SkeletalAnimation *skeletalAnimation = outNode->add_skeletal_animation();
         
         /*
          Get metadata for the animation.
          */
-        FbxAnimStack *animStack = scene->GetSrcObject<FbxAnimStack>(i);
+        FbxAnimStack *animStack = scene->GetSrcObject<FbxAnimStack>(s);
         FbxString animStackName = animStack->GetName();
         FbxTakeInfo *take = scene->GetTakeInfo(animStackName);
         FbxTime start = take->mLocalTimeSpan.GetStart();
@@ -894,13 +894,23 @@ void VROFBXExporter::exportSkeletalAnimations(FbxScene *scene, FbxNode *node, co
         skeletalAnimation->set_duration(duration);
         skeletalAnimation->set_has_scaling(false);
 
-        for (FbxLongLong i = start.GetFrameCount(FbxTime::eFrames30); i <= end.GetFrameCount(FbxTime::eFrames30); ++i) {
+        FbxLongLong startFrame = start.GetFrameCount(FbxTime::eFrames30);
+        FbxLongLong endFrame = end.GetFrameCount(FbxTime::eFrames30);
+        
+        scene->SetCurrentAnimationStack(animStack);
+        
+        for (FbxLongLong i = startFrame; i < endFrame; ++i) {
             viro::Node::SkeletalAnimation::Frame *frame = skeletalAnimation->add_frame();
             
-            FbxTime time;
-            time.SetFrame(i, FbxTime::eFrames30);
+            // Time in the FBX file
+            FbxTime frameTime;
+            frameTime.SetFrame(i, FbxTime::eFrames30);
             
-            frame->set_time(fmin(1.0, (float) time.GetMilliSeconds() / (float) duration));
+            // Time in the current animation
+            FbxTime animationTime;
+            animationTime.SetFrame(i - startFrame, FbxTime::eFrames30);
+            
+            frame->set_time(fmin(1.0, (float) animationTime.GetMilliSeconds() / (float) duration));
             for (unsigned int deformerIndex = 0; deformerIndex < numDeformers; ++deformerIndex) {
                 // We only use skin deformers for skeletal animation
                 FbxSkin *skin = reinterpret_cast<FbxSkin*>(mesh->GetDeformer(deformerIndex, FbxDeformer::eSkin));
@@ -950,7 +960,7 @@ void VROFBXExporter::exportSkeletalAnimations(FbxScene *scene, FbxNode *node, co
                      3. Bone space, bind position      --> [boneWorldTransform]          --> World space, animated position
                      4. World space, animated position --> [inverseBoneBindingTransform] --> Bone space, animated position
                      */
-                    FbxAMatrix boneWorldTransform = evaluator->GetNodeGlobalTransform(bone, time);
+                    FbxAMatrix boneWorldTransform = evaluator->GetNodeGlobalTransform(bone, frameTime);
         
                     FbxAMatrix boneBindingTransform;
                     cluster->GetTransformLinkMatrix(boneBindingTransform);
@@ -1024,13 +1034,13 @@ void VROFBXExporter::exportSampledKeyframeAnimations(FbxScene *scene, FbxNode *n
      Iterate through each animation stack. Each stack corresponds to a separate skeletal animation.
      */
     int numStacks = scene->GetSrcObjectCount(FbxCriteria::ObjectType(FbxAnimStack::ClassId));
-    for (int i = 0; i < numStacks; i++) {
+    for (int s = 0; s < numStacks; s++) {
         viro::Node::KeyframeAnimation *keyframeAnimation = outNode->add_keyframe_animation();
         
         /*
          Get metadata for the animation.
          */
-        FbxAnimStack *animStack = scene->GetSrcObject<FbxAnimStack>(i);
+        FbxAnimStack *animStack = scene->GetSrcObject<FbxAnimStack>(s);
         FbxString animStackName = animStack->GetName();
         FbxTakeInfo *take = scene->GetTakeInfo(animStackName);
         FbxTime start = take->mLocalTimeSpan.GetStart();
@@ -1042,20 +1052,30 @@ void VROFBXExporter::exportSampledKeyframeAnimations(FbxScene *scene, FbxNode *n
         keyframeAnimation->set_name(animStackName.Buffer());
         keyframeAnimation->set_duration(duration);
         
-        for (FbxLongLong i = start.GetFrameCount(FbxTime::eFrames30); i <= end.GetFrameCount(FbxTime::eFrames30); ++i) {
+        FbxLongLong startFrame = start.GetFrameCount(FbxTime::eFrames30);
+        FbxLongLong endFrame = end.GetFrameCount(FbxTime::eFrames30);
+        
+        scene->SetCurrentAnimationStack(animStack);
+        
+        for (FbxLongLong i = startFrame; i < endFrame; ++i) {
             viro::Node::KeyframeAnimation::Frame *kf = keyframeAnimation->add_frame();
             
-            FbxTime time;
-            time.SetFrame(i, FbxTime::eFrames30);
-            kf->set_time(fmin(1.0, (float) time.GetMilliSeconds() / (float) duration));
+            // Time in the FBX file
+            FbxTime frameTime;
+            frameTime.SetFrame(i, FbxTime::eFrames30);
             
-            FbxAMatrix localTransform = evaluator->GetNodeLocalTransform(node, time);
+            // Time in the current animation
+            FbxTime animationTime;
+            animationTime.SetFrame(i - startFrame, FbxTime::eFrames30);
+            
+            kf->set_time(fmin(1.0, (float) animationTime.GetMilliSeconds() / (float) duration));
+            FbxAMatrix localTransform = evaluator->GetNodeLocalTransform(node, frameTime);
             
             FbxVector4 localScale = localTransform.GetS();
             kf->add_scale(localScale.mData[0]);
             kf->add_scale(localScale.mData[1]);
             kf->add_scale(localScale.mData[2]);
-            
+
             //pinfo("Frame %d, scale %f, %f, %f", i, localScale.mData[0], localScale.mData[1], localScale.mData[2]);
             
             FbxVector4 localTranslation = localTransform.GetT();
@@ -1070,6 +1090,8 @@ void VROFBXExporter::exportSampledKeyframeAnimations(FbxScene *scene, FbxNode *n
             kf->add_rotation(localRotation.mData[1]);
             kf->add_rotation(localRotation.mData[2]);
             kf->add_rotation(localRotation.mData[3]);
+
+            //pinfo("Frame %d, rotation %f, %f, %f", i, localRotation.mData[0], localRotation.mData[1], localRotation.mData[2]);
         }
     }
 }
