@@ -61,9 +61,9 @@ int main(int argc, const char * argv[]) {
           VROFBXExporter *exporter = new VROFBXExporter();
           //exporter->debugPrint(heartFBX);
           
-          //exporter->exportFBX(starFBX, starProto, false);
+          exporter->exportFBX(starFBX, starProto, false);
 
-          exporter->exportFBX(smileFBX, smileProto, false);
+          //exporter->exportFBX(smileFBX, smileProto, false);
           //exporter->exportFBX(pugFBX, pugProto, false);
           /*
           exporter->exportFBX(alienFBX, alienProto);

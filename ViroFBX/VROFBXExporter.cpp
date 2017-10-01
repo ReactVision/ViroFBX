@@ -113,8 +113,14 @@ FbxScene *VROFBXExporter::loadFBX(std::string fbxPath) {
     //
     // NOTE: This apparently stopped working after FBX SDK 2015 (tried in versions 2016 and 2018)
     //       https://forums.autodesk.com/t5/fbx-forum/issue-with-convertpivotanimationrecursive-and-default-transform/td-p/6887073
-    pinfo("Baking pivots...");
-    scene->GetRootNode()->ResetPivotSetAndConvertAnimation(kAnimationFPS);
+    // Further note: Disabling this now, because it's broken for FBX files that have multiple
+    //               animation stacks: it seems to only convert the *first* animation stack,
+    //               leaving the remainder corrupted. It's possible that this is fixed in version
+    //               2018, except the function is broken in general in 2018. For now, disable this
+    //               since most software shouldn't be exporting pre-rotation and post-rotation, etc.
+    //               anyway.
+    //pinfo("Baking pivots...");
+    //scene->GetRootNode()->ResetPivotSetAndConvertAnimation(kAnimationFPS);
 
     return scene;
 }
