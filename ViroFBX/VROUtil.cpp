@@ -13,14 +13,18 @@
 #include <sstream>
 
 std::string compressString(const std::string& str, int compressionlevel) {
+    return compressBytes(str.data(), str.size(), compressionlevel);
+}
+
+std::string compressBytes(const void *data, size_t dataLength, int compressionlevel) {
     z_stream zs;                        // z_stream is zlib's control structure
     memset(&zs, 0, sizeof(zs));
     
     if (deflateInit(&zs, compressionlevel) != Z_OK)
         throw(std::runtime_error("deflateInit failed while compressing."));
     
-    zs.next_in = (Bytef*)str.data();
-    zs.avail_in = (unsigned int)str.size();           // set the z_stream's input
+    zs.next_in = (Bytef*) data;
+    zs.avail_in = dataLength; // set the z_stream's input
     
     int ret;
     char outbuffer[32768];

@@ -20,4 +20,10 @@
 std::string compressString(const std::string& str,
                            int compressionlevel = Z_BEST_COMPRESSION);
 
+/*
+ Compress the given byte array and return the binary data in a string.
+ */
+std::string compressBytes(const void *data, size_t dataLength,
+                          int compressionlevel = Z_BEST_COMPRESSION);
+
 #endif /* VROUtil_hpp */

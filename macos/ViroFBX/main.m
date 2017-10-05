@@ -8,9 +8,10 @@
 
 #import <Foundation/Foundation.h>
 #import "VROFBXExporter.h"
+#import "VROImageExporter.h"
 #import "VROLog.h"
 
-const bool kTestMode = NO;
+const bool kTestMode = YES;
 
 void printUsage() {
     pinfo("Usage: ViroFBX [--compress-textures] [source FBX file] [destination VRX file]");
@@ -19,6 +20,12 @@ void printUsage() {
 int main(int argc, const char * argv[]) {
   @autoreleasepool {
       if (kTestMode) {
+          std::string playaEXR = "/Users/radvani/Source/ViroFBX/macos/ViroFBX/Playa_Sunrise.exr";
+          std::string playaOut = "/Users/radvani/Source/ViroRenderer/ios/ViroSample/sunrise.vhd";
+          
+          std::string woodenHDR = "/Users/radvani/Source/ViroFBX/macos/ViroFBX/Ridgecrest_Road_Ref.hdr";
+          std::string woodenOut = "/Users/radvani/Source/ViroRenderer/ios/ViroSample/wooden.vhd";
+          
           std::string smileFBX = "/Users/radvani/Source/ViroFBX/macos/ViroFBX/emoji_smile_anim_a.fbx";
           std::string smileProto = "/Users/radvani/Source/ViroRenderer/ios/ViroSample/emoji_smile_anim.vrx";
           
@@ -58,10 +65,13 @@ int main(int argc, const char * argv[]) {
           std::string gorillaFBX = "/Users/radvani/Source/ViroFBX/macos/ViroFBX/gorilla.fbx";
           std::string gorillaProto = "/Users/radvani/Source/ViroRenderer/ios/ViroSample/gorilla.vrx";
           
-          VROFBXExporter *exporter = new VROFBXExporter();
+          VROImageExporter *imageExporter = new VROImageExporter();
+          imageExporter->exportHDR(woodenHDR, woodenOut, VROImageOutputFormat::RGB9E5);
+          imageExporter->exportEXR(playaEXR, playaOut, VROImageOutputFormat::RGB9E5);
+         // VROFBXExporter *exporter = new VROFBXExporter();
           //exporter->debugPrint(heartFBX);
           
-          exporter->exportFBX(starFBX, starProto, false);
+          //exporter->exportFBX(starFBX, starProto, false);
 
           //exporter->exportFBX(smileFBX, smileProto, false);
           //exporter->exportFBX(pugFBX, pugProto, false);
