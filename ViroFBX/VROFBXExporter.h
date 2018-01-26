@@ -111,7 +111,14 @@ private:
     std::string extractTextureName(FbxFileTexture *texture);
     std::string getFileName(std::string file);
     std::string getFileExtension(std::string file);
-    bool endsWith(const std::string& candidate, const std::string& ending);
+    bool startsWith(const std::string &candidate, const std::string &beginning);
+    bool endsWith(const std::string &candidate, const std::string &ending);
+    FbxDouble2 parseDouble2(FbxProperty property);
+    FbxDouble3 parseDouble3(FbxProperty property);
+    FbxDouble4 parseDouble4(FbxProperty property);
+    std::string parseTexture(FbxProperty property);
+    bool parseBool(FbxProperty property);
+    float parseFloat(FbxProperty property);
   
 };
 

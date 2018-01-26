@@ -75,6 +75,7 @@ message Node {
                 Lambert = 1;
                 Blinn = 2;
                 Phong = 3;
+		        PhysicallyBased = 4;
             }
             LightingModel lighting_model = 5;
 
@@ -130,6 +131,9 @@ message Node {
             Visual reflective = 14;
             Visual emission = 15;
             Visual multiply = 16;
+	        Visual roughness = 17;
+            Visual metalness = 18;
+            Visual ao = 19;
         }
         repeated Material material = 5;
 

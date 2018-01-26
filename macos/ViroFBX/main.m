@@ -23,11 +23,14 @@ int main(int argc, const char * argv[]) {
           std::string playaEXR = "/Users/radvani/Source/ViroFBX/macos/ViroFBX/Playa_Sunrise.exr";
           std::string playaOut = "/Users/radvani/Source/ViroRenderer/ios/ViroSample/sunrise.vhd";
           
-          std::string woodenHDR = "/Users/radvani/Source/ViroFBX/macos/ViroFBX/Ridgecrest_Road_Ref.hdr";
+          std::string woodenHDR = "/Users/radvani/Source/ViroFBX/macos/ViroFBX/WoodenDoor_Ref.hdr";
           std::string woodenOut = "/Users/radvani/Source/ViroRenderer/ios/ViroSample/wooden.vhd";
           
           std::string smileFBX = "/Users/radvani/Source/ViroFBX/macos/ViroFBX/emoji_smile_anim_a.fbx";
           std::string smileProto = "/Users/radvani/Source/ViroRenderer/ios/ViroSample/emoji_smile_anim.vrx";
+          
+          std::string cylinderFBX = "/Users/radvani/Source/ViroFBX/macos/ViroFBX/cylinder_pbr.fbx";
+          std::string cylinderProto = "/Users/radvani/Source/ViroRenderer/ios/ViroSample/cylinder_pbr.vrx";
           
           std::string starFBX = "/Users/radvani/Source/ViroFBX/macos/ViroFBX/object_star_anim.fbx";
           std::string starProto = "/Users/radvani/Source/ViroRenderer/ios/ViroSample/object_star_anim.vrx";
@@ -65,11 +68,12 @@ int main(int argc, const char * argv[]) {
           std::string gorillaFBX = "/Users/radvani/Source/ViroFBX/macos/ViroFBX/gorilla.fbx";
           std::string gorillaProto = "/Users/radvani/Source/ViroRenderer/ios/ViroSample/gorilla.vrx";
           
-          VROImageExporter *imageExporter = new VROImageExporter();
-          imageExporter->exportHDR(woodenHDR, woodenOut, VROImageOutputFormat::RGB9E5);
-          imageExporter->exportEXR(playaEXR, playaOut, VROImageOutputFormat::RGB9E5);
-         // VROFBXExporter *exporter = new VROFBXExporter();
-          //exporter->debugPrint(heartFBX);
+          //VROImageExporter *imageExporter = new VROImageExporter();
+          //imageExporter->exportHDR(woodenHDR, woodenOut, VROImageOutputFormat::RGB9E5);
+          //imageExporter->exportEXR(playaEXR, playaOut, VROImageOutputFormat::RGB9E5);
+          VROFBXExporter *exporter = new VROFBXExporter();
+          //exporter->debugPrint(cylinderFBX);
+          exporter->exportFBX(cylinderFBX, cylinderProto, false);
           
           //exporter->exportFBX(starFBX, starProto, false);
 

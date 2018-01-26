@@ -1268,9 +1268,12 @@ void VROFBXExporter::exportMaterial(FbxSurfaceMaterial *inMaterial, bool compres
     }
     
     if (implementation) {
+        pinfo("      Exporting hardware material");
         exportHardwareMaterial(inMaterial, implementation, outMaterial);
         return;
     }
+    
+    std::string materialName = std::string(inMaterial->GetName());
     
     // Otherwise it's either Phong or Lambert
     if (inMaterial->GetClassId().Is(FbxSurfacePhong::ClassId)) {
@@ -1362,6 +1365,118 @@ void VROFBXExporter::exportMaterial(FbxSurfaceMaterial *inMaterial, bool compres
         }
         
         pinfo("         Opacity set to %f", outMaterial->transparency());
+    }
+    else if (startsWith(materialName, "Stingray")) {
+        pinfo("      Stingray material [%s]", materialName.c_str());
+        outMaterial->set_lighting_model(viro::Node_Geometry_Material_LightingModel_PhysicallyBased);
+        outMaterial->set_transparency(1.0);
+        
+        // Create a flat table of all material properties
+        std::map<std::string, FbxProperty> propertyTable;
+        FbxProperty prop = inMaterial->GetFirstProperty();
+        while (prop.IsValid()) {
+            propertyTable[std::string(prop.GetName().Buffer())] = prop;
+            prop = inMaterial->GetNextProperty(prop);
+        }
+        
+        // Albedo properties
+        FbxDouble3 albedoColor = parseDouble3(propertyTable["base_color"]);
+        std::string albedoMap = parseTexture(propertyTable["TEX_color_map"]);
+        bool useAlbedoMap = parseBool(propertyTable["use_color_map"]);
+        
+        pinfo("         Albedo color %f, %f, %f", albedoColor[0], albedoColor[1], albedoColor[2]);
+        pinfo("         Albedo map %s", albedoMap.c_str());
+        pinfo("         Use albedo map %d", useAlbedoMap);
+        
+        viro::Node::Geometry::Material::Visual *diffuse = outMaterial->mutable_diffuse();
+        diffuse->set_intensity(1.0);
+        
+        // For PBR we use *either* the map or the color for the Albedo texture
+        if (useAlbedoMap) {
+            diffuse->set_texture(albedoMap);
+            diffuse->add_color(static_cast<float>(1.0));
+            diffuse->add_color(static_cast<float>(1.0));
+            diffuse->add_color(static_cast<float>(1.0));
+        }
+        else {
+            diffuse->add_color(static_cast<float>(albedoColor[0]));
+            diffuse->add_color(static_cast<float>(albedoColor[1]));
+            diffuse->add_color(static_cast<float>(albedoColor[2]));
+        }
+        
+        // Metalness properties
+        float metalnessValue = parseFloat(propertyTable["metallic"]);
+        std::string metalnessMap = parseTexture(propertyTable["TEX_metallic_map"]);
+        bool useMetalnessMap = parseBool(propertyTable["use_metallic_map"]);
+        
+        pinfo("         Metalness %f", metalnessValue);
+        pinfo("         Metalness map %s", metalnessMap.c_str());
+        pinfo("         Use metalness map %d", useMetalnessMap);
+        
+        viro::Node::Geometry::Material::Visual *metalness = outMaterial->mutable_metalness();
+        metalness->set_intensity(1.0);
+        metalness->add_color(metalnessValue);
+        if (useMetalnessMap) {
+            metalness->set_texture(metalnessMap);
+        }
+
+        // Roughness properties
+        float roughnessValue = parseFloat(propertyTable["roughness"]);
+        std::string roughnessMap = parseTexture(propertyTable["TEX_roughness_map"]);
+        bool useRoughnessMap = parseBool(propertyTable["use_roughness_map"]);
+        
+        pinfo("         Roughness %f", roughnessValue);
+        pinfo("         Roughness map %s", roughnessMap.c_str());
+        pinfo("         Use roughness map %d", useRoughnessMap);
+
+        viro::Node::Geometry::Material::Visual *roughness = outMaterial->mutable_roughness();
+        roughness->set_intensity(1.0);
+        roughness->add_color(roughnessValue);
+        if (useRoughnessMap) {
+            roughness->set_texture(roughnessMap);
+        }
+        
+        // Normal map
+        std::string normalMap = parseTexture(propertyTable["TEX_normal_map"]);
+        bool useNormalMap = parseBool(propertyTable["use_normal_map"]);
+        
+        pinfo("         Normal map %s", normalMap.c_str());
+        pinfo("         Use normal map %d", useNormalMap);
+        
+        if (useNormalMap) {
+            viro::Node::Geometry::Material::Visual *normal = outMaterial->mutable_normal();
+            normal->set_intensity(1.0);
+            normal->set_texture(normalMap);
+        }
+        
+        // Emissive map
+        std::string emissiveMap = parseTexture(propertyTable["TEX_emissive_map"]);
+        bool useEmissiveMap = parseBool(propertyTable["use_emissive_map"]);
+        
+        pinfo("         Emissive map %s", emissiveMap.c_str());
+        pinfo("         Use emissive map %d", useEmissiveMap);
+        
+        if (useEmissiveMap) {
+            viro::Node::Geometry::Material::Visual *emissive = outMaterial->mutable_emission();
+            emissive->set_intensity(1.0);
+            emissive->set_texture(emissiveMap);
+        }
+        
+        // AO map
+        std::string aoMap = parseTexture(propertyTable["TEX_ao_map"]);
+        bool useAOMap = parseBool(propertyTable["use_ao_map"]);
+        
+        pinfo("         AO map %s", aoMap.c_str());
+        pinfo("         Use ao map %d", useAOMap);
+        
+        if (useAOMap) {
+            viro::Node::Geometry::Material::Visual *ao = outMaterial->mutable_ao();
+            ao->set_intensity(1.0);
+            ao->set_texture(aoMap);
+        }
+    }
+    else {
+        pinfo("      WARNING: Unknown material type!");
     }
     
     unsigned int textureIndex = 0;
@@ -1865,7 +1980,23 @@ void VROFBXExporter::printGeometry(FbxGeometry *pGeometry) {
                 pinfo("            Transparency: %f", lKFbxDouble1.Get());
             }
             else {
-                pinfo("Unknown type of Material");
+                FbxProperty prop = lMaterial->GetFirstProperty();
+                while (prop.IsValid()) {
+                    
+                    pinfo("      Property %s, Type %s", prop.GetName().Buffer(), prop.GetPropertyDataType().GetName());
+                    
+                    if (prop.GetSrcObjectCount<FbxTexture>() > 0) {
+                        for(int j = 0; j < prop.GetSrcObjectCount<FbxFileTexture>(); ++j) {
+                            FbxFileTexture *fileTexture = prop.GetSrcObject<FbxFileTexture>(j);
+                            pinfo("         Texture name %s", extractTextureName(fileTexture).c_str());;
+                        }
+                    }
+                    if (prop.GetPropertyDataType().GetType() == eFbxDouble || prop.GetPropertyDataType().GetType() == eFbxFloat) {
+                        pinfo("            Float value: %f", prop.Get<FbxDouble>());
+                    }
+                    prop = lMaterial->GetNextProperty(prop);
+                }
+                pinfo("            Unknown type of Material");
             }
             
             FbxPropertyT<FbxString> lString;
@@ -1915,12 +2046,76 @@ std::string VROFBXExporter::getFileExtension(std::string file) {
         return "";
     }
 }
-
+              
+bool VROFBXExporter::startsWith(const std::string &candidate, const std::string &prefix) {
+    if (candidate.length() < prefix.length()) {
+        return false;
+    }
+    return 0 == candidate.compare(0, prefix.length(), prefix, 0, prefix.length());
+}
+              
 bool VROFBXExporter::endsWith(const std::string& candidate, const std::string& ending) {
     if (candidate.length() < ending.length()) {
         return false;
     }
     return 0 == candidate.compare(candidate.length() - ending.length(), ending.length(), ending);
+}
+
+FbxDouble2 VROFBXExporter::parseDouble2(FbxProperty property) {
+    if (property.IsValid()) {
+        if (property.GetPropertyDataType().GetType() == eFbxDouble2) {
+            return property.Get<FbxDouble2>();
+        }
+    }
+    return FbxDouble2(0, 0);
+}
+
+FbxDouble3 VROFBXExporter::parseDouble3(FbxProperty property) {
+    if (property.IsValid()) {
+        if (property.GetPropertyDataType().GetType() == eFbxDouble3) {
+            return property.Get<FbxDouble3>();
+        }
+    }
+    return FbxDouble3(0, 0, 0);
+}
+
+FbxDouble4 VROFBXExporter::parseDouble4(FbxProperty property) {
+    if (property.IsValid()) {
+        if (property.GetPropertyDataType().GetType() == eFbxDouble4) {
+            return property.Get<FbxDouble4>();
+        }
+    }
+    return FbxDouble4(0, 0, 0, 0);
+}
+
+std::string VROFBXExporter::parseTexture(FbxProperty property) {
+    if (property.IsValid()) {
+        if (property.GetSrcObjectCount<FbxTexture>() > 0) {
+            FbxFileTexture *fileTexture = property.GetSrcObject<FbxFileTexture>(0);
+            return extractTextureName(fileTexture);
+        }
+    }
+    return "";
+}
+
+bool VROFBXExporter::parseBool(FbxProperty property) {
+    if (property.IsValid()) {
+        if (property.GetPropertyDataType().GetType() == eFbxDouble || property.GetPropertyDataType().GetType() == eFbxFloat) {
+            FbxDouble d = property.Get<FbxDouble>();
+            return property.Get<FbxDouble>() > 0.5;
+        }
+        else if (property.GetPropertyDataType().GetType() == eFbxBool) {
+            return property.Get<FbxBool>();
+        }
+    }
+    return false;
+}
+
+float VROFBXExporter::parseFloat(FbxProperty property) {
+    if (property.IsValid() && (property.GetPropertyDataType().GetType() == eFbxDouble || property.GetPropertyDataType().GetType() == eFbxFloat)) {
+        return property.Get<FbxDouble>();
+    }
+    return 0;
 }
 
 
