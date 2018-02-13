@@ -29,8 +29,14 @@ int main(int argc, const char * argv[]) {
           std::string smileFBX = "/Users/radvani/Source/ViroFBX/macos/ViroFBX/emoji_smile_anim_a.fbx";
           std::string smileProto = "/Users/radvani/Source/ViroRenderer/ios/ViroSample/emoji_smile_anim.vrx";
           
+          std::string pumpkinFBX = "/Users/radvani/Source/ViroFBX/macos/ViroFBX/object_pumpkin_anim.fbx";
+          std::string pumpkinProto = "/Users/radvani/Source/ViroRenderer/ios/ViroSample/pumpkin.vrx";
+          
           std::string cylinderFBX = "/Users/radvani/Source/ViroFBX/macos/ViroFBX/cylinder_pbr.fbx";
           std::string cylinderProto = "/Users/radvani/Source/ViroRenderer/ios/ViroSample/cylinder_pbr.vrx";
+          
+          std::string dragonFBX = "/Users/radvani/Source/ViroFBX/macos/ViroFBX/dragao_2018.fbx";
+          std::string dragonProto = "/Users/radvani/Source/ViroRenderer/ios/ViroSample/dragon.vrx";
           
           std::string starFBX = "/Users/radvani/Source/ViroFBX/macos/ViroFBX/object_star_anim.fbx";
           std::string starProto = "/Users/radvani/Source/ViroRenderer/ios/ViroSample/object_star_anim.vrx";
@@ -73,10 +79,10 @@ int main(int argc, const char * argv[]) {
           //imageExporter->exportEXR(playaEXR, playaOut, VROImageOutputFormat::RGB9E5);
           VROFBXExporter *exporter = new VROFBXExporter();
           //exporter->debugPrint(cylinderFBX);
-          exporter->exportFBX(cylinderFBX, cylinderProto, false);
-          
+          //exporter->debugPrint(pumpkinFBX);
+          //exporter->exportFBX(pumpkinFBX, pumpkinProto, false);
+          exporter->exportFBX(dragonFBX, dragonProto, false);
           //exporter->exportFBX(starFBX, starProto, false);
-
           //exporter->exportFBX(smileFBX, smileProto, false);
           //exporter->exportFBX(pugFBX, pugProto, false);
           /*
