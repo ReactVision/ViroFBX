@@ -277,12 +277,14 @@ void VROFBXExporter::exportNode(FbxScene *scene, FbxNode *node, int depth, bool 
             pinfo("   No skeleton found, will not export skin");
         }
         
-        pinfo("   Exporting keyframe animations");
-        exportSampledKeyframeAnimations(scene, node, outNode);
-        
         pinfo("   Exporting blend shape animations");
         exportBlendShapeAnimations(scene, node, outNode);
     }
+    
+    // Keyframe animations can be contained in mesh-less nodes
+    pinfo("   Exporting keyframe animations");
+    exportSampledKeyframeAnimations(scene, node, outNode);
+    
     for (int i = 0; i < node->GetChildCount(); i++) {
         if (isExportableNode(node->GetChild(i))) {
             exportNode(scene, node->GetChild(i), depth, compressTextures,
