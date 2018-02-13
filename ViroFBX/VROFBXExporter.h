@@ -69,18 +69,19 @@ private:
 #pragma mark - Export Methods
     
     void exportNode(FbxScene *scene, FbxNode *node, int depth, bool compressTextures,
-                    const viro::Node::Skeleton &skeleton, viro::Node *outNode);
+                    const std::vector<FbxNode *> &boneNodes, viro::Node *outNode);
     void exportGeometry(FbxNode *node, int depth, bool compressTextures, viro::Node::Geometry *geo);
     void exportMaterial(FbxSurfaceMaterial *inMaterial, bool compressTextures, viro::Node::Geometry::Material *outMaterial);
     void exportHardwareMaterial(FbxSurfaceMaterial *inMaterial, const FbxImplementation *implementation,
                                 viro::Node::Geometry::Material *outMaterial);
-    void exportSkeleton(FbxNode *rootNode, viro::Node::Skeleton *outSkeleton);
-    void exportSkeletonRecursive(FbxNode *node, int depth, int index, int parentIndex, viro::Node::Skeleton *outSkeleton);
-    void exportSkin(FbxNode *node, const viro::Node::Skeleton &skeleton, viro::Node::Geometry::Skin *outSkin);
+    void exportSkeleton(FbxNode *rootNode, std::vector<FbxNode *> *outBoneNodes, viro::Node::Skeleton *outSkeleton);
+    void exportSkeletonRecursive(FbxNode *node, int depth, int index, int parentIndex, std::vector<FbxNode *> *outBoneNodes, viro::Node::Skeleton *outSkeleton);
+    void exportSkin(FbxNode *node, const std::vector<FbxNode *> &boneNodes, viro::Node::Geometry::Skin *outSkin);
     
     void exportKeyframeAnimations(FbxScene *scene, FbxNode *node, viro::Node *outNode);
     void exportSampledKeyframeAnimations(FbxScene *scene, FbxNode *node, viro::Node *outNode);
-    void exportSkeletalAnimations(FbxScene *scene, FbxNode *node, const viro::Node::Skeleton &skeleton, viro::Node *outNode);
+    void exportSkeletalAnimations(FbxScene *scene, FbxNode *node, const std::vector<FbxNode *> &boneNodes,
+                                  viro::Node *outNode);
     void exportBlendShapeAnimations(FbxScene *scene, FbxNode *node, viro::Node *outNode);
     
 #pragma mark - Export Helpers
@@ -88,7 +89,7 @@ private:
     FbxVector4 readNormal(FbxMesh *mesh, int controlPointIndex, int cornerCounter);
     FbxVector4 readTangent(FbxMesh *mesh, int controlPointIndex, int cornerCounter);
     std::vector<int> readMaterialToMeshMapping(FbxMesh *mesh, int numPolygons);
-    unsigned int findBoneIndexUsingName(const std::string &name, const viro::Node::Skeleton &skeleton);
+    unsigned int findBoneIndex(FbxNode *node, const std::vector<FbxNode *> &boneNodes);
     bool isExportableNode(FbxNode *node);
     FbxAMatrix getGeometryMatrix(FbxNode *node);
     

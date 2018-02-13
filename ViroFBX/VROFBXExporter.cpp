@@ -162,12 +162,13 @@ void VROFBXExporter::exportFBX(std::string fbxPath, std::string destPath, bool c
         pinfo("Exporting skeleton");
         // The skeleton is exported into the root node
         viro::Node::Skeleton *skeleton = outNode->mutable_skeleton();
-        exportSkeleton(rootNode, skeleton);
+        std::vector<FbxNode *> boneNodes;
+        exportSkeleton(rootNode, &boneNodes, skeleton);
         
         for (int i = 0; i < rootNode->GetChildCount(); i++) {
             if (isExportableNode(rootNode->GetChild(i))) {
                 exportNode(scene, rootNode->GetChild(i), 0, compressTextures,
-                           *skeleton, outNode->add_subnode());
+                           boneNodes, outNode->add_subnode());
             }
         }
     }
@@ -213,7 +214,7 @@ bool VROFBXExporter::isExportableNode(FbxNode *node) {
 }
 
 void VROFBXExporter::exportNode(FbxScene *scene, FbxNode *node, int depth, bool compressTextures,
-                                const viro::Node::Skeleton &skeleton, viro::Node *outNode) {
+                                const std::vector<FbxNode *> &boneNodes, viro::Node *outNode) {
     passert (isExportableNode(node));
     
     pinfo("Exporting node [%s], type [%s]", node->GetName(),
@@ -265,12 +266,12 @@ void VROFBXExporter::exportNode(FbxScene *scene, FbxNode *node, int depth, bool 
         /*
          Export the skin, if there is a skeleton.
          */
-        if (skeleton.bone_size() > 0 && node->GetMesh()->GetDeformerCount() > 0) {
+        if (boneNodes.size() > 0 && node->GetMesh()->GetDeformerCount() > 0) {
             pinfo("   Exporting skin");
-            exportSkin(node, skeleton, outNode->mutable_geometry()->mutable_skin());
+            exportSkin(node, boneNodes, outNode->mutable_geometry()->mutable_skin());
             
             pinfo("   Exporting skeletal animations");
-            exportSkeletalAnimations(scene, node, skeleton, outNode);
+            exportSkeletalAnimations(scene, node, boneNodes, outNode);
         }
         else {
             pinfo("   No skeleton found, will not export skin");
@@ -285,7 +286,7 @@ void VROFBXExporter::exportNode(FbxScene *scene, FbxNode *node, int depth, bool 
     for (int i = 0; i < node->GetChildCount(); i++) {
         if (isExportableNode(node->GetChild(i))) {
             exportNode(scene, node->GetChild(i), depth, compressTextures,
-                       skeleton, outNode->add_subnode());
+                       boneNodes, outNode->add_subnode());
         }
     }
 }
@@ -616,14 +617,15 @@ FbxAMatrix VROFBXExporter::getGeometryMatrix(FbxNode *node) {
 
 #pragma mark - Export Skeleton and Animations
 
-void VROFBXExporter::exportSkeleton(FbxNode *rootNode, viro::Node::Skeleton *outSkeleton) {
+void VROFBXExporter::exportSkeleton(FbxNode *rootNode, std::vector<FbxNode *> *outBoneNodes, viro::Node::Skeleton *outSkeleton) {
     for (int i = 0; i < rootNode->GetChildCount(); ++i) {
         FbxNode *node = rootNode->GetChild(i);
-        exportSkeletonRecursive(node, 0, 0, -1, outSkeleton);
+        exportSkeletonRecursive(node, 0, 0, -1, outBoneNodes, outSkeleton);
     }
 }
 
-void VROFBXExporter::exportSkeletonRecursive(FbxNode *node, int depth, int index, int parentIndex, viro::Node::Skeleton *outSkeleton) {
+void VROFBXExporter::exportSkeletonRecursive(FbxNode *node, int depth, int index, int parentIndex,
+                                             std::vector<FbxNode *> *outBoneNodes, viro::Node::Skeleton *outSkeleton) {
     if (node->GetNodeAttribute() &&
         node->GetNodeAttribute()->GetAttributeType() &&
         node->GetNodeAttribute()->GetAttributeType() == FbxNodeAttribute::eSkeleton) {
@@ -633,9 +635,11 @@ void VROFBXExporter::exportSkeletonRecursive(FbxNode *node, int depth, int index
         viro::Node::Skeleton::Bone *bone = outSkeleton->add_bone();
         bone->set_name(node->GetName());
         bone->set_parent_index(parentIndex);
+        
+        outBoneNodes->push_back(node);
     }
     for (int i = 0; i < node->GetChildCount(); i++) {
-        exportSkeletonRecursive(node->GetChild(i), depth + 1, outSkeleton->bone_size(), index, outSkeleton);
+        exportSkeletonRecursive(node->GetChild(i), depth + 1, outSkeleton->bone_size(), index, outBoneNodes, outSkeleton);
     }
 }
 
@@ -643,7 +647,8 @@ bool SortByBoneWeight(const VROBoneIndexWeight &i, const VROBoneIndexWeight &j) 
     return (i.weight > j.weight);
 }
 
-void VROFBXExporter::exportSkin(FbxNode *node, const viro::Node::Skeleton &skeleton, viro::Node::Geometry::Skin *outSkin) {
+void VROFBXExporter::exportSkin(FbxNode *node, const std::vector<FbxNode *> &boneNodes,
+                                viro::Node::Geometry::Skin *outSkin) {
     FbxMesh *mesh = node->GetMesh();
     
     /*
@@ -665,7 +670,7 @@ void VROFBXExporter::exportSkin(FbxNode *node, const viro::Node::Skeleton &skele
         pinfo("      Number of clusters %d", numClusters);
         
         // We will be filling in the bind transform for each bone
-        for (int b = 0; b < skeleton.bone_size(); b++) {
+        for (int b = 0; b < boneNodes.size(); b++) {
             outSkin->add_bind_transform();
         }
         
@@ -693,7 +698,7 @@ void VROFBXExporter::exportSkin(FbxNode *node, const viro::Node::Skeleton &skele
              in bone local space.
              */
             std::string boneName = cluster->GetLink()->GetName();
-            unsigned int boneIndex = findBoneIndexUsingName(boneName, skeleton);
+            unsigned int boneIndex = findBoneIndex(cluster->GetLink(), boneNodes);
             
             /*
              If a model has more bones that we support, we ignore the bones that are beyond
@@ -866,7 +871,8 @@ void VROFBXExporter::exportSkin(FbxNode *node, const viro::Node::Skeleton &skele
     boneWeights->set_data(boneWeightsData.data(), boneWeightsData.size() * sizeof(float));
 }
 
-void VROFBXExporter::exportSkeletalAnimations(FbxScene *scene, FbxNode *node, const viro::Node::Skeleton &skeleton, viro::Node *outNode) {
+void VROFBXExporter::exportSkeletalAnimations(FbxScene *scene, FbxNode *node, const std::vector<FbxNode *> &boneNodes,
+                                              viro::Node *outNode) {
     FbxMesh *mesh = node->GetMesh();
     
     unsigned int numDeformers = mesh->GetDeformerCount();
@@ -894,7 +900,7 @@ void VROFBXExporter::exportSkeletalAnimations(FbxScene *scene, FbxNode *node, co
         FbxTime end = take->mLocalTimeSpan.GetStop();
         FbxLongLong duration = end.GetMilliSeconds() - start.GetMilliSeconds();
         
-        pinfo("      Animation duration %lld ms", duration);
+        pinfo("      Animation [%s] duration %lld ms", animStackName.Buffer(), duration);
         
         skeletalAnimation->set_name(animStackName.Buffer());
         skeletalAnimation->set_duration(duration);
@@ -929,8 +935,7 @@ void VROFBXExporter::exportSkeletalAnimations(FbxScene *scene, FbxNode *node, co
                     FbxCluster *cluster = skin->GetCluster(clusterIndex);
                     
                     FbxNode *bone = cluster->GetLink();
-                    unsigned int boneIndex = findBoneIndexUsingName(bone->GetName(), skeleton);
-                    
+                    unsigned int boneIndex = findBoneIndex(bone, boneNodes);
                     frame->add_bone_index(boneIndex);
                     
                     /*
@@ -1122,7 +1127,7 @@ void VROFBXExporter::exportKeyframeAnimations(FbxScene *scene, FbxNode *node, vi
         FbxTime end = take->mLocalTimeSpan.GetStop();
         FbxLongLong duration = end.GetMilliSeconds() - start.GetMilliSeconds();
         
-        pinfo("      Animation duration %lld ms", duration);
+        pinfo("      Animation [%s] duration %lld ms", animStackName.Buffer(), duration);
         
         const int layerCount = animStack->GetMemberCount<FbxAnimLayer>();
         if (layerCount > 1) {
@@ -1204,9 +1209,9 @@ void VROFBXExporter::exportKeyframeAnimations(FbxScene *scene, FbxNode *node, vi
     }
 }
 
-unsigned int VROFBXExporter::findBoneIndexUsingName(const std::string &name, const viro::Node::Skeleton &skeleton) {
-    for (unsigned int i = 0; i < skeleton.bone_size(); ++i) {
-        if (skeleton.bone(i).name() == name) {
+unsigned int VROFBXExporter::findBoneIndex(FbxNode *node, const std::vector<FbxNode *> &boneNodes) {
+    for (unsigned int i = 0; i < boneNodes.size(); ++i) {
+        if (node == boneNodes[i]) {
             return i;
         }
     }
