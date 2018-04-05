@@ -11,7 +11,7 @@
 #import "VROImageExporter.h"
 #import "VROLog.h"
 
-const bool kTestMode = YES;
+const bool kTestMode = NO;
 
 void printUsage() {
     pinfo("Usage: ViroFBX [--compress-textures] [source FBX file] [destination VRX file]");
