@@ -1404,6 +1404,12 @@ void VROFBXExporter::exportMaterial(FbxSurfaceMaterial *inMaterial, bool compres
             diffuse->add_color(static_cast<float>(1.0));
             diffuse->add_color(static_cast<float>(1.0));
             diffuse->add_color(static_cast<float>(1.0));
+            
+            diffuse->set_wrap_mode_s(viro::Node_Geometry_Material_Visual_WrapMode_Clamp);
+            diffuse->set_wrap_mode_t(viro::Node_Geometry_Material_Visual_WrapMode_Clamp);
+            diffuse->set_minification_filter(viro::Node_Geometry_Material_Visual_FilterMode_Linear);
+            diffuse->set_magnification_filter(viro::Node_Geometry_Material_Visual_FilterMode_Linear);
+            diffuse->set_mip_filter(viro::Node_Geometry_Material_Visual_FilterMode_Linear);
         }
         else {
             diffuse->add_color(static_cast<float>(albedoColor[0]));
@@ -1425,6 +1431,11 @@ void VROFBXExporter::exportMaterial(FbxSurfaceMaterial *inMaterial, bool compres
         metalness->add_color(metalnessValue);
         if (useMetalnessMap) {
             metalness->set_texture(metalnessMap);
+            metalness->set_wrap_mode_s(viro::Node_Geometry_Material_Visual_WrapMode_Clamp);
+            metalness->set_wrap_mode_t(viro::Node_Geometry_Material_Visual_WrapMode_Clamp);
+            metalness->set_minification_filter(viro::Node_Geometry_Material_Visual_FilterMode_Linear);
+            metalness->set_magnification_filter(viro::Node_Geometry_Material_Visual_FilterMode_Linear);
+            metalness->set_mip_filter(viro::Node_Geometry_Material_Visual_FilterMode_Linear);
         }
 
         // Roughness properties
@@ -1441,6 +1452,11 @@ void VROFBXExporter::exportMaterial(FbxSurfaceMaterial *inMaterial, bool compres
         roughness->add_color(roughnessValue);
         if (useRoughnessMap) {
             roughness->set_texture(roughnessMap);
+            roughness->set_wrap_mode_s(viro::Node_Geometry_Material_Visual_WrapMode_Clamp);
+            roughness->set_wrap_mode_t(viro::Node_Geometry_Material_Visual_WrapMode_Clamp);
+            roughness->set_minification_filter(viro::Node_Geometry_Material_Visual_FilterMode_Linear);
+            roughness->set_magnification_filter(viro::Node_Geometry_Material_Visual_FilterMode_Linear);
+            roughness->set_mip_filter(viro::Node_Geometry_Material_Visual_FilterMode_Linear);
         }
         
         // Normal map
@@ -1454,6 +1470,11 @@ void VROFBXExporter::exportMaterial(FbxSurfaceMaterial *inMaterial, bool compres
             viro::Node::Geometry::Material::Visual *normal = outMaterial->mutable_normal();
             normal->set_intensity(1.0);
             normal->set_texture(normalMap);
+            normal->set_wrap_mode_s(viro::Node_Geometry_Material_Visual_WrapMode_Clamp);
+            normal->set_wrap_mode_t(viro::Node_Geometry_Material_Visual_WrapMode_Clamp);
+            normal->set_minification_filter(viro::Node_Geometry_Material_Visual_FilterMode_Linear);
+            normal->set_magnification_filter(viro::Node_Geometry_Material_Visual_FilterMode_Linear);
+            normal->set_mip_filter(viro::Node_Geometry_Material_Visual_FilterMode_Linear);
         }
         
         // Emissive map
@@ -1467,6 +1488,11 @@ void VROFBXExporter::exportMaterial(FbxSurfaceMaterial *inMaterial, bool compres
             viro::Node::Geometry::Material::Visual *emissive = outMaterial->mutable_emission();
             emissive->set_intensity(1.0);
             emissive->set_texture(emissiveMap);
+            emissive->set_wrap_mode_s(viro::Node_Geometry_Material_Visual_WrapMode_Clamp);
+            emissive->set_wrap_mode_t(viro::Node_Geometry_Material_Visual_WrapMode_Clamp);
+            emissive->set_minification_filter(viro::Node_Geometry_Material_Visual_FilterMode_Linear);
+            emissive->set_magnification_filter(viro::Node_Geometry_Material_Visual_FilterMode_Linear);
+            emissive->set_mip_filter(viro::Node_Geometry_Material_Visual_FilterMode_Linear);
         }
         
         // AO map
@@ -1480,6 +1506,11 @@ void VROFBXExporter::exportMaterial(FbxSurfaceMaterial *inMaterial, bool compres
             viro::Node::Geometry::Material::Visual *ao = outMaterial->mutable_ao();
             ao->set_intensity(1.0);
             ao->set_texture(aoMap);
+            ao->set_wrap_mode_s(viro::Node_Geometry_Material_Visual_WrapMode_Clamp);
+            ao->set_wrap_mode_t(viro::Node_Geometry_Material_Visual_WrapMode_Clamp);
+            ao->set_minification_filter(viro::Node_Geometry_Material_Visual_FilterMode_Linear);
+            ao->set_magnification_filter(viro::Node_Geometry_Material_Visual_FilterMode_Linear);
+            ao->set_mip_filter(viro::Node_Geometry_Material_Visual_FilterMode_Linear);
         }
     }
     else {
