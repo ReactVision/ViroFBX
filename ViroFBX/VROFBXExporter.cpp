@@ -1280,7 +1280,8 @@ void VROFBXExporter::exportMaterial(FbxSurfaceMaterial *inMaterial, bool compres
         return;
     }
     
-    std::string materialName = std::string(inMaterial->GetName());
+    std::string materialName = std::string(inMaterial->GetName());    
+    outMaterial->set_name(materialName);
     
     // Otherwise it's either Phong or Lambert
     if (inMaterial->GetClassId().Is(FbxSurfacePhong::ClassId)) {
