@@ -151,6 +151,7 @@ message Node {
         message Bone {
             string name = 1;
             int32 parent_index = 2;
+            Matrix local_transform = 3;
         }
         repeated Bone bone = 1;
     }
@@ -162,6 +163,7 @@ message Node {
             float time = 1;
             repeated int32 bone_index = 2;
             repeated Matrix transform = 3;
+            repeated Matrix local_transform = 4;
         }
 
         string name = 1;

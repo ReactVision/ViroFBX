@@ -638,10 +638,24 @@ void VROFBXExporter::exportSkeletonRecursive(FbxNode *node, int depth, int index
         bone->set_name(node->GetName());
         bone->set_parent_index(parentIndex);
         
+        // Output the local transform of the bone. This is the transform for the bone
+        // in bind position (in other words, its the local transform for the bone when
+        // there is no animation: it simply moves from this bone's space into its parent's
+        // bone space. It can be used to detect when there is no animation for a bone; e.g.,
+        // there is no animation when the skeletal animation's local bone transform is
+        // equal to this matrix
+        FbxAMatrix localTransform = node->EvaluateLocalTransform();
+        viro::Node::Matrix *transformLocal = bone->mutable_local_transform();
+        for (int t = 0; t < 16; t++) {
+            transformLocal->add_value(localTransform.Get(t / 4, t % 4));
+        }
+        
         outBoneNodes->push_back(node);
     }
+    
+    int newParentIndex = outSkeleton->bone_size() - 1;
     for (int i = 0; i < node->GetChildCount(); i++) {
-        exportSkeletonRecursive(node->GetChild(i), depth + 1, outSkeleton->bone_size(), index, outBoneNodes, outSkeleton);
+        exportSkeletonRecursive(node->GetChild(i), depth + 1, outSkeleton->bone_size(), newParentIndex, outBoneNodes, outSkeleton);
     }
 }
 
@@ -727,16 +741,16 @@ void VROFBXExporter::exportSkin(FbxNode *node, const std::vector<FbxNode *> &bon
             }
             
             /*
-             Encode the matrix that, for each bone, takes us from world space, bind position 
+             Encode the matrix that, for each bone, takes us from skeleton space, bind position
              to bone local space, bind position.
              */
-            FbxAMatrix boneBindingTransform;
-            cluster->GetTransformLinkMatrix(boneBindingTransform);
-            FbxAMatrix inverseBoneBindingTransform = boneBindingTransform.Inverse();
+            FbxAMatrix inverseBoneSpaceTransform;
+            cluster->GetTransformLinkMatrix(inverseBoneSpaceTransform);
+            FbxAMatrix boneSpaceTransform = inverseBoneSpaceTransform.Inverse();
             
             viro::Node::Matrix *bt = outSkin->mutable_bind_transform(boneIndex);
             for (int i = 0; i < 16; i++) {
-                bt->add_value(inverseBoneBindingTransform.Get(i / 4, i % 4));
+                bt->add_value(boneSpaceTransform.Get(i / 4, i % 4));
             }
             
             /*
@@ -943,45 +957,41 @@ void VROFBXExporter::exportSkeletalAnimations(FbxScene *scene, FbxNode *node, co
                     /*
                      This computes the transform matrix for a given bone at a specific time. 
                      When animating, we first multiply each vertex by the geometryBindingTranform:
-                     this takes the mesh from model space to its binding position in *world space*. 
-                     From there we can move to the bone's local space by multiplying by the inverse 
-                     of the bone's world transform. Once in the binding position, in bone local
-                     space, we can apply the animation.
+                     this takes the mesh from it encoded position in model space to its binding position
+                     model space (FBX refers to this as world space; it doesn't matter what it is
+                     exactly, although it's most likely the local space of the top-most bone in the skeleton).
                      
-                     Note: the step described above is performed in the renderer. We encode the
-                     matrices required for this when exporting the skin.
+                     From the binding position in model space we can move to the bone's local
+                     space by multiplying by the bone space transform. Once in the
+                     binding position, in bone local space, we can apply the animation.
                      
-                     The transform that applies the animation is the boneWorldTransform: this 
-                     transform is *global*: it includes all bone transforms of its parents up the
-                     skeleton hierarchy, along with all node transforms. Therefore, when we multiply
-                     our vertex (in bone local space) by boneWorldTransform, we end up back in
-                     world space: except we've moved from our bind pose to our animated position.
-                     
-                     Now, in order to render in Viro, we cannot be in world space! We have to be back
-                     in bone space, because Viro will itself move the geometry back to model space in
-                     the skinner, and from there to world space in the shader. So to get back into bone
-                     local space, we multiply the vertex again by the inverseBoneBindingTransform.
+                     The transform that applies the animation is the animationTransform: this
+                     transform is *concatenated* (or global, using FBX terms): it includes all
+                     bone transforms of its parents up the skeleton hierarchy. Therefore, when we multiply
+                     our vertex (in bone local space) by animationTransform, we end up back in
+                     model space: except we've moved from our bind pose to our animated position.
                      
                      To summarize, each transformation moves us to a different position and coordinate
                      space. This table shows the step-by-step process for getting from the model's 
                      original position in model space to its animated position in model space. The first
-                     two steps are accomplished in exportSkin and are contained in the binding transform
-                     that we encode in the protobuf. The next two steps are accomplished here.
+                     two matrices are created in exportSkin and encoded into the binding transform
+                     in the protobuf. Here, we encode the animation transform.
                      
-                     1. Model space, encoded position  --> [geometryBindingTransform]    --> World space, bind position
-                     2. World space, bind position     --> [inverseBoneBindingTransform] --> Bone space, bind position
-                     3. Bone space, bind position      --> [boneWorldTransform]          --> World space, animated position
-                     4. World space, animated position --> [inverseBoneBindingTransform] --> Bone space, animated position
+                     1. Model space, encoded position     --> [geometryBindingTransform]  --> Model space, bind position
+                     2. Skeleton space, bind position     --> [boneSpaceTransform]        --> Bone space, bind position
+                     3. Bone space, bind position         --> [animationTransform]        --> Model space, animated position
                      */
-                    FbxAMatrix boneWorldTransform = evaluator->GetNodeGlobalTransform(bone, frameTime);
-        
-                    FbxAMatrix boneBindingTransform;
-                    cluster->GetTransformLinkMatrix(boneBindingTransform);
-
-                    FbxAMatrix animationTransform = boneBindingTransform.Inverse() * boneWorldTransform;
+                    FbxAMatrix animationTransform      = evaluator->GetNodeGlobalTransform(bone, frameTime);
+                    FbxAMatrix localAnimationTransform = evaluator->GetNodeLocalTransform(bone, frameTime);
+                   
                     viro::Node::Matrix *transform = frame->add_transform();
                     for (int t = 0; t < 16; t++) {
                         transform->add_value(animationTransform.Get(t / 4, t % 4));
+                    }
+                    
+                    viro::Node::Matrix *transformLocal = frame->add_local_transform();
+                    for (int t = 0; t < 16; t++) {
+                        transformLocal->add_value(localAnimationTransform.Get(t / 4, t % 4));
                     }
                     
                     // Indicate if there is a scaling component of the transform
