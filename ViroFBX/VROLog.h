@@ -157,22 +157,22 @@
 
 #define pinfo(message,...) \
 do { \
-
+printf((message), ##__VA_ARGS__); \
 } while (0)
 
 #define pwarn(message,...) \
 do { \
-
+printf((message), ##__VA_ARGS__); \
 } while (0)
 
 #define perr(message,...) \
 do { \
-
+printf((message), ##__VA_ARGS__); \
 } while (0)
 
 #define pfatal(message,...) \
 do { \
-
+printf((message), ##__VA_ARGS__); \
 } while (0)
 
 // __android_log_assert():
