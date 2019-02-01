@@ -69,14 +69,14 @@ private:
 #pragma mark - Export Methods
     
     void exportNode(FbxScene *scene, FbxNode *node, int depth, bool compressTextures,
-                    const std::vector<FbxNode *> &boneNodes, viro::Node *outNode);
+                    const std::vector<FbxNode *> &boneNodes, viro::Node::Skeleton *outSkeleton, viro::Node *outNode);
     void exportGeometry(FbxNode *node, int depth, bool compressTextures, viro::Node::Geometry *geo);
     void exportMaterial(FbxSurfaceMaterial *inMaterial, bool compressTextures, viro::Node::Geometry::Material *outMaterial);
     void exportHardwareMaterial(FbxSurfaceMaterial *inMaterial, const FbxImplementation *implementation,
                                 viro::Node::Geometry::Material *outMaterial);
     void exportSkeleton(FbxNode *rootNode, std::vector<FbxNode *> *outBoneNodes, viro::Node::Skeleton *outSkeleton);
     void exportSkeletonRecursive(FbxNode *node, int depth, int index, int parentIndex, std::vector<FbxNode *> *outBoneNodes, viro::Node::Skeleton *outSkeleton);
-    void exportSkin(FbxNode *node, const std::vector<FbxNode *> &boneNodes, viro::Node::Geometry::Skin *outSkin);
+    void exportSkin(FbxNode *node, const std::vector<FbxNode *> &boneNodes, viro::Node::Skeleton *outSkeleton, viro::Node::Geometry::Skin *outSkin);
     
     void exportKeyframeAnimations(FbxScene *scene, FbxNode *node, viro::Node *outNode);
     void exportSampledKeyframeAnimations(FbxScene *scene, FbxNode *node, viro::Node *outNode);

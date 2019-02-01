@@ -152,6 +152,7 @@ message Node {
             string name = 1;
             int32 parent_index = 2;
             Matrix local_transform = 3;
+            Matrix bind_transform = 4;
         }
         repeated Bone bone = 1;
     }

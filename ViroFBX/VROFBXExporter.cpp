@@ -168,7 +168,7 @@ void VROFBXExporter::exportFBX(std::string fbxPath, std::string destPath, bool c
         for (int i = 0; i < rootNode->GetChildCount(); i++) {
             if (isExportableNode(rootNode->GetChild(i))) {
                 exportNode(scene, rootNode->GetChild(i), 0, compressTextures,
-                           boneNodes, outNode->add_subnode());
+                           boneNodes, skeleton, outNode->add_subnode());
             }
         }
     }
@@ -214,7 +214,8 @@ bool VROFBXExporter::isExportableNode(FbxNode *node) {
 }
 
 void VROFBXExporter::exportNode(FbxScene *scene, FbxNode *node, int depth, bool compressTextures,
-                                const std::vector<FbxNode *> &boneNodes, viro::Node *outNode) {
+                                const std::vector<FbxNode *> &boneNodes,
+                                viro::Node::Skeleton *outSkeleton, viro::Node *outNode) {
     passert (isExportableNode(node));
     
     pinfo("Exporting node [%s], type [%s]", node->GetName(),
@@ -268,7 +269,7 @@ void VROFBXExporter::exportNode(FbxScene *scene, FbxNode *node, int depth, bool 
          */
         if (boneNodes.size() > 0 && node->GetMesh()->GetDeformerCount() > 0) {
             pinfo("   Exporting skin");
-            exportSkin(node, boneNodes, outNode->mutable_geometry()->mutable_skin());
+            exportSkin(node, boneNodes, outSkeleton, outNode->mutable_geometry()->mutable_skin());
             
             pinfo("   Exporting skeletal animations");
             exportSkeletalAnimations(scene, node, boneNodes, outNode);
@@ -288,7 +289,7 @@ void VROFBXExporter::exportNode(FbxScene *scene, FbxNode *node, int depth, bool 
     for (int i = 0; i < node->GetChildCount(); i++) {
         if (isExportableNode(node->GetChild(i))) {
             exportNode(scene, node->GetChild(i), depth, compressTextures,
-                       boneNodes, outNode->add_subnode());
+                       boneNodes, outSkeleton, outNode->add_subnode());
         }
     }
 }
@@ -663,7 +664,9 @@ bool SortByBoneWeight(const VROBoneIndexWeight &i, const VROBoneIndexWeight &j) 
     return (i.weight > j.weight);
 }
 
-void VROFBXExporter::exportSkin(FbxNode *node, const std::vector<FbxNode *> &boneNodes,
+void VROFBXExporter::exportSkin(FbxNode *node,
+                                const std::vector<FbxNode *> &boneNodes,
+                                viro::Node::Skeleton *outSkeleton,
                                 viro::Node::Geometry::Skin *outSkin) {
     FbxMesh *mesh = node->GetMesh();
     
@@ -748,6 +751,13 @@ void VROFBXExporter::exportSkin(FbxNode *node, const std::vector<FbxNode *> &bon
             cluster->GetTransformLinkMatrix(inverseBoneSpaceTransform);
             FbxAMatrix boneSpaceTransform = inverseBoneSpaceTransform.Inverse();
             
+            // Save a copy of the bonespace binding transforms in the skeleton and skinner. Note that a given skinner
+            // may not have the the complete set of bonespace binding transforms pertaining to the model's skeleton.
+            viro::Node::Matrix *viroBoneSpaceTransform = outSkeleton->mutable_bone(boneIndex)->mutable_bind_transform();
+            for (int i = 0; i < 16; i++) {
+                viroBoneSpaceTransform->add_value(boneSpaceTransform.Get(i / 4, i % 4));
+            }
+
             viro::Node::Matrix *bt = outSkin->mutable_bind_transform(boneIndex);
             for (int i = 0; i < 16; i++) {
                 bt->add_value(boneSpaceTransform.Get(i / 4, i % 4));
