@@ -17,6 +17,7 @@
 		8FDC5A151EB00632006D450F /* VROLog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8FDC5A131EB00632006D450F /* VROLog.cpp */; };
 		8FDC5A1D1EB301E7006D450F /* libfbxsdk.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8FDC5A1C1EB301E7006D450F /* libfbxsdk.a */; };
 		8FDC5A211EB40F53006D450F /* Nodes.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8FDC5A1F1EB40F53006D450F /* Nodes.pb.cc */; };
+		8FEE7864225B936800A57C8F /* VROFbxToObjConverter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8FEE7862225B936800A57C8F /* VROFbxToObjConverter.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -51,6 +52,8 @@
 		8FDC5A1C1EB301E7006D450F /* libfbxsdk.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libfbxsdk.a; path = Libraries/fbx/lib/libfbxsdk.a; sourceTree = "<group>"; };
 		8FDC5A1F1EB40F53006D450F /* Nodes.pb.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Nodes.pb.cc; sourceTree = "<group>"; };
 		8FDC5A201EB40F53006D450F /* Nodes.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Nodes.pb.h; sourceTree = "<group>"; };
+		8FEE7862225B936800A57C8F /* VROFbxToObjConverter.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; path = VROFbxToObjConverter.cpp; sourceTree = "<group>"; };
+		8FEE7863225B936800A57C8F /* VROFbxToObjConverter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VROFbxToObjConverter.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -109,6 +112,8 @@
 				8FDC5A0E1EB00588006D450F /* VROFBXExporter.cpp */,
 				8FD2A5721F859D4200E831A6 /* VROImageExporter.h */,
 				8FD2A5711F859D4200E831A6 /* VROImageExporter.cpp */,
+				8FEE7863225B936800A57C8F /* VROFbxToObjConverter.h */,
+				8FEE7862225B936800A57C8F /* VROFbxToObjConverter.cpp */,
 			);
 			name = ViroFBX;
 			path = ../ViroFBX;
@@ -174,6 +179,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 			);
 			mainGroup = 8FDC59FB1EAFE94B006D450F;
@@ -196,6 +202,7 @@
 				8FD2A5731F859D4200E831A6 /* VROImageExporter.cpp in Sources */,
 				8F2657411F0E7EDE0031DE17 /* VROUtil.cpp in Sources */,
 				8FDC5A151EB00632006D450F /* VROLog.cpp in Sources */,
+				8FEE7864225B936800A57C8F /* VROFbxToObjConverter.cpp in Sources */,
 				8FDC5A101EB00588006D450F /* VROFBXExporter.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
