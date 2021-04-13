@@ -13,7 +13,7 @@
 #include <string>
 #include <zlib.h>
 
-/* 
+/*
  Compress an STL string using zlib with given compression level and return
  the binary data.
  */

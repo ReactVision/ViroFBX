@@ -2540,7 +2540,7 @@ inline ::viro::Node_Geometry_Source_Semantic Node_Geometry_Source::semantic() co
   return static_cast< ::viro::Node_Geometry_Source_Semantic >(semantic_);
 }
 inline void Node_Geometry_Source::set_semantic(::viro::Node_Geometry_Source_Semantic value) {
-  
+
   semantic_ = value;
   // @@protoc_insertion_point(field_set:viro.Node.Geometry.Source.semantic)
 }
@@ -2554,7 +2554,7 @@ inline ::google::protobuf::uint32 Node_Geometry_Source::vertex_count() const {
   return vertex_count_;
 }
 inline void Node_Geometry_Source::set_vertex_count(::google::protobuf::uint32 value) {
-  
+
   vertex_count_ = value;
   // @@protoc_insertion_point(field_set:viro.Node.Geometry.Source.vertex_count)
 }
@@ -2568,7 +2568,7 @@ inline bool Node_Geometry_Source::float_components() const {
   return float_components_;
 }
 inline void Node_Geometry_Source::set_float_components(bool value) {
-  
+
   float_components_ = value;
   // @@protoc_insertion_point(field_set:viro.Node.Geometry.Source.float_components)
 }
@@ -2582,7 +2582,7 @@ inline ::google::protobuf::uint32 Node_Geometry_Source::components_per_vertex() 
   return components_per_vertex_;
 }
 inline void Node_Geometry_Source::set_components_per_vertex(::google::protobuf::uint32 value) {
-  
+
   components_per_vertex_ = value;
   // @@protoc_insertion_point(field_set:viro.Node.Geometry.Source.components_per_vertex)
 }
@@ -2596,7 +2596,7 @@ inline ::google::protobuf::uint32 Node_Geometry_Source::bytes_per_component() co
   return bytes_per_component_;
 }
 inline void Node_Geometry_Source::set_bytes_per_component(::google::protobuf::uint32 value) {
-  
+
   bytes_per_component_ = value;
   // @@protoc_insertion_point(field_set:viro.Node.Geometry.Source.bytes_per_component)
 }
@@ -2610,7 +2610,7 @@ inline ::google::protobuf::uint32 Node_Geometry_Source::data_offset() const {
   return data_offset_;
 }
 inline void Node_Geometry_Source::set_data_offset(::google::protobuf::uint32 value) {
-  
+
   data_offset_ = value;
   // @@protoc_insertion_point(field_set:viro.Node.Geometry.Source.data_offset)
 }
@@ -2624,7 +2624,7 @@ inline ::google::protobuf::uint32 Node_Geometry_Source::data_stride() const {
   return data_stride_;
 }
 inline void Node_Geometry_Source::set_data_stride(::google::protobuf::uint32 value) {
-  
+
   data_stride_ = value;
   // @@protoc_insertion_point(field_set:viro.Node.Geometry.Source.data_stride)
 }
@@ -2638,44 +2638,44 @@ inline const ::std::string& Node_Geometry_Source::data() const {
   return data_.GetNoArena();
 }
 inline void Node_Geometry_Source::set_data(const ::std::string& value) {
-  
+
   data_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
   // @@protoc_insertion_point(field_set:viro.Node.Geometry.Source.data)
 }
 #if LANG_CXX11
 inline void Node_Geometry_Source::set_data(::std::string&& value) {
-  
+
   data_.SetNoArena(
     &::google::protobuf::internal::GetEmptyStringAlreadyInited(), std::move(value));
   // @@protoc_insertion_point(field_set_rvalue:viro.Node.Geometry.Source.data)
 }
 #endif
 inline void Node_Geometry_Source::set_data(const char* value) {
-  
+
   data_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
   // @@protoc_insertion_point(field_set_char:viro.Node.Geometry.Source.data)
 }
 inline void Node_Geometry_Source::set_data(const void* value, size_t size) {
-  
+
   data_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
   // @@protoc_insertion_point(field_set_pointer:viro.Node.Geometry.Source.data)
 }
 inline ::std::string* Node_Geometry_Source::mutable_data() {
-  
+
   // @@protoc_insertion_point(field_mutable:viro.Node.Geometry.Source.data)
   return data_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 inline ::std::string* Node_Geometry_Source::release_data() {
   // @@protoc_insertion_point(field_release:viro.Node.Geometry.Source.data)
-  
+
   return data_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 inline void Node_Geometry_Source::set_allocated_data(::std::string* data) {
   if (data != NULL) {
-    
+
   } else {
-    
+
   }
   data_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), data);
   // @@protoc_insertion_point(field_set_allocated:viro.Node.Geometry.Source.data)
@@ -2694,44 +2694,44 @@ inline const ::std::string& Node_Geometry_Element::data() const {
   return data_.GetNoArena();
 }
 inline void Node_Geometry_Element::set_data(const ::std::string& value) {
-  
+
   data_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
   // @@protoc_insertion_point(field_set:viro.Node.Geometry.Element.data)
 }
 #if LANG_CXX11
 inline void Node_Geometry_Element::set_data(::std::string&& value) {
-  
+
   data_.SetNoArena(
     &::google::protobuf::internal::GetEmptyStringAlreadyInited(), std::move(value));
   // @@protoc_insertion_point(field_set_rvalue:viro.Node.Geometry.Element.data)
 }
 #endif
 inline void Node_Geometry_Element::set_data(const char* value) {
-  
+
   data_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
   // @@protoc_insertion_point(field_set_char:viro.Node.Geometry.Element.data)
 }
 inline void Node_Geometry_Element::set_data(const void* value, size_t size) {
-  
+
   data_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
   // @@protoc_insertion_point(field_set_pointer:viro.Node.Geometry.Element.data)
 }
 inline ::std::string* Node_Geometry_Element::mutable_data() {
-  
+
   // @@protoc_insertion_point(field_mutable:viro.Node.Geometry.Element.data)
   return data_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 inline ::std::string* Node_Geometry_Element::release_data() {
   // @@protoc_insertion_point(field_release:viro.Node.Geometry.Element.data)
-  
+
   return data_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 inline void Node_Geometry_Element::set_allocated_data(::std::string* data) {
   if (data != NULL) {
-    
+
   } else {
-    
+
   }
   data_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), data);
   // @@protoc_insertion_point(field_set_allocated:viro.Node.Geometry.Element.data)
@@ -2746,7 +2746,7 @@ inline ::viro::Node_Geometry_Element_Primitive Node_Geometry_Element::primitive(
   return static_cast< ::viro::Node_Geometry_Element_Primitive >(primitive_);
 }
 inline void Node_Geometry_Element::set_primitive(::viro::Node_Geometry_Element_Primitive value) {
-  
+
   primitive_ = value;
   // @@protoc_insertion_point(field_set:viro.Node.Geometry.Element.primitive)
 }
@@ -2760,7 +2760,7 @@ inline ::google::protobuf::uint32 Node_Geometry_Element::primitive_count() const
   return primitive_count_;
 }
 inline void Node_Geometry_Element::set_primitive_count(::google::protobuf::uint32 value) {
-  
+
   primitive_count_ = value;
   // @@protoc_insertion_point(field_set:viro.Node.Geometry.Element.primitive_count)
 }
@@ -2774,7 +2774,7 @@ inline ::google::protobuf::uint32 Node_Geometry_Element::bytes_per_index() const
   return bytes_per_index_;
 }
 inline void Node_Geometry_Element::set_bytes_per_index(::google::protobuf::uint32 value) {
-  
+
   bytes_per_index_ = value;
   // @@protoc_insertion_point(field_set:viro.Node.Geometry.Element.bytes_per_index)
 }
@@ -2822,44 +2822,44 @@ inline const ::std::string& Node_Geometry_Material_Visual::texture() const {
   return texture_.GetNoArena();
 }
 inline void Node_Geometry_Material_Visual::set_texture(const ::std::string& value) {
-  
+
   texture_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
   // @@protoc_insertion_point(field_set:viro.Node.Geometry.Material.Visual.texture)
 }
 #if LANG_CXX11
 inline void Node_Geometry_Material_Visual::set_texture(::std::string&& value) {
-  
+
   texture_.SetNoArena(
     &::google::protobuf::internal::GetEmptyStringAlreadyInited(), std::move(value));
   // @@protoc_insertion_point(field_set_rvalue:viro.Node.Geometry.Material.Visual.texture)
 }
 #endif
 inline void Node_Geometry_Material_Visual::set_texture(const char* value) {
-  
+
   texture_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
   // @@protoc_insertion_point(field_set_char:viro.Node.Geometry.Material.Visual.texture)
 }
 inline void Node_Geometry_Material_Visual::set_texture(const char* value, size_t size) {
-  
+
   texture_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
   // @@protoc_insertion_point(field_set_pointer:viro.Node.Geometry.Material.Visual.texture)
 }
 inline ::std::string* Node_Geometry_Material_Visual::mutable_texture() {
-  
+
   // @@protoc_insertion_point(field_mutable:viro.Node.Geometry.Material.Visual.texture)
   return texture_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 inline ::std::string* Node_Geometry_Material_Visual::release_texture() {
   // @@protoc_insertion_point(field_release:viro.Node.Geometry.Material.Visual.texture)
-  
+
   return texture_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 inline void Node_Geometry_Material_Visual::set_allocated_texture(::std::string* texture) {
   if (texture != NULL) {
-    
+
   } else {
-    
+
   }
   texture_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), texture);
   // @@protoc_insertion_point(field_set_allocated:viro.Node.Geometry.Material.Visual.texture)
@@ -2874,7 +2874,7 @@ inline float Node_Geometry_Material_Visual::intensity() const {
   return intensity_;
 }
 inline void Node_Geometry_Material_Visual::set_intensity(float value) {
-  
+
   intensity_ = value;
   // @@protoc_insertion_point(field_set:viro.Node.Geometry.Material.Visual.intensity)
 }
@@ -2918,7 +2918,7 @@ inline ::viro::Node_Geometry_Material_Visual_WrapMode Node_Geometry_Material_Vis
   return static_cast< ::viro::Node_Geometry_Material_Visual_WrapMode >(wrap_mode_s_);
 }
 inline void Node_Geometry_Material_Visual::set_wrap_mode_s(::viro::Node_Geometry_Material_Visual_WrapMode value) {
-  
+
   wrap_mode_s_ = value;
   // @@protoc_insertion_point(field_set:viro.Node.Geometry.Material.Visual.wrap_mode_s)
 }
@@ -2932,7 +2932,7 @@ inline ::viro::Node_Geometry_Material_Visual_WrapMode Node_Geometry_Material_Vis
   return static_cast< ::viro::Node_Geometry_Material_Visual_WrapMode >(wrap_mode_t_);
 }
 inline void Node_Geometry_Material_Visual::set_wrap_mode_t(::viro::Node_Geometry_Material_Visual_WrapMode value) {
-  
+
   wrap_mode_t_ = value;
   // @@protoc_insertion_point(field_set:viro.Node.Geometry.Material.Visual.wrap_mode_t)
 }
@@ -2946,7 +2946,7 @@ inline ::viro::Node_Geometry_Material_Visual_FilterMode Node_Geometry_Material_V
   return static_cast< ::viro::Node_Geometry_Material_Visual_FilterMode >(minification_filter_);
 }
 inline void Node_Geometry_Material_Visual::set_minification_filter(::viro::Node_Geometry_Material_Visual_FilterMode value) {
-  
+
   minification_filter_ = value;
   // @@protoc_insertion_point(field_set:viro.Node.Geometry.Material.Visual.minification_filter)
 }
@@ -2960,7 +2960,7 @@ inline ::viro::Node_Geometry_Material_Visual_FilterMode Node_Geometry_Material_V
   return static_cast< ::viro::Node_Geometry_Material_Visual_FilterMode >(magnification_filter_);
 }
 inline void Node_Geometry_Material_Visual::set_magnification_filter(::viro::Node_Geometry_Material_Visual_FilterMode value) {
-  
+
   magnification_filter_ = value;
   // @@protoc_insertion_point(field_set:viro.Node.Geometry.Material.Visual.magnification_filter)
 }
@@ -2974,7 +2974,7 @@ inline ::viro::Node_Geometry_Material_Visual_FilterMode Node_Geometry_Material_V
   return static_cast< ::viro::Node_Geometry_Material_Visual_FilterMode >(mip_filter_);
 }
 inline void Node_Geometry_Material_Visual::set_mip_filter(::viro::Node_Geometry_Material_Visual_FilterMode value) {
-  
+
   mip_filter_ = value;
   // @@protoc_insertion_point(field_set:viro.Node.Geometry.Material.Visual.mip_filter)
 }
@@ -2992,44 +2992,44 @@ inline const ::std::string& Node_Geometry_Material::name() const {
   return name_.GetNoArena();
 }
 inline void Node_Geometry_Material::set_name(const ::std::string& value) {
-  
+
   name_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
   // @@protoc_insertion_point(field_set:viro.Node.Geometry.Material.name)
 }
 #if LANG_CXX11
 inline void Node_Geometry_Material::set_name(::std::string&& value) {
-  
+
   name_.SetNoArena(
     &::google::protobuf::internal::GetEmptyStringAlreadyInited(), std::move(value));
   // @@protoc_insertion_point(field_set_rvalue:viro.Node.Geometry.Material.name)
 }
 #endif
 inline void Node_Geometry_Material::set_name(const char* value) {
-  
+
   name_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
   // @@protoc_insertion_point(field_set_char:viro.Node.Geometry.Material.name)
 }
 inline void Node_Geometry_Material::set_name(const char* value, size_t size) {
-  
+
   name_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
   // @@protoc_insertion_point(field_set_pointer:viro.Node.Geometry.Material.name)
 }
 inline ::std::string* Node_Geometry_Material::mutable_name() {
-  
+
   // @@protoc_insertion_point(field_mutable:viro.Node.Geometry.Material.name)
   return name_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 inline ::std::string* Node_Geometry_Material::release_name() {
   // @@protoc_insertion_point(field_release:viro.Node.Geometry.Material.name)
-  
+
   return name_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 inline void Node_Geometry_Material::set_allocated_name(::std::string* name) {
   if (name != NULL) {
-    
+
   } else {
-    
+
   }
   name_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), name);
   // @@protoc_insertion_point(field_set_allocated:viro.Node.Geometry.Material.name)
@@ -3044,7 +3044,7 @@ inline float Node_Geometry_Material::shininess() const {
   return shininess_;
 }
 inline void Node_Geometry_Material::set_shininess(float value) {
-  
+
   shininess_ = value;
   // @@protoc_insertion_point(field_set:viro.Node.Geometry.Material.shininess)
 }
@@ -3058,7 +3058,7 @@ inline float Node_Geometry_Material::fresnel_exponent() const {
   return fresnel_exponent_;
 }
 inline void Node_Geometry_Material::set_fresnel_exponent(float value) {
-  
+
   fresnel_exponent_ = value;
   // @@protoc_insertion_point(field_set:viro.Node.Geometry.Material.fresnel_exponent)
 }
@@ -3072,7 +3072,7 @@ inline float Node_Geometry_Material::transparency() const {
   return transparency_;
 }
 inline void Node_Geometry_Material::set_transparency(float value) {
-  
+
   transparency_ = value;
   // @@protoc_insertion_point(field_set:viro.Node.Geometry.Material.transparency)
 }
@@ -3086,7 +3086,7 @@ inline ::viro::Node_Geometry_Material_LightingModel Node_Geometry_Material::ligh
   return static_cast< ::viro::Node_Geometry_Material_LightingModel >(lighting_model_);
 }
 inline void Node_Geometry_Material::set_lighting_model(::viro::Node_Geometry_Material_LightingModel value) {
-  
+
   lighting_model_ = value;
   // @@protoc_insertion_point(field_set:viro.Node.Geometry.Material.lighting_model)
 }
@@ -3100,7 +3100,7 @@ inline bool Node_Geometry_Material::lit_per_pixel() const {
   return lit_per_pixel_;
 }
 inline void Node_Geometry_Material::set_lit_per_pixel(bool value) {
-  
+
   lit_per_pixel_ = value;
   // @@protoc_insertion_point(field_set:viro.Node.Geometry.Material.lit_per_pixel)
 }
@@ -3114,7 +3114,7 @@ inline ::viro::Node_Geometry_Material_CullMode Node_Geometry_Material::cull_mode
   return static_cast< ::viro::Node_Geometry_Material_CullMode >(cull_mode_);
 }
 inline void Node_Geometry_Material::set_cull_mode(::viro::Node_Geometry_Material_CullMode value) {
-  
+
   cull_mode_ = value;
   // @@protoc_insertion_point(field_set:viro.Node.Geometry.Material.cull_mode)
 }
@@ -3128,7 +3128,7 @@ inline ::viro::Node_Geometry_Material_BlendMode Node_Geometry_Material::blend_mo
   return static_cast< ::viro::Node_Geometry_Material_BlendMode >(blend_mode_);
 }
 inline void Node_Geometry_Material::set_blend_mode(::viro::Node_Geometry_Material_BlendMode value) {
-  
+
   blend_mode_ = value;
   // @@protoc_insertion_point(field_set:viro.Node.Geometry.Material.blend_mode)
 }
@@ -3142,7 +3142,7 @@ inline bool Node_Geometry_Material::reads_from_depth_buffer() const {
   return reads_from_depth_buffer_;
 }
 inline void Node_Geometry_Material::set_reads_from_depth_buffer(bool value) {
-  
+
   reads_from_depth_buffer_ = value;
   // @@protoc_insertion_point(field_set:viro.Node.Geometry.Material.reads_from_depth_buffer)
 }
@@ -3156,7 +3156,7 @@ inline bool Node_Geometry_Material::writes_to_depth_buffer() const {
   return writes_to_depth_buffer_;
 }
 inline void Node_Geometry_Material::set_writes_to_depth_buffer(bool value) {
-  
+
   writes_to_depth_buffer_ = value;
   // @@protoc_insertion_point(field_set:viro.Node.Geometry.Material.writes_to_depth_buffer)
 }
@@ -3175,7 +3175,7 @@ inline const ::viro::Node_Geometry_Material_Visual& Node_Geometry_Material::diff
                          : *::viro::Node_Geometry_Material_Visual::internal_default_instance();
 }
 inline ::viro::Node_Geometry_Material_Visual* Node_Geometry_Material::mutable_diffuse() {
-  
+
   if (diffuse_ == NULL) {
     diffuse_ = new ::viro::Node_Geometry_Material_Visual;
   }
@@ -3184,7 +3184,7 @@ inline ::viro::Node_Geometry_Material_Visual* Node_Geometry_Material::mutable_di
 }
 inline ::viro::Node_Geometry_Material_Visual* Node_Geometry_Material::release_diffuse() {
   // @@protoc_insertion_point(field_release:viro.Node.Geometry.Material.diffuse)
-  
+
   ::viro::Node_Geometry_Material_Visual* temp = diffuse_;
   diffuse_ = NULL;
   return temp;
@@ -3193,9 +3193,9 @@ inline void Node_Geometry_Material::set_allocated_diffuse(::viro::Node_Geometry_
   delete diffuse_;
   diffuse_ = diffuse;
   if (diffuse) {
-    
+
   } else {
-    
+
   }
   // @@protoc_insertion_point(field_set_allocated:viro.Node.Geometry.Material.diffuse)
 }
@@ -3214,7 +3214,7 @@ inline const ::viro::Node_Geometry_Material_Visual& Node_Geometry_Material::spec
                          : *::viro::Node_Geometry_Material_Visual::internal_default_instance();
 }
 inline ::viro::Node_Geometry_Material_Visual* Node_Geometry_Material::mutable_specular() {
-  
+
   if (specular_ == NULL) {
     specular_ = new ::viro::Node_Geometry_Material_Visual;
   }
@@ -3223,7 +3223,7 @@ inline ::viro::Node_Geometry_Material_Visual* Node_Geometry_Material::mutable_sp
 }
 inline ::viro::Node_Geometry_Material_Visual* Node_Geometry_Material::release_specular() {
   // @@protoc_insertion_point(field_release:viro.Node.Geometry.Material.specular)
-  
+
   ::viro::Node_Geometry_Material_Visual* temp = specular_;
   specular_ = NULL;
   return temp;
@@ -3232,9 +3232,9 @@ inline void Node_Geometry_Material::set_allocated_specular(::viro::Node_Geometry
   delete specular_;
   specular_ = specular;
   if (specular) {
-    
+
   } else {
-    
+
   }
   // @@protoc_insertion_point(field_set_allocated:viro.Node.Geometry.Material.specular)
 }
@@ -3253,7 +3253,7 @@ inline const ::viro::Node_Geometry_Material_Visual& Node_Geometry_Material::norm
                          : *::viro::Node_Geometry_Material_Visual::internal_default_instance();
 }
 inline ::viro::Node_Geometry_Material_Visual* Node_Geometry_Material::mutable_normal() {
-  
+
   if (normal_ == NULL) {
     normal_ = new ::viro::Node_Geometry_Material_Visual;
   }
@@ -3262,7 +3262,7 @@ inline ::viro::Node_Geometry_Material_Visual* Node_Geometry_Material::mutable_no
 }
 inline ::viro::Node_Geometry_Material_Visual* Node_Geometry_Material::release_normal() {
   // @@protoc_insertion_point(field_release:viro.Node.Geometry.Material.normal)
-  
+
   ::viro::Node_Geometry_Material_Visual* temp = normal_;
   normal_ = NULL;
   return temp;
@@ -3271,9 +3271,9 @@ inline void Node_Geometry_Material::set_allocated_normal(::viro::Node_Geometry_M
   delete normal_;
   normal_ = normal;
   if (normal) {
-    
+
   } else {
-    
+
   }
   // @@protoc_insertion_point(field_set_allocated:viro.Node.Geometry.Material.normal)
 }
@@ -3292,7 +3292,7 @@ inline const ::viro::Node_Geometry_Material_Visual& Node_Geometry_Material::refl
                          : *::viro::Node_Geometry_Material_Visual::internal_default_instance();
 }
 inline ::viro::Node_Geometry_Material_Visual* Node_Geometry_Material::mutable_reflective() {
-  
+
   if (reflective_ == NULL) {
     reflective_ = new ::viro::Node_Geometry_Material_Visual;
   }
@@ -3301,7 +3301,7 @@ inline ::viro::Node_Geometry_Material_Visual* Node_Geometry_Material::mutable_re
 }
 inline ::viro::Node_Geometry_Material_Visual* Node_Geometry_Material::release_reflective() {
   // @@protoc_insertion_point(field_release:viro.Node.Geometry.Material.reflective)
-  
+
   ::viro::Node_Geometry_Material_Visual* temp = reflective_;
   reflective_ = NULL;
   return temp;
@@ -3310,9 +3310,9 @@ inline void Node_Geometry_Material::set_allocated_reflective(::viro::Node_Geomet
   delete reflective_;
   reflective_ = reflective;
   if (reflective) {
-    
+
   } else {
-    
+
   }
   // @@protoc_insertion_point(field_set_allocated:viro.Node.Geometry.Material.reflective)
 }
@@ -3331,7 +3331,7 @@ inline const ::viro::Node_Geometry_Material_Visual& Node_Geometry_Material::emis
                          : *::viro::Node_Geometry_Material_Visual::internal_default_instance();
 }
 inline ::viro::Node_Geometry_Material_Visual* Node_Geometry_Material::mutable_emission() {
-  
+
   if (emission_ == NULL) {
     emission_ = new ::viro::Node_Geometry_Material_Visual;
   }
@@ -3340,7 +3340,7 @@ inline ::viro::Node_Geometry_Material_Visual* Node_Geometry_Material::mutable_em
 }
 inline ::viro::Node_Geometry_Material_Visual* Node_Geometry_Material::release_emission() {
   // @@protoc_insertion_point(field_release:viro.Node.Geometry.Material.emission)
-  
+
   ::viro::Node_Geometry_Material_Visual* temp = emission_;
   emission_ = NULL;
   return temp;
@@ -3349,9 +3349,9 @@ inline void Node_Geometry_Material::set_allocated_emission(::viro::Node_Geometry
   delete emission_;
   emission_ = emission;
   if (emission) {
-    
+
   } else {
-    
+
   }
   // @@protoc_insertion_point(field_set_allocated:viro.Node.Geometry.Material.emission)
 }
@@ -3370,7 +3370,7 @@ inline const ::viro::Node_Geometry_Material_Visual& Node_Geometry_Material::mult
                          : *::viro::Node_Geometry_Material_Visual::internal_default_instance();
 }
 inline ::viro::Node_Geometry_Material_Visual* Node_Geometry_Material::mutable_multiply() {
-  
+
   if (multiply_ == NULL) {
     multiply_ = new ::viro::Node_Geometry_Material_Visual;
   }
@@ -3379,7 +3379,7 @@ inline ::viro::Node_Geometry_Material_Visual* Node_Geometry_Material::mutable_mu
 }
 inline ::viro::Node_Geometry_Material_Visual* Node_Geometry_Material::release_multiply() {
   // @@protoc_insertion_point(field_release:viro.Node.Geometry.Material.multiply)
-  
+
   ::viro::Node_Geometry_Material_Visual* temp = multiply_;
   multiply_ = NULL;
   return temp;
@@ -3388,9 +3388,9 @@ inline void Node_Geometry_Material::set_allocated_multiply(::viro::Node_Geometry
   delete multiply_;
   multiply_ = multiply;
   if (multiply) {
-    
+
   } else {
-    
+
   }
   // @@protoc_insertion_point(field_set_allocated:viro.Node.Geometry.Material.multiply)
 }
@@ -3409,7 +3409,7 @@ inline const ::viro::Node_Geometry_Material_Visual& Node_Geometry_Material::roug
                          : *::viro::Node_Geometry_Material_Visual::internal_default_instance();
 }
 inline ::viro::Node_Geometry_Material_Visual* Node_Geometry_Material::mutable_roughness() {
-  
+
   if (roughness_ == NULL) {
     roughness_ = new ::viro::Node_Geometry_Material_Visual;
   }
@@ -3418,7 +3418,7 @@ inline ::viro::Node_Geometry_Material_Visual* Node_Geometry_Material::mutable_ro
 }
 inline ::viro::Node_Geometry_Material_Visual* Node_Geometry_Material::release_roughness() {
   // @@protoc_insertion_point(field_release:viro.Node.Geometry.Material.roughness)
-  
+
   ::viro::Node_Geometry_Material_Visual* temp = roughness_;
   roughness_ = NULL;
   return temp;
@@ -3427,9 +3427,9 @@ inline void Node_Geometry_Material::set_allocated_roughness(::viro::Node_Geometr
   delete roughness_;
   roughness_ = roughness;
   if (roughness) {
-    
+
   } else {
-    
+
   }
   // @@protoc_insertion_point(field_set_allocated:viro.Node.Geometry.Material.roughness)
 }
@@ -3448,7 +3448,7 @@ inline const ::viro::Node_Geometry_Material_Visual& Node_Geometry_Material::meta
                          : *::viro::Node_Geometry_Material_Visual::internal_default_instance();
 }
 inline ::viro::Node_Geometry_Material_Visual* Node_Geometry_Material::mutable_metalness() {
-  
+
   if (metalness_ == NULL) {
     metalness_ = new ::viro::Node_Geometry_Material_Visual;
   }
@@ -3457,7 +3457,7 @@ inline ::viro::Node_Geometry_Material_Visual* Node_Geometry_Material::mutable_me
 }
 inline ::viro::Node_Geometry_Material_Visual* Node_Geometry_Material::release_metalness() {
   // @@protoc_insertion_point(field_release:viro.Node.Geometry.Material.metalness)
-  
+
   ::viro::Node_Geometry_Material_Visual* temp = metalness_;
   metalness_ = NULL;
   return temp;
@@ -3466,9 +3466,9 @@ inline void Node_Geometry_Material::set_allocated_metalness(::viro::Node_Geometr
   delete metalness_;
   metalness_ = metalness;
   if (metalness) {
-    
+
   } else {
-    
+
   }
   // @@protoc_insertion_point(field_set_allocated:viro.Node.Geometry.Material.metalness)
 }
@@ -3487,7 +3487,7 @@ inline const ::viro::Node_Geometry_Material_Visual& Node_Geometry_Material::ao()
                          : *::viro::Node_Geometry_Material_Visual::internal_default_instance();
 }
 inline ::viro::Node_Geometry_Material_Visual* Node_Geometry_Material::mutable_ao() {
-  
+
   if (ao_ == NULL) {
     ao_ = new ::viro::Node_Geometry_Material_Visual;
   }
@@ -3496,7 +3496,7 @@ inline ::viro::Node_Geometry_Material_Visual* Node_Geometry_Material::mutable_ao
 }
 inline ::viro::Node_Geometry_Material_Visual* Node_Geometry_Material::release_ao() {
   // @@protoc_insertion_point(field_release:viro.Node.Geometry.Material.ao)
-  
+
   ::viro::Node_Geometry_Material_Visual* temp = ao_;
   ao_ = NULL;
   return temp;
@@ -3505,9 +3505,9 @@ inline void Node_Geometry_Material::set_allocated_ao(::viro::Node_Geometry_Mater
   delete ao_;
   ao_ = ao;
   if (ao) {
-    
+
   } else {
-    
+
   }
   // @@protoc_insertion_point(field_set_allocated:viro.Node.Geometry.Material.ao)
 }
@@ -3530,7 +3530,7 @@ inline const ::viro::Node_Matrix& Node_Geometry_Skin::geometry_bind_transform() 
                          : *::viro::Node_Matrix::internal_default_instance();
 }
 inline ::viro::Node_Matrix* Node_Geometry_Skin::mutable_geometry_bind_transform() {
-  
+
   if (geometry_bind_transform_ == NULL) {
     geometry_bind_transform_ = new ::viro::Node_Matrix;
   }
@@ -3539,7 +3539,7 @@ inline ::viro::Node_Matrix* Node_Geometry_Skin::mutable_geometry_bind_transform(
 }
 inline ::viro::Node_Matrix* Node_Geometry_Skin::release_geometry_bind_transform() {
   // @@protoc_insertion_point(field_release:viro.Node.Geometry.Skin.geometry_bind_transform)
-  
+
   ::viro::Node_Matrix* temp = geometry_bind_transform_;
   geometry_bind_transform_ = NULL;
   return temp;
@@ -3548,9 +3548,9 @@ inline void Node_Geometry_Skin::set_allocated_geometry_bind_transform(::viro::No
   delete geometry_bind_transform_;
   geometry_bind_transform_ = geometry_bind_transform;
   if (geometry_bind_transform) {
-    
+
   } else {
-    
+
   }
   // @@protoc_insertion_point(field_set_allocated:viro.Node.Geometry.Skin.geometry_bind_transform)
 }
@@ -3599,7 +3599,7 @@ inline const ::viro::Node_Geometry_Source& Node_Geometry_Skin::bone_indices() co
                          : *::viro::Node_Geometry_Source::internal_default_instance();
 }
 inline ::viro::Node_Geometry_Source* Node_Geometry_Skin::mutable_bone_indices() {
-  
+
   if (bone_indices_ == NULL) {
     bone_indices_ = new ::viro::Node_Geometry_Source;
   }
@@ -3608,7 +3608,7 @@ inline ::viro::Node_Geometry_Source* Node_Geometry_Skin::mutable_bone_indices() 
 }
 inline ::viro::Node_Geometry_Source* Node_Geometry_Skin::release_bone_indices() {
   // @@protoc_insertion_point(field_release:viro.Node.Geometry.Skin.bone_indices)
-  
+
   ::viro::Node_Geometry_Source* temp = bone_indices_;
   bone_indices_ = NULL;
   return temp;
@@ -3617,9 +3617,9 @@ inline void Node_Geometry_Skin::set_allocated_bone_indices(::viro::Node_Geometry
   delete bone_indices_;
   bone_indices_ = bone_indices;
   if (bone_indices) {
-    
+
   } else {
-    
+
   }
   // @@protoc_insertion_point(field_set_allocated:viro.Node.Geometry.Skin.bone_indices)
 }
@@ -3638,7 +3638,7 @@ inline const ::viro::Node_Geometry_Source& Node_Geometry_Skin::bone_weights() co
                          : *::viro::Node_Geometry_Source::internal_default_instance();
 }
 inline ::viro::Node_Geometry_Source* Node_Geometry_Skin::mutable_bone_weights() {
-  
+
   if (bone_weights_ == NULL) {
     bone_weights_ = new ::viro::Node_Geometry_Source;
   }
@@ -3647,7 +3647,7 @@ inline ::viro::Node_Geometry_Source* Node_Geometry_Skin::mutable_bone_weights() 
 }
 inline ::viro::Node_Geometry_Source* Node_Geometry_Skin::release_bone_weights() {
   // @@protoc_insertion_point(field_release:viro.Node.Geometry.Skin.bone_weights)
-  
+
   ::viro::Node_Geometry_Source* temp = bone_weights_;
   bone_weights_ = NULL;
   return temp;
@@ -3656,9 +3656,9 @@ inline void Node_Geometry_Skin::set_allocated_bone_weights(::viro::Node_Geometry
   delete bone_weights_;
   bone_weights_ = bone_weights;
   if (bone_weights) {
-    
+
   } else {
-    
+
   }
   // @@protoc_insertion_point(field_set_allocated:viro.Node.Geometry.Skin.bone_weights)
 }
@@ -3676,44 +3676,44 @@ inline const ::std::string& Node_Geometry::name() const {
   return name_.GetNoArena();
 }
 inline void Node_Geometry::set_name(const ::std::string& value) {
-  
+
   name_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
   // @@protoc_insertion_point(field_set:viro.Node.Geometry.name)
 }
 #if LANG_CXX11
 inline void Node_Geometry::set_name(::std::string&& value) {
-  
+
   name_.SetNoArena(
     &::google::protobuf::internal::GetEmptyStringAlreadyInited(), std::move(value));
   // @@protoc_insertion_point(field_set_rvalue:viro.Node.Geometry.name)
 }
 #endif
 inline void Node_Geometry::set_name(const char* value) {
-  
+
   name_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
   // @@protoc_insertion_point(field_set_char:viro.Node.Geometry.name)
 }
 inline void Node_Geometry::set_name(const char* value, size_t size) {
-  
+
   name_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
   // @@protoc_insertion_point(field_set_pointer:viro.Node.Geometry.name)
 }
 inline ::std::string* Node_Geometry::mutable_name() {
-  
+
   // @@protoc_insertion_point(field_mutable:viro.Node.Geometry.name)
   return name_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 inline ::std::string* Node_Geometry::release_name() {
   // @@protoc_insertion_point(field_release:viro.Node.Geometry.name)
-  
+
   return name_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 inline void Node_Geometry::set_allocated_name(::std::string* name) {
   if (name != NULL) {
-    
+
   } else {
-    
+
   }
   name_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), name);
   // @@protoc_insertion_point(field_set_allocated:viro.Node.Geometry.name)
@@ -3728,44 +3728,44 @@ inline const ::std::string& Node_Geometry::data() const {
   return data_.GetNoArena();
 }
 inline void Node_Geometry::set_data(const ::std::string& value) {
-  
+
   data_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
   // @@protoc_insertion_point(field_set:viro.Node.Geometry.data)
 }
 #if LANG_CXX11
 inline void Node_Geometry::set_data(::std::string&& value) {
-  
+
   data_.SetNoArena(
     &::google::protobuf::internal::GetEmptyStringAlreadyInited(), std::move(value));
   // @@protoc_insertion_point(field_set_rvalue:viro.Node.Geometry.data)
 }
 #endif
 inline void Node_Geometry::set_data(const char* value) {
-  
+
   data_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
   // @@protoc_insertion_point(field_set_char:viro.Node.Geometry.data)
 }
 inline void Node_Geometry::set_data(const void* value, size_t size) {
-  
+
   data_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
   // @@protoc_insertion_point(field_set_pointer:viro.Node.Geometry.data)
 }
 inline ::std::string* Node_Geometry::mutable_data() {
-  
+
   // @@protoc_insertion_point(field_mutable:viro.Node.Geometry.data)
   return data_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 inline ::std::string* Node_Geometry::release_data() {
   // @@protoc_insertion_point(field_release:viro.Node.Geometry.data)
-  
+
   return data_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 inline void Node_Geometry::set_allocated_data(::std::string* data) {
   if (data != NULL) {
-    
+
   } else {
-    
+
   }
   data_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), data);
   // @@protoc_insertion_point(field_set_allocated:viro.Node.Geometry.data)
@@ -3875,7 +3875,7 @@ inline const ::viro::Node_Geometry_Skin& Node_Geometry::skin() const {
                          : *::viro::Node_Geometry_Skin::internal_default_instance();
 }
 inline ::viro::Node_Geometry_Skin* Node_Geometry::mutable_skin() {
-  
+
   if (skin_ == NULL) {
     skin_ = new ::viro::Node_Geometry_Skin;
   }
@@ -3884,7 +3884,7 @@ inline ::viro::Node_Geometry_Skin* Node_Geometry::mutable_skin() {
 }
 inline ::viro::Node_Geometry_Skin* Node_Geometry::release_skin() {
   // @@protoc_insertion_point(field_release:viro.Node.Geometry.skin)
-  
+
   ::viro::Node_Geometry_Skin* temp = skin_;
   skin_ = NULL;
   return temp;
@@ -3893,9 +3893,9 @@ inline void Node_Geometry::set_allocated_skin(::viro::Node_Geometry_Skin* skin) 
   delete skin_;
   skin_ = skin;
   if (skin) {
-    
+
   } else {
-    
+
   }
   // @@protoc_insertion_point(field_set_allocated:viro.Node.Geometry.skin)
 }
@@ -3913,44 +3913,44 @@ inline const ::std::string& Node_Skeleton_Bone::name() const {
   return name_.GetNoArena();
 }
 inline void Node_Skeleton_Bone::set_name(const ::std::string& value) {
-  
+
   name_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
   // @@protoc_insertion_point(field_set:viro.Node.Skeleton.Bone.name)
 }
 #if LANG_CXX11
 inline void Node_Skeleton_Bone::set_name(::std::string&& value) {
-  
+
   name_.SetNoArena(
     &::google::protobuf::internal::GetEmptyStringAlreadyInited(), std::move(value));
   // @@protoc_insertion_point(field_set_rvalue:viro.Node.Skeleton.Bone.name)
 }
 #endif
 inline void Node_Skeleton_Bone::set_name(const char* value) {
-  
+
   name_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
   // @@protoc_insertion_point(field_set_char:viro.Node.Skeleton.Bone.name)
 }
 inline void Node_Skeleton_Bone::set_name(const char* value, size_t size) {
-  
+
   name_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
   // @@protoc_insertion_point(field_set_pointer:viro.Node.Skeleton.Bone.name)
 }
 inline ::std::string* Node_Skeleton_Bone::mutable_name() {
-  
+
   // @@protoc_insertion_point(field_mutable:viro.Node.Skeleton.Bone.name)
   return name_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 inline ::std::string* Node_Skeleton_Bone::release_name() {
   // @@protoc_insertion_point(field_release:viro.Node.Skeleton.Bone.name)
-  
+
   return name_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 inline void Node_Skeleton_Bone::set_allocated_name(::std::string* name) {
   if (name != NULL) {
-    
+
   } else {
-    
+
   }
   name_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), name);
   // @@protoc_insertion_point(field_set_allocated:viro.Node.Skeleton.Bone.name)
@@ -3965,7 +3965,7 @@ inline ::google::protobuf::int32 Node_Skeleton_Bone::parent_index() const {
   return parent_index_;
 }
 inline void Node_Skeleton_Bone::set_parent_index(::google::protobuf::int32 value) {
-  
+
   parent_index_ = value;
   // @@protoc_insertion_point(field_set:viro.Node.Skeleton.Bone.parent_index)
 }
@@ -3984,7 +3984,7 @@ inline const ::viro::Node_Matrix& Node_Skeleton_Bone::local_transform() const {
                          : *::viro::Node_Matrix::internal_default_instance();
 }
 inline ::viro::Node_Matrix* Node_Skeleton_Bone::mutable_local_transform() {
-  
+
   if (local_transform_ == NULL) {
     local_transform_ = new ::viro::Node_Matrix;
   }
@@ -3993,7 +3993,7 @@ inline ::viro::Node_Matrix* Node_Skeleton_Bone::mutable_local_transform() {
 }
 inline ::viro::Node_Matrix* Node_Skeleton_Bone::release_local_transform() {
   // @@protoc_insertion_point(field_release:viro.Node.Skeleton.Bone.local_transform)
-  
+
   ::viro::Node_Matrix* temp = local_transform_;
   local_transform_ = NULL;
   return temp;
@@ -4002,9 +4002,9 @@ inline void Node_Skeleton_Bone::set_allocated_local_transform(::viro::Node_Matri
   delete local_transform_;
   local_transform_ = local_transform;
   if (local_transform) {
-    
+
   } else {
-    
+
   }
   // @@protoc_insertion_point(field_set_allocated:viro.Node.Skeleton.Bone.local_transform)
 }
@@ -4023,7 +4023,7 @@ inline const ::viro::Node_Matrix& Node_Skeleton_Bone::bind_transform() const {
                          : *::viro::Node_Matrix::internal_default_instance();
 }
 inline ::viro::Node_Matrix* Node_Skeleton_Bone::mutable_bind_transform() {
-  
+
   if (bind_transform_ == NULL) {
     bind_transform_ = new ::viro::Node_Matrix;
   }
@@ -4032,7 +4032,7 @@ inline ::viro::Node_Matrix* Node_Skeleton_Bone::mutable_bind_transform() {
 }
 inline ::viro::Node_Matrix* Node_Skeleton_Bone::release_bind_transform() {
   // @@protoc_insertion_point(field_release:viro.Node.Skeleton.Bone.bind_transform)
-  
+
   ::viro::Node_Matrix* temp = bind_transform_;
   bind_transform_ = NULL;
   return temp;
@@ -4041,9 +4041,9 @@ inline void Node_Skeleton_Bone::set_allocated_bind_transform(::viro::Node_Matrix
   delete bind_transform_;
   bind_transform_ = bind_transform;
   if (bind_transform) {
-    
+
   } else {
-    
+
   }
   // @@protoc_insertion_point(field_set_allocated:viro.Node.Skeleton.Bone.bind_transform)
 }
@@ -4095,7 +4095,7 @@ inline float Node_SkeletalAnimation_Frame::time() const {
   return time_;
 }
 inline void Node_SkeletalAnimation_Frame::set_time(float value) {
-  
+
   time_ = value;
   // @@protoc_insertion_point(field_set:viro.Node.SkeletalAnimation.Frame.time)
 }
@@ -4203,44 +4203,44 @@ inline const ::std::string& Node_SkeletalAnimation::name() const {
   return name_.GetNoArena();
 }
 inline void Node_SkeletalAnimation::set_name(const ::std::string& value) {
-  
+
   name_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
   // @@protoc_insertion_point(field_set:viro.Node.SkeletalAnimation.name)
 }
 #if LANG_CXX11
 inline void Node_SkeletalAnimation::set_name(::std::string&& value) {
-  
+
   name_.SetNoArena(
     &::google::protobuf::internal::GetEmptyStringAlreadyInited(), std::move(value));
   // @@protoc_insertion_point(field_set_rvalue:viro.Node.SkeletalAnimation.name)
 }
 #endif
 inline void Node_SkeletalAnimation::set_name(const char* value) {
-  
+
   name_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
   // @@protoc_insertion_point(field_set_char:viro.Node.SkeletalAnimation.name)
 }
 inline void Node_SkeletalAnimation::set_name(const char* value, size_t size) {
-  
+
   name_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
   // @@protoc_insertion_point(field_set_pointer:viro.Node.SkeletalAnimation.name)
 }
 inline ::std::string* Node_SkeletalAnimation::mutable_name() {
-  
+
   // @@protoc_insertion_point(field_mutable:viro.Node.SkeletalAnimation.name)
   return name_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 inline ::std::string* Node_SkeletalAnimation::release_name() {
   // @@protoc_insertion_point(field_release:viro.Node.SkeletalAnimation.name)
-  
+
   return name_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 inline void Node_SkeletalAnimation::set_allocated_name(::std::string* name) {
   if (name != NULL) {
-    
+
   } else {
-    
+
   }
   name_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), name);
   // @@protoc_insertion_point(field_set_allocated:viro.Node.SkeletalAnimation.name)
@@ -4285,7 +4285,7 @@ inline ::google::protobuf::int64 Node_SkeletalAnimation::duration() const {
   return duration_;
 }
 inline void Node_SkeletalAnimation::set_duration(::google::protobuf::int64 value) {
-  
+
   duration_ = value;
   // @@protoc_insertion_point(field_set:viro.Node.SkeletalAnimation.duration)
 }
@@ -4299,7 +4299,7 @@ inline bool Node_SkeletalAnimation::has_scaling() const {
   return has_scaling_;
 }
 inline void Node_SkeletalAnimation::set_has_scaling(bool value) {
-  
+
   has_scaling_ = value;
   // @@protoc_insertion_point(field_set:viro.Node.SkeletalAnimation.has_scaling)
 }
@@ -4317,7 +4317,7 @@ inline float Node_KeyframeAnimation_Frame::time() const {
   return time_;
 }
 inline void Node_KeyframeAnimation_Frame::set_time(float value) {
-  
+
   time_ = value;
   // @@protoc_insertion_point(field_set:viro.Node.KeyframeAnimation.Frame.time)
 }
@@ -4425,44 +4425,44 @@ inline const ::std::string& Node_KeyframeAnimation::name() const {
   return name_.GetNoArena();
 }
 inline void Node_KeyframeAnimation::set_name(const ::std::string& value) {
-  
+
   name_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
   // @@protoc_insertion_point(field_set:viro.Node.KeyframeAnimation.name)
 }
 #if LANG_CXX11
 inline void Node_KeyframeAnimation::set_name(::std::string&& value) {
-  
+
   name_.SetNoArena(
     &::google::protobuf::internal::GetEmptyStringAlreadyInited(), std::move(value));
   // @@protoc_insertion_point(field_set_rvalue:viro.Node.KeyframeAnimation.name)
 }
 #endif
 inline void Node_KeyframeAnimation::set_name(const char* value) {
-  
+
   name_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
   // @@protoc_insertion_point(field_set_char:viro.Node.KeyframeAnimation.name)
 }
 inline void Node_KeyframeAnimation::set_name(const char* value, size_t size) {
-  
+
   name_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
   // @@protoc_insertion_point(field_set_pointer:viro.Node.KeyframeAnimation.name)
 }
 inline ::std::string* Node_KeyframeAnimation::mutable_name() {
-  
+
   // @@protoc_insertion_point(field_mutable:viro.Node.KeyframeAnimation.name)
   return name_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 inline ::std::string* Node_KeyframeAnimation::release_name() {
   // @@protoc_insertion_point(field_release:viro.Node.KeyframeAnimation.name)
-  
+
   return name_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 inline void Node_KeyframeAnimation::set_allocated_name(::std::string* name) {
   if (name != NULL) {
-    
+
   } else {
-    
+
   }
   name_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), name);
   // @@protoc_insertion_point(field_set_allocated:viro.Node.KeyframeAnimation.name)
@@ -4507,7 +4507,7 @@ inline ::google::protobuf::int64 Node_KeyframeAnimation::duration() const {
   return duration_;
 }
 inline void Node_KeyframeAnimation::set_duration(::google::protobuf::int64 value) {
-  
+
   duration_ = value;
   // @@protoc_insertion_point(field_set:viro.Node.KeyframeAnimation.duration)
 }
@@ -4525,44 +4525,44 @@ inline const ::std::string& Node_Light::name() const {
   return name_.GetNoArena();
 }
 inline void Node_Light::set_name(const ::std::string& value) {
-  
+
   name_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
   // @@protoc_insertion_point(field_set:viro.Node.Light.name)
 }
 #if LANG_CXX11
 inline void Node_Light::set_name(::std::string&& value) {
-  
+
   name_.SetNoArena(
     &::google::protobuf::internal::GetEmptyStringAlreadyInited(), std::move(value));
   // @@protoc_insertion_point(field_set_rvalue:viro.Node.Light.name)
 }
 #endif
 inline void Node_Light::set_name(const char* value) {
-  
+
   name_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
   // @@protoc_insertion_point(field_set_char:viro.Node.Light.name)
 }
 inline void Node_Light::set_name(const char* value, size_t size) {
-  
+
   name_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
   // @@protoc_insertion_point(field_set_pointer:viro.Node.Light.name)
 }
 inline ::std::string* Node_Light::mutable_name() {
-  
+
   // @@protoc_insertion_point(field_mutable:viro.Node.Light.name)
   return name_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 inline ::std::string* Node_Light::release_name() {
   // @@protoc_insertion_point(field_release:viro.Node.Light.name)
-  
+
   return name_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 inline void Node_Light::set_allocated_name(::std::string* name) {
   if (name != NULL) {
-    
+
   } else {
-    
+
   }
   name_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), name);
   // @@protoc_insertion_point(field_set_allocated:viro.Node.Light.name)
@@ -4577,7 +4577,7 @@ inline ::viro::Node_Light_LightType Node_Light::light_type() const {
   return static_cast< ::viro::Node_Light_LightType >(light_type_);
 }
 inline void Node_Light::set_light_type(::viro::Node_Light_LightType value) {
-  
+
   light_type_ = value;
   // @@protoc_insertion_point(field_set:viro.Node.Light.light_type)
 }
@@ -4681,7 +4681,7 @@ inline float Node_Light::intensity() const {
   return intensity_;
 }
 inline void Node_Light::set_intensity(float value) {
-  
+
   intensity_ = value;
   // @@protoc_insertion_point(field_set:viro.Node.Light.intensity)
 }
@@ -4695,7 +4695,7 @@ inline float Node_Light::temperature() const {
   return temperature_;
 }
 inline void Node_Light::set_temperature(float value) {
-  
+
   temperature_ = value;
   // @@protoc_insertion_point(field_set:viro.Node.Light.temperature)
 }
@@ -4709,7 +4709,7 @@ inline float Node_Light::attenuation_start() const {
   return attenuation_start_;
 }
 inline void Node_Light::set_attenuation_start(float value) {
-  
+
   attenuation_start_ = value;
   // @@protoc_insertion_point(field_set:viro.Node.Light.attenuation_start)
 }
@@ -4723,7 +4723,7 @@ inline float Node_Light::attenuation_end() const {
   return attenuation_end_;
 }
 inline void Node_Light::set_attenuation_end(float value) {
-  
+
   attenuation_end_ = value;
   // @@protoc_insertion_point(field_set:viro.Node.Light.attenuation_end)
 }
@@ -4737,7 +4737,7 @@ inline float Node_Light::attenuation_falloff_exponent() const {
   return attenuation_falloff_exponent_;
 }
 inline void Node_Light::set_attenuation_falloff_exponent(float value) {
-  
+
   attenuation_falloff_exponent_ = value;
   // @@protoc_insertion_point(field_set:viro.Node.Light.attenuation_falloff_exponent)
 }
@@ -4751,7 +4751,7 @@ inline float Node_Light::spot_inner_angle() const {
   return spot_inner_angle_;
 }
 inline void Node_Light::set_spot_inner_angle(float value) {
-  
+
   spot_inner_angle_ = value;
   // @@protoc_insertion_point(field_set:viro.Node.Light.spot_inner_angle)
 }
@@ -4765,7 +4765,7 @@ inline float Node_Light::spot_outer_angle() const {
   return spot_outer_angle_;
 }
 inline void Node_Light::set_spot_outer_angle(float value) {
-  
+
   spot_outer_angle_ = value;
   // @@protoc_insertion_point(field_set:viro.Node.Light.spot_outer_angle)
 }
@@ -4817,44 +4817,44 @@ inline const ::std::string& Node::name() const {
   return name_.GetNoArena();
 }
 inline void Node::set_name(const ::std::string& value) {
-  
+
   name_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
   // @@protoc_insertion_point(field_set:viro.Node.name)
 }
 #if LANG_CXX11
 inline void Node::set_name(::std::string&& value) {
-  
+
   name_.SetNoArena(
     &::google::protobuf::internal::GetEmptyStringAlreadyInited(), std::move(value));
   // @@protoc_insertion_point(field_set_rvalue:viro.Node.name)
 }
 #endif
 inline void Node::set_name(const char* value) {
-  
+
   name_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
   // @@protoc_insertion_point(field_set_char:viro.Node.name)
 }
 inline void Node::set_name(const char* value, size_t size) {
-  
+
   name_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
   // @@protoc_insertion_point(field_set_pointer:viro.Node.name)
 }
 inline ::std::string* Node::mutable_name() {
-  
+
   // @@protoc_insertion_point(field_mutable:viro.Node.name)
   return name_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 inline ::std::string* Node::release_name() {
   // @@protoc_insertion_point(field_release:viro.Node.name)
-  
+
   return name_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 inline void Node::set_allocated_name(::std::string* name) {
   if (name != NULL) {
-    
+
   } else {
-    
+
   }
   name_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), name);
   // @@protoc_insertion_point(field_set_allocated:viro.Node.name)
@@ -4959,7 +4959,7 @@ inline ::google::protobuf::int32 Node::rendering_order() const {
   return rendering_order_;
 }
 inline void Node::set_rendering_order(::google::protobuf::int32 value) {
-  
+
   rendering_order_ = value;
   // @@protoc_insertion_point(field_set:viro.Node.rendering_order)
 }
@@ -4973,7 +4973,7 @@ inline float Node::opacity() const {
   return opacity_;
 }
 inline void Node::set_opacity(float value) {
-  
+
   opacity_ = value;
   // @@protoc_insertion_point(field_set:viro.Node.opacity)
 }
@@ -4992,7 +4992,7 @@ inline const ::viro::Node_Geometry& Node::geometry() const {
                          : *::viro::Node_Geometry::internal_default_instance();
 }
 inline ::viro::Node_Geometry* Node::mutable_geometry() {
-  
+
   if (geometry_ == NULL) {
     geometry_ = new ::viro::Node_Geometry;
   }
@@ -5001,7 +5001,7 @@ inline ::viro::Node_Geometry* Node::mutable_geometry() {
 }
 inline ::viro::Node_Geometry* Node::release_geometry() {
   // @@protoc_insertion_point(field_release:viro.Node.geometry)
-  
+
   ::viro::Node_Geometry* temp = geometry_;
   geometry_ = NULL;
   return temp;
@@ -5010,9 +5010,9 @@ inline void Node::set_allocated_geometry(::viro::Node_Geometry* geometry) {
   delete geometry_;
   geometry_ = geometry;
   if (geometry) {
-    
+
   } else {
-    
+
   }
   // @@protoc_insertion_point(field_set_allocated:viro.Node.geometry)
 }
@@ -5031,7 +5031,7 @@ inline const ::viro::Node_Skeleton& Node::skeleton() const {
                          : *::viro::Node_Skeleton::internal_default_instance();
 }
 inline ::viro::Node_Skeleton* Node::mutable_skeleton() {
-  
+
   if (skeleton_ == NULL) {
     skeleton_ = new ::viro::Node_Skeleton;
   }
@@ -5040,7 +5040,7 @@ inline ::viro::Node_Skeleton* Node::mutable_skeleton() {
 }
 inline ::viro::Node_Skeleton* Node::release_skeleton() {
   // @@protoc_insertion_point(field_release:viro.Node.skeleton)
-  
+
   ::viro::Node_Skeleton* temp = skeleton_;
   skeleton_ = NULL;
   return temp;
@@ -5049,9 +5049,9 @@ inline void Node::set_allocated_skeleton(::viro::Node_Skeleton* skeleton) {
   delete skeleton_;
   skeleton_ = skeleton;
   if (skeleton) {
-    
+
   } else {
-    
+
   }
   // @@protoc_insertion_point(field_set_allocated:viro.Node.skeleton)
 }
@@ -5160,7 +5160,7 @@ inline const ::viro::Node_Camera& Node::camera() const {
                          : *::viro::Node_Camera::internal_default_instance();
 }
 inline ::viro::Node_Camera* Node::mutable_camera() {
-  
+
   if (camera_ == NULL) {
     camera_ = new ::viro::Node_Camera;
   }
@@ -5169,7 +5169,7 @@ inline ::viro::Node_Camera* Node::mutable_camera() {
 }
 inline ::viro::Node_Camera* Node::release_camera() {
   // @@protoc_insertion_point(field_release:viro.Node.camera)
-  
+
   ::viro::Node_Camera* temp = camera_;
   camera_ = NULL;
   return temp;
@@ -5178,9 +5178,9 @@ inline void Node::set_allocated_camera(::viro::Node_Camera* camera) {
   delete camera_;
   camera_ = camera;
   if (camera) {
-    
+
   } else {
-    
+
   }
   // @@protoc_insertion_point(field_set_allocated:viro.Node.camera)
 }
