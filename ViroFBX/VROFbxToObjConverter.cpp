@@ -15,11 +15,14 @@
 #include <array>
 #include <sstream>
 
-#include <Foundation/Foundation.h>
-#define pinfo(message,...) \
-do { \
-NSLog(@#message, ##__VA_ARGS__); \
-} while (0)
+#include "VROLog.h"
+#include <cassert>
+
+/* #include <Foundation/Foundation.h> */
+/* #define pinfo(message,...) \ */
+/* do { \ */
+/* NSLog(@#message, ##__VA_ARGS__); \ */
+/* } while (0) */
 
 #define passert(condition) (assert(condition))
 

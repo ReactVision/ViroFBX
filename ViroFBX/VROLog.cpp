@@ -12,7 +12,7 @@
 #define LOG_BUFFER_SIZE 1024
 
 #if VRO_PLATFORM_LINUX
-#include "debug_stacktrace.h"
+/* #include <debug_stacktrace.h> */
 #include <cstdio>
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -59,7 +59,8 @@ void pstack(const char *fmt, ...) {
 
 void pstack() {
 #if VRO_PLATFORM_LINUX
-    DebugStacktrace::getInstance().logStacktrace(2);
+    /* DebugStacktrace::getInstance().logStacktrace(2); */
+    pinfo("this should print the stacktrace, but it's not set up, sorry");
 #endif
 }
 

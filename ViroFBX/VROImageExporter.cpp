@@ -13,13 +13,17 @@
 #include "tinyexr.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
-#include "gtc/packing.hpp"
+#include <glm/gtc/packing.hpp>
 #include <fstream>
 #include <algorithm>
 #include <cstdio>
 #include <iostream>
 #include <array>
 #include "VROUtil.h"
+
+#include <glm/glm.hpp>
+
+using namespace glm;
 
 VROImageExporter::VROImageExporter() {
 
@@ -115,7 +119,7 @@ void VROImageExporter::writeVHD(float *data, int width, int height, int componen
         packedLength = numPixels * sizeof(uint32);
     }
     else {
-        pabort();
+        pabort("foo");
     }
 
     void *out = malloc(sizeof(header) + packedLength);

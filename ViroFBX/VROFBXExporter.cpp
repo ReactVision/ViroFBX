@@ -14,7 +14,9 @@
 #include <cstdio>
 #include <iostream>
 #include <array>
+#include <memory>
 #include "VROUtil.h"
+#include "Nodes.pb.h"
 
 static const bool kDebugGeometrySource = false;
 static const bool kDebugBones = false;

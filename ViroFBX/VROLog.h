@@ -31,9 +31,9 @@
 
 #if VRO_PLATFORM_LINUX
 
-#include <android/log.h>
+/* #include <android/log.h> */
 #include <jni.h>
-#include <sys/system_properties.h>
+/* #include <sys/system_properties.h> */
 
 // --------------------------------
 // Escape sequences for logging color:
@@ -158,21 +158,25 @@
 #define pinfo(message,...) \
 do { \
 printf((message), ##__VA_ARGS__); \
+printf("\n"); \
 } while (0)
 
 #define pwarn(message,...) \
 do { \
 printf((message), ##__VA_ARGS__); \
+printf("\n"); \
 } while (0)
 
 #define perr(message,...) \
 do { \
 printf((message), ##__VA_ARGS__); \
+printf("\n"); \
 } while (0)
 
 #define pfatal(message,...) \
 do { \
 printf((message), ##__VA_ARGS__); \
+printf("\n"); \
 } while (0)
 
 // __android_log_assert():
@@ -258,7 +262,7 @@ void pstack();
  Print out a stacktrace; then cause a SEG fault to halt execution.
  SEG fault will be at 0xdecafbad.
  */
-#define pabort(...) _pabort(__FILE__, __LINE__, __func__, ## __VA_ARGS__)
+#define pabort(...) _pabort(__FILE__, __LINE__, __func__, ##__VA_ARGS__ )
 
 void _pabort(const char *file, int line, const char *func) __attribute__((noreturn));
 void _pabort(const char* file, int line, const char *func, const char *fmt, ...)

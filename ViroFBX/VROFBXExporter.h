@@ -10,7 +10,7 @@
 #define VROFBXExporter_h
 
 #include <stdio.h>
-#include "fbxsdk.h"
+#include <fbxsdk.h>
 #include <vector>
 #include <map>
 #include "Nodes.pb.h"

@@ -11,6 +11,9 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
+#include <cstring>
+
+#include <stdexcept>
 
 std::string compressString(const std::string& str, int compressionlevel) {
     return compressBytes(str.data(), str.size(), compressionlevel);
@@ -49,7 +52,7 @@ std::string compressBytes(const void *data, size_t dataLength, int compressionle
     if (ret != Z_STREAM_END) {          // an error occurred that was not EOF
         std::ostringstream oss;
         oss << "Exception during zlib compression: (" << ret << ") " << zs.msg;
-        pabort();
+        pabort("bar");
     }
 
     return outstring;
