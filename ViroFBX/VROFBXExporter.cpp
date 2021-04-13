@@ -62,28 +62,28 @@ VROFBXExporter::~VROFBXExporter() {
 
 FbxScene *VROFBXExporter::loadFBX(std::string fbxPath) {
     _fbxPath = fbxPath;
-    
+
     FbxIOSettings *ios = FbxIOSettings::Create(_fbxManager, IOSROOT);
     _fbxManager->SetIOSettings(ios);
-    
+
     FbxImporter *importer = FbxImporter::Create(_fbxManager, "");
-    
+
     pinfo("Loading file [%s]", fbxPath.c_str());
     bool importStatus = importer->Initialize(fbxPath.c_str());
     if (!importStatus) {
         pinfo("Call to FBXImporter::Initialize() failed");
         pinfo("Error returned: %s", importer->GetStatus().GetErrorString());
-        
+
         return nullptr;
     }
     else {
         pinfo("Import successful");
     }
-    
+
     FbxScene *scene = FbxScene::Create(_fbxManager, "scene");
     importer->Import(scene);
     importer->Destroy();
-    
+
    /*
     Convert the file to the default axis sytem.
     */
@@ -91,22 +91,22 @@ FbxScene *VROFBXExporter::loadFBX(std::string fbxPath) {
     static const FbxAxisSystem::EUpVector defaultUpAxis = FbxAxisSystem::eYAxis;
     static const FbxAxisSystem::EFrontVector defaultFrontAxis = FbxAxisSystem::eParityOdd;
     static const FbxAxisSystem::ECoordSystem defaultCoordSystem = FbxAxisSystem::eRightHanded;
-    
+
     FbxAxisSystem origAxisSystem = scene->GetGlobalSettings().GetAxisSystem();
     int upAxisSign;
     FbxAxisSystem::EUpVector upAxis = origAxisSystem.GetUpVector(upAxisSign);
     pinfo("   Original up axis %d, sign %d", (int)upAxis, upAxisSign);
-    
+
     int forwardAxisSign;
     FbxAxisSystem::EFrontVector forwardAxis = origAxisSystem.GetFrontVector(forwardAxisSign);
     pinfo("   Original forward axis %d, sign %d", (int)forwardAxis, forwardAxisSign);
-    
+
     FbxAxisSystem::ECoordSystem coordSystem = origAxisSystem.GetCoorSystem();
     pinfo("   Coordinate system %d", (int)coordSystem);
 
     FbxAxisSystem axis(defaultUpAxis, defaultFrontAxis, defaultCoordSystem);
     axis.ConvertScene(scene);
-    
+
     // Bake in the pivot information: pre-rotation, post-rotation, rotation pivot, scale pivot,
     // etc., into the local transforms (node rotation, translation scale). While Viro supports
     // pivots, it does not support rotation and scale offsets
@@ -132,39 +132,39 @@ void VROFBXExporter::exportFBX(std::string fbxPath, std::string destPath, bool c
     if (scene == nullptr) {
         return;
     }
-    
+
     pinfo("Triangulating scene...");
-    
+
     FbxGeometryConverter converter(_fbxManager);
     converter.Triangulate(scene, true);
-    
+
     pinfo("Exporting FBX...");
     viro::Node *outNode = new viro::Node();
 
     FbxNode *rootNode = scene->GetRootNode();
-    
+
     FbxDouble3 translation = rootNode->LclTranslation.Get();
     outNode->add_position(translation[0]);
     outNode->add_position(translation[1]);
     outNode->add_position(translation[2]);
-    
+
     FbxDouble3 scaling = rootNode->LclScaling.Get();
     outNode->add_scale(scaling[0]);
     outNode->add_scale(scaling[1]);
     outNode->add_scale(scaling[2]);
-    
+
     FbxDouble3 rotation = rootNode->LclRotation.Get();
     outNode->add_rotation(rotation[0]);
     outNode->add_rotation(rotation[1]);
     outNode->add_rotation(rotation[2]);
-    
+
     if (rootNode) {
         pinfo("Exporting skeleton");
         // The skeleton is exported into the root node
         viro::Node::Skeleton *skeleton = outNode->mutable_skeleton();
         std::vector<FbxNode *> boneNodes;
         exportSkeleton(rootNode, &boneNodes, skeleton);
-        
+
         for (int i = 0; i < rootNode->GetChildCount(); i++) {
             if (isExportableNode(rootNode->GetChild(i))) {
                 exportNode(scene, rootNode->GetChild(i), 0, compressTextures,
@@ -172,16 +172,16 @@ void VROFBXExporter::exportFBX(std::string fbxPath, std::string destPath, bool c
             }
         }
     }
-    
+
     int byteSize = outNode->ByteSize();
-    
+
     pinfo("Encoding protobuf [%d bytes]...", byteSize);
     std::string encoded = outNode->SerializeAsString();
     pinfo("Compressing...");
     std::string compressed = compressString(encoded);
     pinfo("Writing protobuf [%d bytes]", (int)compressed.size());
     std::ofstream(destPath.c_str(), std::ios::binary).write(compressed.c_str(), compressed.size());
-    
+
     pinfo("Export complete");
 }
 
@@ -190,18 +190,18 @@ bool VROFBXExporter::isExportableNode(FbxNode *node) {
         pinfo("Encountered node with no attribute type -- skipping");
         return false;
     }
-    
+
     // Do not export skeleton nodes here (processed separately)
     if (node->GetNodeAttribute()->GetAttributeType() == FbxNodeAttribute::eSkeleton) {
         return false;
     }
-    
+
     // Skip camera and light nodes
     if (node->GetNodeAttribute()->GetAttributeType() == FbxNodeAttribute::eCamera ||
         node->GetNodeAttribute()->GetAttributeType() == FbxNodeAttribute::eLight) {
         return false;
     }
-    
+
     // Skip invisible nodes
     if (!node->GetVisibility()) {
         if (node->GetMesh() != nullptr) {
@@ -209,7 +209,7 @@ bool VROFBXExporter::isExportableNode(FbxNode *node) {
         }
         return false;
     }
-    
+
     return true;
 }
 
@@ -217,11 +217,11 @@ void VROFBXExporter::exportNode(FbxScene *scene, FbxNode *node, int depth, bool 
                                 const std::vector<FbxNode *> &boneNodes,
                                 viro::Node::Skeleton *outSkeleton, viro::Node *outNode) {
     passert (isExportableNode(node));
-    
+
     pinfo("Exporting node [%s], type [%s]", node->GetName(),
           GetAttributeTypeName(node->GetNodeAttribute()->GetAttributeType()).Buffer());
     outNode->set_name(node->GetName());
-    
+
     FbxDouble3 translation = node->LclTranslation.Get();
     outNode->add_position(translation[0]);
     outNode->add_position(translation[1]);
@@ -229,7 +229,7 @@ void VROFBXExporter::exportNode(FbxScene *scene, FbxNode *node, int depth, bool 
     if (kDebugNodeTransforms && (translation[0] != 0 || translation[1] != 0 || translation[2] != 0)) {
         pinfo("   Node translation %f, %f, %f", translation[0], translation[1], translation[2]);
     }
-    
+
     FbxDouble3 scaling = node->LclScaling.Get();
     outNode->add_scale(scaling[0]);
     outNode->add_scale(scaling[1]);
@@ -245,47 +245,47 @@ void VROFBXExporter::exportNode(FbxScene *scene, FbxNode *node, int depth, bool 
     if (kDebugNodeTransforms && (rotation[0] != 0 || rotation[1] != 0 || rotation[2] != 0)) {
         pinfo("   Node rotation %f, %f, %f", rotation[0], rotation[1], rotation[2]);
     }
-    
+
     FbxVector4 geoTranslation = node->GetGeometricTranslation(FbxNode::eSourcePivot);
     FbxVector4 geoRotation = node->GetGeometricRotation(FbxNode::eSourcePivot);
     FbxVector4 geoScale = node->GetGeometricScaling(FbxNode::eSourcePivot);
-    
+
     if (geoTranslation[0] != 0 || geoTranslation[1] != 0 || geoTranslation[2] != 0) {
         pinfo("   Geo-only translation %f, %f, %f", geoTranslation[0], geoTranslation[1], geoTranslation[2]);
     }
     if (geoRotation[0] != 0 || geoRotation[1] != 0 || geoRotation[2] != 0) {
         pinfo("   Geo-only rotation %f, %f, %f", geoRotation[0], geoRotation[1], geoRotation[2]);
     }
-    
+
     outNode->set_rendering_order(0);
     outNode->set_opacity(1.0);
-    
+
     if (node->GetMesh() != nullptr) {
         pinfo("   Exporting geometry");
         exportGeometry(node, depth, compressTextures, outNode->mutable_geometry());
-        
+
         /*
          Export the skin, if there is a skeleton.
          */
         if (boneNodes.size() > 0 && node->GetMesh()->GetDeformerCount() > 0) {
             pinfo("   Exporting skin");
             exportSkin(node, boneNodes, outSkeleton, outNode->mutable_geometry()->mutable_skin());
-            
+
             pinfo("   Exporting skeletal animations");
             exportSkeletalAnimations(scene, node, boneNodes, outNode);
         }
         else {
             pinfo("   No skeleton found, will not export skin");
         }
-        
+
         pinfo("   Exporting blend shape animations");
         exportBlendShapeAnimations(scene, node, outNode);
     }
-    
+
     // Keyframe animations can be contained in mesh-less nodes
     pinfo("   Exporting keyframe animations");
     exportSampledKeyframeAnimations(scene, node, outNode);
-    
+
     for (int i = 0; i < node->GetChildCount(); i++) {
         if (isExportableNode(node->GetChild(i))) {
             exportNode(scene, node->GetChild(i), depth, compressTextures,
@@ -297,10 +297,10 @@ void VROFBXExporter::exportNode(FbxScene *scene, FbxNode *node, int depth, bool 
 void VROFBXExporter::exportGeometry(FbxNode *node, int depth, bool compressTextures, viro::Node::Geometry *geo) {
     FbxMesh *mesh = node->GetMesh();
     passert_msg (mesh, "Failed to export, null mesh!");
-    
+
     mesh->GenerateTangentsData(0);
     int cornerCounter = 0;
-    
+
     /*
      Get the UV set names. For now we only use the first one.
      */
@@ -309,11 +309,11 @@ void VROFBXExporter::exportGeometry(FbxNode *node, int depth, bool compressTextu
     if (layerCount > 0) {
         for (int uvLayerIndex = 0; uvLayerIndex < layerCount; uvLayerIndex++) {
             FbxLayer *layer = mesh->GetLayer(uvLayerIndex);
-            
+
             // One layer can have multiple UV sets
             int uvSetCount = layer->GetUVSetCount();
             FbxArray<const FbxLayerElementUV *> sets = layer->GetUVSets();
-            
+
             for (int uvIndex = 0; uvIndex < uvSetCount; uvIndex++) {
                 FbxLayerElementUV const* elementUV = sets[uvIndex];
                 if (elementUV) {
@@ -322,15 +322,15 @@ void VROFBXExporter::exportGeometry(FbxNode *node, int depth, bool compressTextu
             }
         }
     }
-    
+
     pinfo("      UV set name %s", uvSetName);
-    
+
     /*
      Export the vertex, normal, tex-coord, and tangent data (the geometry
      sources).
      */
     std::vector<float> data;
-    
+
     int numPolygons = mesh->GetPolygonCount();
     pinfo("      Polygon count %d", numPolygons);
 
@@ -338,34 +338,34 @@ void VROFBXExporter::exportGeometry(FbxNode *node, int depth, bool compressTextu
         if (kDebugGeometrySource) {
             pinfo("      Reading polygon %d", i);
         }
-        
+
         // We only support triangles
         int polygonSize = mesh->GetPolygonSize(i);
         passert (polygonSize == 3);
-        
+
         for (int j = 0; j < polygonSize; j++) {
             if (kDebugGeometrySource) {
                 pinfo("         V%d", j);
             }
             int controlPointIndex = mesh->GetPolygonVertex(i, j);
-            
+
             FbxVector4 vertex = mesh->GetControlPointAt(controlPointIndex);
             data.push_back(vertex.mData[0]);
             data.push_back(vertex.mData[1]);
             data.push_back(vertex.mData[2]);
-            
+
             if (kDebugGeometrySource) {
                 pinfo("            Read vertex %f, %f, %f", vertex.mData[0], vertex.mData[1], vertex.mData[2]);
             }
-            
+
             FbxVector2 uv;
             bool unmapped;
             bool hasUV = mesh->GetPolygonVertexUV(i, j, uvSetName, uv, unmapped);
-            
+
             if (kDebugGeometrySource) {
                 pinfo("            Read UV %f, %f", uv.mData[0], uv.mData[1]);
             }
-            
+
             if (hasUV && !unmapped) {
                 data.push_back(uv.mData[0]);
                 data.push_back(1 - uv.mData[1]);
@@ -374,14 +374,14 @@ void VROFBXExporter::exportGeometry(FbxNode *node, int depth, bool compressTextu
                 data.push_back(0);
                 data.push_back(0);
             }
-            
+
             FbxVector4 normal;
             bool hasNormal = mesh->GetPolygonVertexNormal(i, j, normal);
-            
+
             if (kDebugGeometrySource) {
                 pinfo("            Read normal %f, %f, %f", normal.mData[0], normal.mData[1], normal.mData[2]);
             }
-            
+
             if (hasNormal) {
                 data.push_back(normal.mData[0]);
                 data.push_back(normal.mData[1]);
@@ -392,30 +392,30 @@ void VROFBXExporter::exportGeometry(FbxNode *node, int depth, bool compressTextu
                 data.push_back(0);
                 data.push_back(0);
             }
-            
+
             FbxVector4 tangent = readTangent(mesh, controlPointIndex, cornerCounter);
             data.push_back(tangent.mData[0]);
             data.push_back(tangent.mData[1]);
             data.push_back(tangent.mData[2]);
             data.push_back(tangent.mData[3]);
-            
+
             if (kDebugGeometrySource) {
                 pinfo("            Read tangent %f, %f, %f, %f", tangent.mData[0], tangent.mData[1], tangent.mData[2], tangent.mData[3]);
             }
             ++cornerCounter;
         }
     }
-    
+
     int floatsPerVertex = 12;
     int numVertices = (uint32_t)data.size() / floatsPerVertex;
     int stride = floatsPerVertex * sizeof(float);
-    
+
     passert (numPolygons * 3 * stride == data.size() * sizeof(float));
     geo->set_data(data.data(), data.size() * sizeof(float));
-    
+
     pinfo("      Num vertices %d, stride %d", numVertices, stride);
     pinfo("      VAR size %lu", data.size() * sizeof(float));
-    
+
     viro::Node::Geometry::Source *vertices = geo->add_source();
     vertices->set_semantic(viro::Node_Geometry_Source_Semantic_Vertex);
     vertices->set_vertex_count(numVertices);
@@ -424,7 +424,7 @@ void VROFBXExporter::exportGeometry(FbxNode *node, int depth, bool compressTextu
     vertices->set_bytes_per_component(sizeof(float));
     vertices->set_data_offset(0);
     vertices->set_data_stride(stride);
-    
+
     viro::Node::Geometry::Source *texCoords = geo->add_source();
     texCoords->set_semantic(viro::Node_Geometry_Source_Semantic_Texcoord);
     texCoords->set_vertex_count(numVertices);
@@ -433,7 +433,7 @@ void VROFBXExporter::exportGeometry(FbxNode *node, int depth, bool compressTextu
     texCoords->set_bytes_per_component(sizeof(float));
     texCoords->set_data_offset(sizeof(float) * 3);
     texCoords->set_data_stride(stride);
-    
+
     viro::Node::Geometry::Source *normals = geo->add_source();
     normals->set_semantic(viro::Node_Geometry_Source_Semantic_Normal);
     normals->set_vertex_count(numVertices);
@@ -442,7 +442,7 @@ void VROFBXExporter::exportGeometry(FbxNode *node, int depth, bool compressTextu
     normals->set_bytes_per_component(sizeof(float));
     normals->set_data_offset(sizeof(float) * 5);
     normals->set_data_stride(stride);
-    
+
     viro::Node::Geometry::Source *tangents = geo->add_source();
     tangents->set_semantic(viro::Node_Geometry_Source_Semantic_Tangent);
     tangents->set_vertex_count(numVertices);
@@ -451,19 +451,19 @@ void VROFBXExporter::exportGeometry(FbxNode *node, int depth, bool compressTextu
     tangents->set_bytes_per_component(sizeof(float));
     tangents->set_data_offset(sizeof(float) * 8);
     tangents->set_data_stride(stride);
-    
+
     /*
      Export the elements and materials.
      */
     int numMaterials = node->GetMaterialCount();
     pinfo("   Exporting materials");
     pinfo("      Num materials %d", numMaterials);
-    
+
     std::vector<int> materialMapping = readMaterialToMeshMapping(mesh, numPolygons);
     if (numMaterials > 0) {
         for (int i = 0; i < numMaterials; i++) {
             std::vector<int> triangles;
-            
+
             for (int face = 0; face < materialMapping.size(); face++) {
                 int materialIndex = materialMapping[face];
                 if (materialIndex == i) {
@@ -472,18 +472,18 @@ void VROFBXExporter::exportGeometry(FbxNode *node, int depth, bool compressTextu
                     triangles.push_back(face * 3 + 2);
                 }
             }
-            
+
             viro::Node::Geometry::Element *element = geo->add_element();
             element->set_data(triangles.data(), triangles.size() * sizeof(int));
             element->set_primitive(viro::Node_Geometry_Element_Primitive_Triangle);
             element->set_bytes_per_index(sizeof(int));
             element->set_primitive_count((int)triangles.size() / 3);
-            
+
             pinfo("      Primitive count for material %d: %d", i, element->primitive_count());
-            
+
             FbxSurfaceMaterial *fbxMaterial = node->GetMaterial(i);
             viro::Node::Geometry::Material *material = geo->add_material();
-            
+
             exportMaterial(fbxMaterial, compressTextures, material);
         }
     }
@@ -495,13 +495,13 @@ void VROFBXExporter::exportGeometry(FbxNode *node, int depth, bool compressTextu
             triangles.push_back(face * 3 + 1);
             triangles.push_back(face * 3 + 2);
         }
-        
+
         viro::Node::Geometry::Element *element = geo->add_element();
         element->set_data(triangles.data(), triangles.size() * sizeof(int));
         element->set_primitive(viro::Node_Geometry_Element_Primitive_Triangle);
         element->set_bytes_per_index(sizeof(int));
         element->set_primitive_count((int)triangles.size() / 3);
-        
+
         viro::Node::Geometry::Material *material = geo->add_material();
         material->set_transparency(1.0);
 
@@ -520,9 +520,9 @@ FbxVector4 VROFBXExporter::readNormal(FbxMesh *mesh, int controlPointIndex, int 
     if (mesh->GetElementNormalCount() < 1) {
         return {};
     }
-    
+
     FbxGeometryElementNormal *normalsLayer = mesh->GetElementNormal(0);
-    
+
     switch (normalsLayer->GetMappingMode()) {
         case FbxGeometryElement::eByControlPoint:
             switch(normalsLayer->GetReferenceMode()) {
@@ -537,7 +537,7 @@ FbxVector4 VROFBXExporter::readNormal(FbxMesh *mesh, int controlPointIndex, int 
                     pabort("Invalid reference mode");
         }
         break;
-            
+
         case FbxGeometryElement::eByPolygonVertex:
             switch(normalsLayer->GetReferenceMode()) {
                 case FbxGeometryElement::eDirect: {
@@ -552,12 +552,12 @@ FbxVector4 VROFBXExporter::readNormal(FbxMesh *mesh, int controlPointIndex, int 
                 default:
                     pabort("Invalid reference mode");
         }
-            
+
         default:
             pabort("Invalid mapping mode");
             break;
     }
-    
+
     return {};
 }
 
@@ -565,9 +565,9 @@ FbxVector4 VROFBXExporter::readTangent(FbxMesh *mesh, int controlPointIndex, int
     if(mesh->GetElementTangentCount() < 1) {
         return {};
     }
-    
+
     FbxGeometryElementTangent *tangentsLayer = mesh->GetElementTangent(0);
-    
+
     switch (tangentsLayer->GetMappingMode()) {
         case FbxGeometryElement::eByControlPoint:
             switch(tangentsLayer->GetReferenceMode()) {
@@ -582,7 +582,7 @@ FbxVector4 VROFBXExporter::readTangent(FbxMesh *mesh, int controlPointIndex, int
                     pabort("Invalid reference mode");
             }
             break;
-            
+
         case FbxGeometryElement::eByPolygonVertex:
             switch(tangentsLayer->GetReferenceMode()) {
                 case FbxGeometryElement::eDirect: {
@@ -597,12 +597,12 @@ FbxVector4 VROFBXExporter::readTangent(FbxMesh *mesh, int controlPointIndex, int
                 default:
                     pabort("Invalid reference mode");
             }
-            
+
         default:
             pabort("Invalid mapping mode");
             break;
     }
-    
+
     return {};
 }
 
@@ -614,7 +614,7 @@ FbxAMatrix VROFBXExporter::getGeometryMatrix(FbxNode *node) {
     const FbxVector4 lT = node->GetGeometricTranslation(FbxNode::eSourcePivot);
     const FbxVector4 lR = node->GetGeometricRotation(FbxNode::eSourcePivot);
     const FbxVector4 lS = node->GetGeometricScaling(FbxNode::eSourcePivot);
-    
+
     return FbxAMatrix(lT, lR, lS);
 }
 
@@ -632,13 +632,13 @@ void VROFBXExporter::exportSkeletonRecursive(FbxNode *node, int depth, int index
     if (node->GetNodeAttribute() &&
         node->GetNodeAttribute()->GetAttributeType() &&
         node->GetNodeAttribute()->GetAttributeType() == FbxNodeAttribute::eSkeleton) {
-        
+
         printf("   %*sExporting skeleton node [%s]\n", depth * 3, "", node->GetName());
 
         viro::Node::Skeleton::Bone *bone = outSkeleton->add_bone();
         bone->set_name(node->GetName());
         bone->set_parent_index(parentIndex);
-        
+
         // Output the local transform of the bone. This is the transform for the bone
         // in bind position (in other words, its the local transform for the bone when
         // there is no animation: it simply moves from this bone's space into its parent's
@@ -650,10 +650,10 @@ void VROFBXExporter::exportSkeletonRecursive(FbxNode *node, int depth, int index
         for (int t = 0; t < 16; t++) {
             transformLocal->add_value(localTransform.Get(t / 4, t % 4));
         }
-        
+
         outBoneNodes->push_back(node);
     }
-    
+
     int newParentIndex = outSkeleton->bone_size() - 1;
     for (int i = 0; i < node->GetChildCount(); i++) {
         exportSkeletonRecursive(node->GetChild(i), depth + 1, outSkeleton->bone_size(), newParentIndex, outBoneNodes, outSkeleton);
@@ -669,14 +669,14 @@ void VROFBXExporter::exportSkin(FbxNode *node,
                                 viro::Node::Skeleton *outSkeleton,
                                 viro::Node::Geometry::Skin *outSkin) {
     FbxMesh *mesh = node->GetMesh();
-    
+
     /*
      Each FBX deformer contains clusters. Clusters each contain a link (which is a
      bone). Normally only one deformer per mesh.
      */
     unsigned int numDeformers = mesh->GetDeformerCount();
     std::map<int, std::vector<VROBoneIndexWeight>> bones;
-    
+
     for (unsigned int deformerIndex = 0; deformerIndex < numDeformers; ++deformerIndex) {
         // We only use skin deformers for skeletal animation
         FbxSkin *skin = reinterpret_cast<FbxSkin*>(mesh->GetDeformer(deformerIndex, FbxDeformer::eSkin));
@@ -684,33 +684,33 @@ void VROFBXExporter::exportSkin(FbxNode *node,
             pinfo("Unsupported deformer");
             continue;
         }
-        
+
         unsigned int numClusters = skin->GetClusterCount();
         pinfo("      Number of clusters %d", numClusters);
-        
+
         // We will be filling in the bind transform for each bone
         for (int b = 0; b < boneNodes.size(); b++) {
             outSkin->add_bind_transform();
         }
-        
+
         /*
-         Encode the transform that gets us from model space, original position 
+         Encode the transform that gets us from model space, original position
          to world space, bind position.
          */
         FbxAMatrix geometryBindingTransform;
         if (numClusters > 0) {
             skin->GetCluster(0)->GetTransformMatrix(geometryBindingTransform);
             geometryBindingTransform *= getGeometryMatrix(node);
-            
+
             viro::Node::Matrix *gbt = outSkin->mutable_geometry_bind_transform();
             for (int i = 0; i < 16; i++) {
                 gbt->add_value(geometryBindingTransform.Get(i / 4, i % 4));
             }
         }
-        
+
         for (unsigned int clusterIndex = 0; clusterIndex < numClusters; ++clusterIndex) {
             FbxCluster *cluster = skin->GetCluster(clusterIndex);
-            
+
             /*
              Set the bind transform for the bone. The bind transform transforms
              the mesh from its encoded position in model space to the bind position
@@ -718,7 +718,7 @@ void VROFBXExporter::exportSkin(FbxNode *node,
              */
             std::string boneName = cluster->GetLink()->GetName();
             unsigned int boneIndex = findBoneIndex(cluster->GetLink(), boneNodes);
-            
+
             /*
              If a model has more bones that we support, we ignore the bones that are beyond
              our max bone index. This will likely ruin the animation, so log a warning.
@@ -728,7 +728,7 @@ void VROFBXExporter::exportSkin(FbxNode *node,
                       kMaxBones, boneIndex);
                 continue;
             }
-        
+
             /*
              Sanity check: the transform matrix for each cluster's parent node should
              be the same (it's the same parent!).
@@ -736,13 +736,13 @@ void VROFBXExporter::exportSkin(FbxNode *node,
             FbxAMatrix meshBindingTransform;
             cluster->GetTransformMatrix(meshBindingTransform);
             meshBindingTransform *= getGeometryMatrix(node);
-            
+
             for (int i = 0; i < 4; i++) {
                 for (int j = 0; j < 4; j++) {
                     passert (fabs(geometryBindingTransform.Get(i, j) - meshBindingTransform.Get(i, j)) < .0001);
                 }
             }
-            
+
             /*
              Encode the matrix that, for each bone, takes us from skeleton space, bind position
              to bone local space, bind position.
@@ -750,7 +750,7 @@ void VROFBXExporter::exportSkin(FbxNode *node,
             FbxAMatrix inverseBoneSpaceTransform;
             cluster->GetTransformLinkMatrix(inverseBoneSpaceTransform);
             FbxAMatrix boneSpaceTransform = inverseBoneSpaceTransform.Inverse();
-            
+
             // Save a copy of the bonespace binding transforms in the skeleton and skinner. Note that a given skinner
             // may not have the the complete set of bonespace binding transforms pertaining to the model's skeleton.
             viro::Node::Matrix *viroBoneSpaceTransform = outSkeleton->mutable_bone(boneIndex)->mutable_bind_transform();
@@ -762,7 +762,7 @@ void VROFBXExporter::exportSkin(FbxNode *node,
             for (int i = 0; i < 16; i++) {
                 bt->add_value(boneSpaceTransform.Get(i / 4, i % 4));
             }
-            
+
             /*
              Associate each bone with the control points it affects.
              */
@@ -770,7 +770,7 @@ void VROFBXExporter::exportSkin(FbxNode *node,
             for (unsigned int i = 0; i < numIndices; ++i) {
                 int controlPointIndex = cluster->GetControlPointIndices()[i];
                 float boneWeight = cluster->GetControlPointWeights()[i];
-                
+
                 /*
                  Associates a control point (vertex) with a bone, and gives
                  the bone a weight on that control point.
@@ -780,11 +780,11 @@ void VROFBXExporter::exportSkin(FbxNode *node,
             }
         }
     }
-    
+
     int numPointsWithTooManyBones = 0;
     for (auto &kv : bones) {
         std::vector<VROBoneIndexWeight> &bones = kv.second;
-        
+
         // If there are more than kMaxBoneInfluences bones, use only those with greatest
         // weight, and renormalize
         if (bones.size() > kMaxBoneInfluences) {
@@ -792,10 +792,10 @@ void VROFBXExporter::exportSkin(FbxNode *node,
             if (kDebugBones) {
                 pinfo("Control point has %d bones", (int)bones.size());
             }
-            
+
             std::sort(bones.begin(), bones.end(), SortByBoneWeight);
             bones.erase(bones.begin() + kMaxBoneInfluences, bones.end());
-            
+
             float total = 0;
             for (VROBoneIndexWeight &bone : bones) {
                 total += bone.weight;
@@ -807,38 +807,38 @@ void VROFBXExporter::exportSkin(FbxNode *node,
                 bone.weight = (bone.weight / total);
             }
         }
-        
+
         // Add extra dummy bones to each control point that has fewer than
         // kMaxBoneInfluences
         for (size_t i = bones.size(); i < kMaxBoneInfluences; ++i) {
             bones.push_back({0, 0});
         }
     }
-    
+
     pinfo("      Found bones for %lu control points", bones.size());
     if (numPointsWithTooManyBones > 0) {
         pinfo("************************");
         pinfo("WARN: Found %d control points with too many bone influences. Max 4 supported!", numPointsWithTooManyBones);
         pinfo("************************");
     }
-    
+
     /*
-     Export the geometry sources for the skin. Note this must be in the same order we 
+     Export the geometry sources for the skin. Note this must be in the same order we
      follow in exportGeometry.
      */
     std::vector<int> boneIndicesData;
     std::vector<float> boneWeightsData;
     std::set<int> controlPointsNoBones;
-    
+
     int numPolygons = mesh->GetPolygonCount();
     for (unsigned int i = 0; i < numPolygons; i++) {
         // We only support triangles
         int polygonSize = mesh->GetPolygonSize(i);
         passert (polygonSize == 3);
-        
+
         for (int j = 0; j < polygonSize; j++) {
             int controlPointIndex = mesh->GetPolygonVertex(i, j);
-            
+
             auto it = bones.find(controlPointIndex);
             if (it == bones.end()) {
                 // This is just so we only log the message once per control point instead
@@ -847,7 +847,7 @@ void VROFBXExporter::exportSkin(FbxNode *node,
                     controlPointsNoBones.insert(controlPointIndex);
                     pinfo("         No bones found for control point %d", controlPointIndex);
                 }
-                
+
                 for (int b = 0; b < kMaxBoneInfluences; b++) {
                     boneIndicesData.push_back(0);
                     boneWeightsData.push_back(0);
@@ -856,14 +856,14 @@ void VROFBXExporter::exportSkin(FbxNode *node,
             else {
                 std::vector<VROBoneIndexWeight> &boneData = it->second;
                 passert (boneData.size() == kMaxBoneInfluences);
-                
+
                 if (kDebugGeometrySource) {
                     pinfo("      Control point %d", controlPointIndex);
                 }
                 for (VROBoneIndexWeight &bone : boneData) {
                     boneIndicesData.push_back(bone.index);
                     boneWeightsData.push_back(bone.weight);
-                    
+
                     if (kDebugGeometrySource) {
                         pinfo("         bone-index: %d", bone.index);
                         pinfo("         bone-weight: %f", bone.weight);
@@ -872,10 +872,10 @@ void VROFBXExporter::exportSkin(FbxNode *node,
             }
         }
     }
-    
+
     int intsPerVertex = kMaxBoneInfluences;
     int numVertices = (uint32_t)boneIndicesData.size() / intsPerVertex;
-    
+
     viro::Node::Geometry::Source *boneIndices = outSkin->mutable_bone_indices();
     boneIndices->set_semantic(viro::Node_Geometry_Source_Semantic_BoneIndices);
     boneIndices->set_vertex_count(numVertices);
@@ -900,7 +900,7 @@ void VROFBXExporter::exportSkin(FbxNode *node,
 void VROFBXExporter::exportSkeletalAnimations(FbxScene *scene, FbxNode *node, const std::vector<FbxNode *> &boneNodes,
                                               viro::Node *outNode) {
     FbxMesh *mesh = node->GetMesh();
-    
+
     unsigned int numDeformers = mesh->GetDeformerCount();
     if (numDeformers <= 0) {
         pinfo("   Mesh had no deformers, not exporting animation");
@@ -908,14 +908,14 @@ void VROFBXExporter::exportSkeletalAnimations(FbxScene *scene, FbxNode *node, co
     }
 
     FbxAnimEvaluator *evaluator = scene->GetAnimationEvaluator();
-    
+
     /*
      Iterate through each animation stack. Each stack corresponds to a separate skeletal animation.
      */
     int numStacks = scene->GetSrcObjectCount(FbxCriteria::ObjectType(FbxAnimStack::ClassId));
     for (int s = 0; s < numStacks; s++) {
         viro::Node::SkeletalAnimation *skeletalAnimation = outNode->add_skeletal_animation();
-        
+
         /*
          Get metadata for the animation.
          */
@@ -925,29 +925,29 @@ void VROFBXExporter::exportSkeletalAnimations(FbxScene *scene, FbxNode *node, co
         FbxTime start = take->mLocalTimeSpan.GetStart();
         FbxTime end = take->mLocalTimeSpan.GetStop();
         FbxLongLong duration = end.GetMilliSeconds() - start.GetMilliSeconds();
-        
+
         pinfo("      Animation [%s] duration %lld ms", animStackName.Buffer(), duration);
-        
+
         skeletalAnimation->set_name(animStackName.Buffer());
         skeletalAnimation->set_duration(duration);
         skeletalAnimation->set_has_scaling(false);
 
         FbxLongLong startFrame = start.GetFrameCount(FbxTime::eFrames30);
         FbxLongLong endFrame = end.GetFrameCount(FbxTime::eFrames30);
-        
+
         scene->SetCurrentAnimationStack(animStack);
-        
+
         for (FbxLongLong i = startFrame; i < endFrame; ++i) {
             viro::Node::SkeletalAnimation::Frame *frame = skeletalAnimation->add_frame();
-            
+
             // Time in the FBX file
             FbxTime frameTime;
             frameTime.SetFrame(i, FbxTime::eFrames30);
-            
+
             // Time in the current animation
             FbxTime animationTime;
             animationTime.SetFrame(i - startFrame, FbxTime::eFrames30);
-            
+
             frame->set_time(fmin(1.0, (float) animationTime.GetMilliSeconds() / (float) duration));
             for (unsigned int deformerIndex = 0; deformerIndex < numDeformers; ++deformerIndex) {
                 // We only use skin deformers for skeletal animation
@@ -955,55 +955,55 @@ void VROFBXExporter::exportSkeletalAnimations(FbxScene *scene, FbxNode *node, co
                 if (!skin) {
                     continue;
                 }
-                
+
                 unsigned int numClusters = skin->GetClusterCount();
                 for (unsigned int clusterIndex = 0; clusterIndex < numClusters; ++clusterIndex) {
                     FbxCluster *cluster = skin->GetCluster(clusterIndex);
-                    
+
                     FbxNode *bone = cluster->GetLink();
                     unsigned int boneIndex = findBoneIndex(bone, boneNodes);
                     frame->add_bone_index(boneIndex);
-                    
+
                     /*
-                     This computes the transform matrix for a given bone at a specific time. 
+                     This computes the transform matrix for a given bone at a specific time.
                      When animating, we first multiply each vertex by the geometryBindingTranform:
                      this takes the mesh from it encoded position in model space to its binding position
                      model space (FBX refers to this as world space; it doesn't matter what it is
                      exactly, although it's most likely the local space of the top-most bone in the skeleton).
-                     
+
                      From the binding position in model space we can move to the bone's local
                      space by multiplying by the bone space transform. Once in the
                      binding position, in bone local space, we can apply the animation.
-                     
+
                      The transform that applies the animation is the animationTransform: this
                      transform is *concatenated* (or global, using FBX terms): it includes all
                      bone transforms of its parents up the skeleton hierarchy. Therefore, when we multiply
                      our vertex (in bone local space) by animationTransform, we end up back in
                      model space: except we've moved from our bind pose to our animated position.
-                     
+
                      To summarize, each transformation moves us to a different position and coordinate
-                     space. This table shows the step-by-step process for getting from the model's 
+                     space. This table shows the step-by-step process for getting from the model's
                      original position in model space to its animated position in model space. The first
                      two matrices are created in exportSkin and encoded into the binding transform
                      in the protobuf. Here, we encode the animation transform.
-                     
+
                      1. Model space, encoded position     --> [geometryBindingTransform]  --> Model space, bind position
                      2. Skeleton space, bind position     --> [boneSpaceTransform]        --> Bone space, bind position
                      3. Bone space, bind position         --> [animationTransform]        --> Model space, animated position
                      */
                     FbxAMatrix animationTransform      = evaluator->GetNodeGlobalTransform(bone, frameTime);
                     FbxAMatrix localAnimationTransform = evaluator->GetNodeLocalTransform(bone, frameTime);
-                   
+
                     viro::Node::Matrix *transform = frame->add_transform();
                     for (int t = 0; t < 16; t++) {
                         transform->add_value(animationTransform.Get(t / 4, t % 4));
                     }
-                    
+
                     viro::Node::Matrix *transformLocal = frame->add_local_transform();
                     for (int t = 0; t < 16; t++) {
                         transformLocal->add_value(localAnimationTransform.Get(t / 4, t % 4));
                     }
-                    
+
                     // Indicate if there is a scaling component of the transform
                     FbxVector4 scaleT = animationTransform.GetS();
                     if (fabs(scaleT.mData[0] - 1.0) > kEpsilon ||
@@ -1019,13 +1019,13 @@ void VROFBXExporter::exportSkeletalAnimations(FbxScene *scene, FbxNode *node, co
 
 void VROFBXExporter::exportBlendShapeAnimations(FbxScene *scene, FbxNode *node, viro::Node *outNode) {
     FbxMesh *mesh = node->GetMesh();
-    
+
     unsigned int numDeformers = mesh->GetDeformerCount();
     if (numDeformers <= 0) {
         pinfo("   Mesh had no deformers, not exporting blend shape animations");
         return;
     }
-    
+
     /*
      Iterate through each animation stack. Each stack corresponds to a separate skeletal animation.
      */
@@ -1040,16 +1040,16 @@ void VROFBXExporter::exportBlendShapeAnimations(FbxScene *scene, FbxNode *node, 
         FbxTime start = take->mLocalTimeSpan.GetStart();
         FbxTime end = take->mLocalTimeSpan.GetStop();
         //FbxLongLong duration = end.GetMilliSeconds() - start.GetMilliSeconds();
-        
+
         for (FbxLongLong i = start.GetFrameCount(FbxTime::eFrames30); i <= end.GetFrameCount(FbxTime::eFrames30); ++i) {
             for (unsigned int deformerIndex = 0; deformerIndex < numDeformers; ++deformerIndex) {
                 FbxBlendShape *blendShape = reinterpret_cast<FbxBlendShape *>(mesh->GetDeformer(deformerIndex, FbxDeformer::eBlendShape));
                 if (!blendShape) {
                     continue;
                 }
-                
+
                 pinfo("   Found blend shape deformer, but not yet supported. Will not export!");
-                
+
                 // TODO Add support for blend shape animations
             }
         }
@@ -1062,14 +1062,14 @@ void VROFBXExporter::exportBlendShapeAnimations(FbxScene *scene, FbxNode *node, 
  */
 void VROFBXExporter::exportSampledKeyframeAnimations(FbxScene *scene, FbxNode *node, viro::Node *outNode) {
     FbxAnimEvaluator *evaluator = scene->GetAnimationEvaluator();
-    
+
     /*
      Iterate through each animation stack. Each stack corresponds to a separate skeletal animation.
      */
     int numStacks = scene->GetSrcObjectCount(FbxCriteria::ObjectType(FbxAnimStack::ClassId));
     for (int s = 0; s < numStacks; s++) {
         viro::Node::KeyframeAnimation *keyframeAnimation = outNode->add_keyframe_animation();
-        
+
         /*
          Get metadata for the animation.
          */
@@ -1079,45 +1079,45 @@ void VROFBXExporter::exportSampledKeyframeAnimations(FbxScene *scene, FbxNode *n
         FbxTime start = take->mLocalTimeSpan.GetStart();
         FbxTime end = take->mLocalTimeSpan.GetStop();
         FbxLongLong duration = end.GetMilliSeconds() - start.GetMilliSeconds();
-        
+
         pinfo("      Animation [%s] duration %lld ms", animStackName.Buffer(), duration);
-        
+
         keyframeAnimation->set_name(animStackName.Buffer());
         keyframeAnimation->set_duration(duration);
-        
+
         FbxLongLong startFrame = start.GetFrameCount(FbxTime::eFrames30);
         FbxLongLong endFrame = end.GetFrameCount(FbxTime::eFrames30);
-        
+
         scene->SetCurrentAnimationStack(animStack);
-        
+
         for (FbxLongLong i = startFrame; i < endFrame; ++i) {
             viro::Node::KeyframeAnimation::Frame *kf = keyframeAnimation->add_frame();
-            
+
             // Time in the FBX file
             FbxTime frameTime;
             frameTime.SetFrame(i, FbxTime::eFrames30);
-            
+
             // Time in the current animation
             FbxTime animationTime;
             animationTime.SetFrame(i - startFrame, FbxTime::eFrames30);
-            
+
             kf->set_time(fmin(1.0, (float) animationTime.GetMilliSeconds() / (float) duration));
             FbxAMatrix localTransform = evaluator->GetNodeLocalTransform(node, frameTime);
-            
+
             FbxVector4 localScale = localTransform.GetS();
             kf->add_scale(localScale.mData[0]);
             kf->add_scale(localScale.mData[1]);
             kf->add_scale(localScale.mData[2]);
 
             //pinfo("Frame %d, scale %f, %f, %f", i, localScale.mData[0], localScale.mData[1], localScale.mData[2]);
-            
+
             FbxVector4 localTranslation = localTransform.GetT();
             kf->add_translation(localTranslation.mData[0]);
             kf->add_translation(localTranslation.mData[1]);
             kf->add_translation(localTranslation.mData[2]);
-            
+
             //pinfo("Frame %d, translation %f, %f, %f", i, localTranslation.mData[0], localTranslation.mData[1], localTranslation.mData[2]);
-            
+
             FbxQuaternion localRotation = localTransform.GetQ();
             kf->add_rotation(localRotation.mData[0]);
             kf->add_rotation(localRotation.mData[1]);
@@ -1148,83 +1148,83 @@ void VROFBXExporter::exportKeyframeAnimations(FbxScene *scene, FbxNode *node, vi
         FbxTime start = take->mLocalTimeSpan.GetStart();
         FbxTime end = take->mLocalTimeSpan.GetStop();
         FbxLongLong duration = end.GetMilliSeconds() - start.GetMilliSeconds();
-        
+
         pinfo("      Animation [%s] duration %lld ms", animStackName.Buffer(), duration);
-        
+
         const int layerCount = animStack->GetMemberCount<FbxAnimLayer>();
         if (layerCount > 1) {
             pinfo("Blended animations not supported, will not export all animation layers");
         }
         int layerIndex = 0;
-        
+
         scene->SetCurrentAnimationStack(animStack);
 
         FbxAnimLayer *layer = animStack->GetMember<FbxAnimLayer>(layerIndex);
-        
+
         FbxAnimCurve *translationCurve = node->LclTranslation.GetCurve(layer);
         if (translationCurve != NULL) {
             viro::Node::KeyframeAnimation *keyframeAnimation = outNode->add_keyframe_animation();
             keyframeAnimation->set_name(animStackName.Buffer());
             keyframeAnimation->set_duration(duration);
-            
+
             int keyCount = translationCurve->KeyGetCount();
             for (int keyIndex = 0; keyIndex < keyCount; ++keyIndex) {
                 FbxTime keyTime = translationCurve->KeyGetTime(keyIndex);
                 FbxVector4 localTranslation = node->EvaluateLocalTranslation(keyTime);
-                
+
                 viro::Node::KeyframeAnimation::Frame *kf = keyframeAnimation->add_frame();
                 kf->set_time((float) keyTime.GetMilliSeconds() / (float) duration);
                 kf->add_translation(localTranslation.mData[0]);
                 kf->add_translation(localTranslation.mData[1]);
                 kf->add_translation(localTranslation.mData[2]);
-                
+
                 pinfo("Added time %f, translation %f, %f, %f", kf->time(), kf->translation(0), kf->translation(1), kf->translation(2));
             }
         }
-        
+
         FbxAnimCurve *rotationCurve = node->LclRotation.GetCurve(layer);
         if (rotationCurve != NULL) {
             viro::Node::KeyframeAnimation *keyframeAnimation = outNode->add_keyframe_animation();
             keyframeAnimation->set_name(animStackName.Buffer());
             keyframeAnimation->set_duration(duration);
-            
+
             int keyCount = rotationCurve->KeyGetCount();
             for (int keyIndex = 0; keyIndex < keyCount; ++keyIndex) {
                 FbxTime keyTime = rotationCurve->KeyGetTime(keyIndex);
-                
+
                 FbxAMatrix tmp;
                 tmp.SetR(node->EvaluateLocalRotation(keyTime));
                 FbxQuaternion localRotation = tmp.GetQ();
-                
+
                 viro::Node::KeyframeAnimation::Frame *kf = keyframeAnimation->add_frame();
                 kf->set_time((float) keyTime.GetMilliSeconds() / (float) duration);
                 kf->add_rotation(localRotation.mData[0]);
                 kf->add_rotation(localRotation.mData[1]);
                 kf->add_rotation(localRotation.mData[2]);
                 kf->add_rotation(localRotation.mData[3]);
-                
+
                 pinfo("Added time %f, rotation %f, %f, %f", kf->time(), kf->rotation(0), kf->rotation(1), kf->rotation(2));
             }
 
         }
-        
+
         FbxAnimCurve *scaleCurve = node->LclScaling.GetCurve(layer);
         if (scaleCurve != NULL) {
             viro::Node::KeyframeAnimation *keyframeAnimation = outNode->add_keyframe_animation();
             keyframeAnimation->set_name(animStackName.Buffer());
             keyframeAnimation->set_duration(duration);
-            
+
             int keyCount = scaleCurve->KeyGetCount();
             for (int keyIndex = 0; keyIndex < keyCount; ++keyIndex) {
                 FbxTime keyTime = scaleCurve->KeyGetTime(keyIndex);
                 FbxVector4 localScale = node->EvaluateLocalScaling(keyTime);
-                
+
                 viro::Node::KeyframeAnimation::Frame *kf = keyframeAnimation->add_frame();
                 kf->set_time((float) keyTime.GetMilliSeconds() / (float) duration);
                 kf->add_scale(localScale.mData[0]);
                 kf->add_scale(localScale.mData[1]);
                 kf->add_scale(localScale.mData[2]);
-                
+
                 pinfo("Added time %f, scale %f, %f, %f", kf->time(), kf->scale(0), kf->scale(1), kf->scale(2));
             }
         }
@@ -1244,23 +1244,23 @@ unsigned int VROFBXExporter::findBoneIndex(FbxNode *node, const std::vector<FbxN
 
 std::vector<int> VROFBXExporter::readMaterialToMeshMapping(FbxMesh *mesh, int numPolygons) {
     std::vector<int> materialMapping;
-    
+
     if (mesh->GetElementMaterial()) {
         FbxLayerElementArrayTemplate<int> *materialIndices = &(mesh->GetElementMaterial()->GetIndexArray());
         FbxGeometryElement::EMappingMode materialMappingMode = mesh->GetElementMaterial()->GetMappingMode();
-        
+
         if (materialIndices) {
             switch(materialMappingMode) {
                 case FbxGeometryElement::eByPolygon: {
                     passert (numPolygons == materialIndices->GetCount());
-                    
+
                     for (unsigned int i = 0; i < materialIndices->GetCount(); ++i) {
                         unsigned int materialIndex = materialIndices->GetAt(i);
                         materialMapping.push_back(materialIndex);
                     }
                 }
                     break;
-                    
+
                 case FbxGeometryElement::eAllSame: {
                     unsigned int materialIndex = materialIndices->GetAt(0);
                     for (unsigned int i = 0; i < numPolygons; ++i) {
@@ -1268,7 +1268,7 @@ std::vector<int> VROFBXExporter::readMaterialToMeshMapping(FbxMesh *mesh, int nu
                     }
                 }
                     break;
-                    
+
                 default:
                     pabort("Invalid mapping mode for material");
             }
@@ -1283,7 +1283,7 @@ std::vector<int> VROFBXExporter::readMaterialToMeshMapping(FbxMesh *mesh, int nu
             materialMapping.push_back(0);
         }
     }
-    
+
     return materialMapping;
 }
 
@@ -1293,40 +1293,40 @@ void VROFBXExporter::exportMaterial(FbxSurfaceMaterial *inMaterial, bool compres
     if (!implementation) {
         implementation = GetImplementation(inMaterial, FBXSDK_IMPLEMENTATION_CGFX);
     }
-    
+
     if (implementation) {
         pinfo("      Exporting hardware material");
         exportHardwareMaterial(inMaterial, implementation, outMaterial);
         return;
     }
-    
-    std::string materialName = std::string(inMaterial->GetName());    
+
+    std::string materialName = std::string(inMaterial->GetName());
     outMaterial->set_name(materialName);
-    
+
     // Otherwise it's either Phong or Lambert
     if (inMaterial->GetClassId().Is(FbxSurfacePhong::ClassId)) {
         pinfo("      Phong material");
         FbxSurfacePhong *phong = reinterpret_cast<FbxSurfacePhong *>(inMaterial);
         outMaterial->set_lighting_model(viro::Node_Geometry_Material_LightingModel_Phong);
-        
+
         // Diffuse Color
         viro::Node::Geometry::Material::Visual *diffuse = outMaterial->mutable_diffuse();
-        
+
         FbxDouble3 inDiffuse = reinterpret_cast<FbxSurfacePhong *>(inMaterial)->Diffuse;
         diffuse->add_color(static_cast<float>(inDiffuse.mData[0]));
         diffuse->add_color(static_cast<float>(inDiffuse.mData[1]));
         diffuse->add_color(static_cast<float>(inDiffuse.mData[2]));
         diffuse->set_intensity(phong->DiffuseFactor);
-        
+
         // Specular Color
         // double3 = reinterpret_cast<FbxSurfacePhong *>(inMaterial)->Specular;
-        
+
         // Emissive Color
         // double3 = reinterpret_cast<FbxSurfacePhong *>(inMaterial)->Emissive;
-        
+
         // Reflection
         // double3 = reinterpret_cast<FbxSurfacePhong *>(inMaterial)->Reflection;
-        
+
         // Transparency
         if (phong->TransparencyFactor.IsValid() && phong->TransparentColor.IsValid()) {
             FbxDouble transparencyFactor = reinterpret_cast<FbxSurfaceLambert *>(inMaterial)->TransparencyFactor.Get();
@@ -1343,16 +1343,16 @@ void VROFBXExporter::exportMaterial(FbxSurfaceMaterial *inMaterial, bool compres
             FbxDouble3 color = phong->TransparentColor.Get();
             outMaterial->set_transparency(1.0 - (float)((color[0] + color[1] + color[2]) / 3.0));
         }
-        
+
         pinfo("         Opacity set to %f", outMaterial->transparency());
-        
+
         // Shininess
         FbxDouble shininess = reinterpret_cast<FbxSurfacePhong *>(inMaterial)->Shininess;
         outMaterial->set_shininess(shininess);
-        
+
         // Specular Factor
         // double1 = reinterpret_cast<FbxSurfacePhong *>(inMaterial)->SpecularFactor;
-        
+
         // Reflection Factor
         FbxDouble reflectionFactor = reinterpret_cast<FbxSurfacePhong *>(inMaterial)->ReflectionFactor;
         outMaterial->set_fresnel_exponent(reflectionFactor);
@@ -1361,20 +1361,20 @@ void VROFBXExporter::exportMaterial(FbxSurfaceMaterial *inMaterial, bool compres
         pinfo("      Lambert material");
         FbxSurfaceLambert *lambert = reinterpret_cast<FbxSurfaceLambert *>(inMaterial);
         outMaterial->set_lighting_model(viro::Node_Geometry_Material_LightingModel_Lambert);
-        
+
         // Diffuse Color
         viro::Node::Geometry::Material::Visual *diffuse = outMaterial->mutable_diffuse();
-        
+
         FbxDouble3 inDiffuse = lambert->Diffuse;
         diffuse->add_color(static_cast<float>(inDiffuse.mData[0]));
         diffuse->add_color(static_cast<float>(inDiffuse.mData[1]));
         diffuse->add_color(static_cast<float>(inDiffuse.mData[2]));
         diffuse->set_intensity(lambert->DiffuseFactor);
-      
+
         // Emissive Color
         // double3 = reinterpret_cast<FbxSurfaceLambert *>(inMaterial)->Emissive;
         // set emissive intensity here as well
-        
+
         // Transparency
         if (lambert->TransparencyFactor.IsValid() && lambert->TransparentColor.IsValid()) {
             FbxDouble transparencyFactor = reinterpret_cast<FbxSurfaceLambert *>(inMaterial)->TransparencyFactor.Get();
@@ -1391,14 +1391,14 @@ void VROFBXExporter::exportMaterial(FbxSurfaceMaterial *inMaterial, bool compres
             FbxDouble3 color = lambert->TransparentColor.Get();
             outMaterial->set_transparency(1.0 - (float)((color[0] + color[1] + color[2]) / 3.0));
         }
-        
+
         pinfo("         Opacity set to %f", outMaterial->transparency());
     }
     else if (startsWith(materialName, "Stingray")) {
         pinfo("      Stingray material [%s]", materialName.c_str());
         outMaterial->set_lighting_model(viro::Node_Geometry_Material_LightingModel_PhysicallyBased);
         outMaterial->set_transparency(1.0);
-        
+
         // Create a flat table of all material properties
         std::map<std::string, FbxProperty> propertyTable;
         FbxProperty prop = inMaterial->GetFirstProperty();
@@ -1406,26 +1406,26 @@ void VROFBXExporter::exportMaterial(FbxSurfaceMaterial *inMaterial, bool compres
             propertyTable[std::string(prop.GetName().Buffer())] = prop;
             prop = inMaterial->GetNextProperty(prop);
         }
-        
+
         // Albedo properties
         FbxDouble3 albedoColor = parseDouble3(propertyTable["base_color"]);
         std::string albedoMap = parseTexture(propertyTable["TEX_color_map"]);
         bool useAlbedoMap = parseBool(propertyTable["use_color_map"]);
-        
+
         pinfo("         Albedo color %f, %f, %f", albedoColor[0], albedoColor[1], albedoColor[2]);
         pinfo("         Albedo map %s", albedoMap.c_str());
         pinfo("         Use albedo map %d", useAlbedoMap);
-        
+
         viro::Node::Geometry::Material::Visual *diffuse = outMaterial->mutable_diffuse();
         diffuse->set_intensity(1.0);
-        
+
         // For PBR we use *either* the map or the color for the Albedo texture
         if (useAlbedoMap) {
             diffuse->set_texture(albedoMap);
             diffuse->add_color(static_cast<float>(1.0));
             diffuse->add_color(static_cast<float>(1.0));
             diffuse->add_color(static_cast<float>(1.0));
-            
+
             diffuse->set_wrap_mode_s(viro::Node_Geometry_Material_Visual_WrapMode_Clamp);
             diffuse->set_wrap_mode_t(viro::Node_Geometry_Material_Visual_WrapMode_Clamp);
             diffuse->set_minification_filter(viro::Node_Geometry_Material_Visual_FilterMode_Linear);
@@ -1437,16 +1437,16 @@ void VROFBXExporter::exportMaterial(FbxSurfaceMaterial *inMaterial, bool compres
             diffuse->add_color(static_cast<float>(albedoColor[1]));
             diffuse->add_color(static_cast<float>(albedoColor[2]));
         }
-        
+
         // Metalness properties
         float metalnessValue = parseFloat(propertyTable["metallic"]);
         std::string metalnessMap = parseTexture(propertyTable["TEX_metallic_map"]);
         bool useMetalnessMap = parseBool(propertyTable["use_metallic_map"]);
-        
+
         pinfo("         Metalness %f", metalnessValue);
         pinfo("         Metalness map %s", metalnessMap.c_str());
         pinfo("         Use metalness map %d", useMetalnessMap);
-        
+
         viro::Node::Geometry::Material::Visual *metalness = outMaterial->mutable_metalness();
         metalness->set_intensity(1.0);
         metalness->add_color(metalnessValue);
@@ -1463,7 +1463,7 @@ void VROFBXExporter::exportMaterial(FbxSurfaceMaterial *inMaterial, bool compres
         float roughnessValue = parseFloat(propertyTable["roughness"]);
         std::string roughnessMap = parseTexture(propertyTable["TEX_roughness_map"]);
         bool useRoughnessMap = parseBool(propertyTable["use_roughness_map"]);
-        
+
         pinfo("         Roughness %f", roughnessValue);
         pinfo("         Roughness map %s", roughnessMap.c_str());
         pinfo("         Use roughness map %d", useRoughnessMap);
@@ -1479,14 +1479,14 @@ void VROFBXExporter::exportMaterial(FbxSurfaceMaterial *inMaterial, bool compres
             roughness->set_magnification_filter(viro::Node_Geometry_Material_Visual_FilterMode_Linear);
             roughness->set_mip_filter(viro::Node_Geometry_Material_Visual_FilterMode_Linear);
         }
-        
+
         // Normal map
         std::string normalMap = parseTexture(propertyTable["TEX_normal_map"]);
         bool useNormalMap = parseBool(propertyTable["use_normal_map"]);
-        
+
         pinfo("         Normal map %s", normalMap.c_str());
         pinfo("         Use normal map %d", useNormalMap);
-        
+
         if (useNormalMap) {
             viro::Node::Geometry::Material::Visual *normal = outMaterial->mutable_normal();
             normal->set_intensity(1.0);
@@ -1497,14 +1497,14 @@ void VROFBXExporter::exportMaterial(FbxSurfaceMaterial *inMaterial, bool compres
             normal->set_magnification_filter(viro::Node_Geometry_Material_Visual_FilterMode_Linear);
             normal->set_mip_filter(viro::Node_Geometry_Material_Visual_FilterMode_Linear);
         }
-        
+
         // Emissive map
         std::string emissiveMap = parseTexture(propertyTable["TEX_emissive_map"]);
         bool useEmissiveMap = parseBool(propertyTable["use_emissive_map"]);
-        
+
         pinfo("         Emissive map %s", emissiveMap.c_str());
         pinfo("         Use emissive map %d", useEmissiveMap);
-        
+
         if (useEmissiveMap) {
             viro::Node::Geometry::Material::Visual *emissive = outMaterial->mutable_emission();
             emissive->set_intensity(1.0);
@@ -1515,14 +1515,14 @@ void VROFBXExporter::exportMaterial(FbxSurfaceMaterial *inMaterial, bool compres
             emissive->set_magnification_filter(viro::Node_Geometry_Material_Visual_FilterMode_Linear);
             emissive->set_mip_filter(viro::Node_Geometry_Material_Visual_FilterMode_Linear);
         }
-        
+
         // AO map
         std::string aoMap = parseTexture(propertyTable["TEX_ao_map"]);
         bool useAOMap = parseBool(propertyTable["use_ao_map"]);
-        
+
         pinfo("         AO map %s", aoMap.c_str());
         pinfo("         Use ao map %d", useAOMap);
-        
+
         if (useAOMap) {
             viro::Node::Geometry::Material::Visual *ao = outMaterial->mutable_ao();
             ao->set_intensity(1.0);
@@ -1537,7 +1537,7 @@ void VROFBXExporter::exportMaterial(FbxSurfaceMaterial *inMaterial, bool compres
     else {
         pinfo("      WARNING: Unknown material type!");
     }
-    
+
     unsigned int textureIndex = 0;
     FBXSDK_FOR_EACH_TEXTURE(textureIndex) {
         FbxProperty property = inMaterial->FindProperty(FbxLayerElement::sTextureChannelNames[textureIndex]);
@@ -1553,11 +1553,11 @@ void VROFBXExporter::exportMaterial(FbxSurfaceMaterial *inMaterial, bool compres
                     if (texture) {
                         std::string textureType = property.GetNameAsCStr();
                         FbxFileTexture *fileTexture = FbxCast<FbxFileTexture>(texture);
-                        
+
                         if (fileTexture) {
                             std::string textureName = extractTextureName(fileTexture);
                             pinfo("         Texture index %d, texture type [%s], texture name [%s]", textureIndex, textureType.c_str(), textureName.c_str());
-                            
+
                             if (textureType == "DiffuseColor") {
                                 if (compressTextures && compressTexture(textureName)) {
                                     textureName = getFileName(textureName) + ".ktx";
@@ -1596,7 +1596,7 @@ void VROFBXExporter::exportMaterial(FbxSurfaceMaterial *inMaterial, bool compres
             }
         }
     }
-    
+
     if (outMaterial->has_specular()) {
         outMaterial->mutable_specular()->set_intensity(1.0);
     }
@@ -1607,30 +1607,30 @@ void VROFBXExporter::exportMaterial(FbxSurfaceMaterial *inMaterial, bool compres
 
 void VROFBXExporter::exportHardwareMaterial(FbxSurfaceMaterial *inMaterial, const FbxImplementation *implementation,
                                             viro::Node::Geometry::Material *outMaterial) {
-    
+
     // TODO This is a work in progress; there are hundreds of potential parameters and it
     //      isn't clear yet if hardware materials are widely used, and if the parameter
     //      names are stable.
     outMaterial->set_transparency(1.0);
     outMaterial->set_shininess(2.0);
     outMaterial->set_lighting_model(viro::Node_Geometry_Material_LightingModel_Phong);
-    
+
     const FbxBindingTable *rootTable = implementation->GetRootTable();
     FbxString fileName = rootTable->DescAbsoluteURL.Get();
     FbxString techniqueName = rootTable->DescTAG.Get();
-    
+
     const FbxBindingTable *table = implementation->GetRootTable();
     size_t numEntries = table->GetEntryCount();
-    
+
     for (int i = 0; i < (int)numEntries; ++i) {
         const FbxBindingTableEntry &entry = table->GetEntry(i);
         const char* entrySrcType = entry.GetEntryType(true);
-        
+
         FbxProperty fbxProp;
         FbxString entrySource = entry.GetSource();
         std::string entryText = std::string(entrySource.Buffer());
         // pinfo("            Entry: %s", entryText.c_str());
-        
+
         if (strcmp(FbxPropertyEntryView::sEntryType, entrySrcType) == 0) {
             fbxProp = inMaterial->FindPropertyHierarchical(entry.GetSource());
             if(!fbxProp.IsValid()) {
@@ -1640,14 +1640,14 @@ void VROFBXExporter::exportHardwareMaterial(FbxSurfaceMaterial *inMaterial, cons
         else if(strcmp(FbxConstantEntryView::sEntryType, entrySrcType) == 0) {
             fbxProp = implementation->GetConstants().FindHierarchical(entry.GetSource());
         }
-        
+
         if (fbxProp.IsValid()) {
             if (fbxProp.GetSrcObjectCount<FbxTexture>() > 0) {
                 for(int j = 0; j < fbxProp.GetSrcObjectCount<FbxFileTexture>(); ++j) {
                     FbxFileTexture *fileTexture = fbxProp.GetSrcObject<FbxFileTexture>(j);
                     std::string textureName = extractTextureName(fileTexture);
                     pinfo("         Texture [%s] found for entry [%s]", textureName.c_str(), entryText.c_str());
-                    
+
                     if (endsWith(entryText, "DiffuseTexture")) {
                         outMaterial->mutable_diffuse()->set_texture(textureName);
                         outMaterial->mutable_diffuse()->set_wrap_mode_s(viro::Node_Geometry_Material_Visual_WrapMode_Clamp);
@@ -1685,7 +1685,7 @@ void VROFBXExporter::exportHardwareMaterial(FbxSurfaceMaterial *inMaterial, cons
             }
         }
     }
-    
+
     if (outMaterial->has_diffuse()) {
         outMaterial->mutable_diffuse()->set_intensity(1.0);
     }
@@ -1701,7 +1701,7 @@ viro::Node_Geometry_Material_Visual_WrapMode VROFBXExporter::convert(FbxTexture:
     switch (wrapMode) {
         case FbxTexture::eRepeat:
             return viro::Node_Geometry_Material_Visual_WrapMode_Repeat;
-            
+
         default:
             return viro::Node_Geometry_Material_Visual_WrapMode_Clamp;
     }
@@ -1717,7 +1717,7 @@ bool VROFBXExporter::compressTexture(std::string textureName) {
         pinfo("Texture at path %s does not exist, will not compress", texturePath.c_str());
         return false;
     }
-    
+
     // Currently we only support compressing PNG files
     std::string name = getFileName(textureName);
     std::string extension = getFileExtension(textureName);
@@ -1725,12 +1725,12 @@ bool VROFBXExporter::compressTexture(std::string textureName) {
         pinfo("Texture %s is not a PNG, will not compress", texturePath.c_str());
         return false;
     }
-    
+
     std::string cmd = "./EtcTool " + texturePath + " -format RGBA8 -mipmaps 16 -output " + fbmFolder + "/" + name + ".ktx";
     //std::string cmd = "/Users/radvani/Source/react-viro/bin/EtcTool " + texturePath + " -format RGBA8 -mipmaps 16 -output " + fbmFolder + "/" + name + ".ktx";
 
     pinfo("Running texture compression command [%s]", cmd.c_str());
-    
+
     std::array<char, 128> buffer;
     std::string result;
     std::shared_ptr<FILE> pipe(popen(cmd.c_str(), "r"), pclose);
@@ -1738,7 +1738,7 @@ bool VROFBXExporter::compressTexture(std::string textureName) {
         pinfo("Failed to run texture compression command, will not compress texture");
         return false;
     }
-    
+
     while (!feof(pipe.get())) {
         if (fgets(buffer.data(), 128, pipe.get()) != nullptr) {
             result += buffer.data();
@@ -1753,7 +1753,7 @@ bool VROFBXExporter::compressTexture(std::string textureName) {
 void VROFBXExporter::debugPrint(std::string fbxPath) {
     _numTabs = 0;
     FbxScene *scene = loadFBX(fbxPath);
-    
+
     // Print the nodes of the scene and their attributes recursively.
     // Note that we are not printing the root node because it should
     // not contain any attributes.
@@ -1772,7 +1772,7 @@ void VROFBXExporter::printTabs() {
 
 void VROFBXExporter::printAttribute(FbxNodeAttribute *pAttribute) {
     if(!pAttribute) return;
-    
+
     FbxString typeName = GetAttributeTypeName(pAttribute->GetAttributeType());
     FbxString attrName = pAttribute->GetName();
     printTabs();
@@ -1786,7 +1786,7 @@ void VROFBXExporter::printNode(FbxNode *pNode) {
     FbxDouble3 translation = pNode->LclTranslation.Get();
     FbxDouble3 rotation = pNode->LclRotation.Get();
     FbxDouble3 scaling = pNode->LclScaling.Get();
-    
+
     // Print the contents of the node.
     printf("<node name='%s' translation='(%f, %f, %f)' rotation='(%f, %f, %f)' scaling='(%f, %f, %f)'>\n",
            nodeName,
@@ -1795,22 +1795,22 @@ void VROFBXExporter::printNode(FbxNode *pNode) {
            scaling[0], scaling[1], scaling[2]
            );
     _numTabs++;
-    
+
     // Print the node's attributes.
     for (int i = 0; i < pNode->GetNodeAttributeCount(); i++) {
         printAttribute(pNode->GetNodeAttributeByIndex(i));
     }
-    
+
     // Print the node's geometry
     if (pNode->GetGeometry() != nullptr) {
         printGeometry(pNode->GetGeometry());
     }
-    
+
     // Recursively print the children.
     for (int j = 0; j < pNode->GetChildCount(); j++) {
         printNode(pNode->GetChild(j));
     }
-    
+
     _numTabs--;
     printTabs();
     printf("</node>\n");
@@ -1824,20 +1824,20 @@ void VROFBXExporter::printGeometry(FbxGeometry *pGeometry) {
         if(lNode)
             lMaterialCount = lNode->GetMaterialCount();
     }
-    
+
     if (lMaterialCount > 0) {
         FbxPropertyT<FbxDouble3> lKFbxDouble3;
         FbxPropertyT<FbxDouble> lKFbxDouble1;
         FbxColor theColor;
-        
+
         for (int lCount = 0; lCount < lMaterialCount; lCount ++)
         {
             pinfo("        Material %d", lCount);
-            
+
             FbxSurfaceMaterial *lMaterial = lNode->GetMaterial(lCount);
-            
+
             pinfo("            Name: %s", (char *) lMaterial->GetName());
-            
+
             //Get the implementation to see if it's a hardware shader.
             const FbxImplementation* lImplementation = GetImplementation(lMaterial, FBXSDK_IMPLEMENTATION_HLSL);
             FbxString lImplemenationType = "HLSL";
@@ -1851,22 +1851,22 @@ void VROFBXExporter::printGeometry(FbxGeometry *pGeometry) {
                 const FbxBindingTable* lRootTable = lImplementation->GetRootTable();
                 FbxString lFileName = lRootTable->DescAbsoluteURL.Get();
                 FbxString lTechniqueName = lRootTable->DescTAG.Get();
-                
-                
+
+
                 const FbxBindingTable* lTable = lImplementation->GetRootTable();
                 size_t lEntryNum = lTable->GetEntryCount();
-                
+
                 for(int i=0;i <(int)lEntryNum; ++i)
                 {
                     const FbxBindingTableEntry& lEntry = lTable->GetEntry(i);
                     const char* lEntrySrcType = lEntry.GetEntryType(true);
                     FbxProperty lFbxProp;
-                    
-                    
+
+
                     FbxString lTest = lEntry.GetSource();
                     pinfo("            Entry: %s", lTest.Buffer());
-                    
-                    
+
+
                     if ( strcmp( FbxPropertyEntryView::sEntryType, lEntrySrcType ) == 0 )
                     {
                         lFbxProp = lMaterial->FindPropertyHierarchical(lEntry.GetSource());
@@ -1874,8 +1874,8 @@ void VROFBXExporter::printGeometry(FbxGeometry *pGeometry) {
                         {
                             lFbxProp = lMaterial->RootProperty.FindHierarchical(lEntry.GetSource());
                         }
-                        
-                        
+
+
                     }
                     else if( strcmp( FbxConstantEntryView::sEntryType, lEntrySrcType ) == 0 )
                     {
@@ -1917,7 +1917,7 @@ void VROFBXExporter::printGeometry(FbxGeometry *pGeometry) {
                             else if ( FbxFloatDT == lFbxType)
                             {
                                 pinfo("                Float: %f", lFbxProp.Get<FbxFloat>());
-                                
+
                             }
                             else if ( FbxDoubleDT == lFbxType)
                             {
@@ -1935,21 +1935,21 @@ void VROFBXExporter::printGeometry(FbxGeometry *pGeometry) {
                                 FbxVector2 lVect;
                                 lVect[0] = lDouble2[0];
                                 lVect[1] = lDouble2[1];
-                                
+
                                 pinfo("                2D vector %f, %f: ", lVect[0], lVect[1]);
                             }
                             else if ( FbxDouble3DT == lFbxType || FbxColor3DT == lFbxType)
                             {
                                 FbxDouble3 lDouble3 = lFbxProp.Get<FbxDouble3>();
-                                
-                                
+
+
                                 FbxVector4 lVect;
                                 lVect[0] = lDouble3[0];
                                 lVect[1] = lDouble3[1];
                                 lVect[2] = lDouble3[2];
                                 pinfo("                3D vector: %f, %f, %f", lVect[0], lVect[1], lVect[2]);
                             }
-                            
+
                             else if ( FbxDouble4DT == lFbxType || FbxColor4DT == lFbxType)
                             {
                                 FbxDouble4 lDouble4 = lFbxProp.Get<FbxDouble4>();
@@ -1965,7 +1965,7 @@ void VROFBXExporter::printGeometry(FbxGeometry *pGeometry) {
                                 FbxDouble4x4 lDouble44 = lFbxProp.Get<FbxDouble4x4>();
                                 for(int j=0; j<4; ++j)
                                 {
-                                    
+
                                     FbxVector4 lVect;
                                     lVect[0] = lDouble44[j][0];
                                     lVect[1] = lDouble44[j][1];
@@ -1973,45 +1973,45 @@ void VROFBXExporter::printGeometry(FbxGeometry *pGeometry) {
                                     lVect[3] = lDouble44[j][3];
                                     pinfo("                4x4D vector: %f, %f, %f, %f", lVect[0], lVect[1], lVect[2], lVect[3]);
                                 }
-                                
+
                             }
                         }
-                        
+
                     }
                 }
             }
             else if (lMaterial->GetClassId().Is(FbxSurfacePhong::ClassId))
             {
                 // We found a Phong material.  Display its properties.
-                
+
                 // Display the Ambient Color
                 lKFbxDouble3 =((FbxSurfacePhong *) lMaterial)->Ambient;
                 theColor.Set(lKFbxDouble3.Get()[0], lKFbxDouble3.Get()[1], lKFbxDouble3.Get()[2]);
                 pinfo("            Ambient: %f, %f, %f", theColor.mRed, theColor.mGreen, theColor.mBlue);
-                
+
                 // Display the Diffuse Color
                 lKFbxDouble3 =((FbxSurfacePhong *) lMaterial)->Diffuse;
                 theColor.Set(lKFbxDouble3.Get()[0], lKFbxDouble3.Get()[1], lKFbxDouble3.Get()[2]);
                 pinfo("            Diffuse: %f, %f, %f", theColor.mRed, theColor.mGreen, theColor.mBlue);
-                
+
                 // Display the Specular Color (unique to Phong materials)
                 lKFbxDouble3 =((FbxSurfacePhong *) lMaterial)->Specular;
                 theColor.Set(lKFbxDouble3.Get()[0], lKFbxDouble3.Get()[1], lKFbxDouble3.Get()[2]);
                 pinfo("            Specular: %f, %f, %f", theColor.mRed, theColor.mGreen, theColor.mBlue);
-                
+
                 // Display the Emissive Color
                 lKFbxDouble3 =((FbxSurfacePhong *) lMaterial)->Emissive;
                 theColor.Set(lKFbxDouble3.Get()[0], lKFbxDouble3.Get()[1], lKFbxDouble3.Get()[2]);
                 pinfo("            Emissive: %f, %f, %f", theColor.mRed, theColor.mGreen, theColor.mBlue);
-                
+
                 //Opacity is Transparency factor now
                 lKFbxDouble1 =((FbxSurfacePhong *) lMaterial)->TransparencyFactor;
                 pinfo("            Transparency: %f", lKFbxDouble1.Get());
-                
+
                 // Display the Shininess
                 lKFbxDouble1 =((FbxSurfacePhong *) lMaterial)->Shininess;
                 pinfo("            Shininess: %f", lKFbxDouble1.Get());
-                
+
                 // Display the Reflectivity
                 lKFbxDouble1 =((FbxSurfacePhong *) lMaterial)->ReflectionFactor;
                 pinfo("            Reflectivity: %f", lKFbxDouble1.Get());
@@ -2023,17 +2023,17 @@ void VROFBXExporter::printGeometry(FbxGeometry *pGeometry) {
                 lKFbxDouble3=((FbxSurfaceLambert *)lMaterial)->Ambient;
                 theColor.Set(lKFbxDouble3.Get()[0], lKFbxDouble3.Get()[1], lKFbxDouble3.Get()[2]);
                 pinfo("            Ambient: %f, %f, %f", theColor.mRed, theColor.mGreen, theColor.mBlue);
-                
+
                 // Display the Diffuse Color
                 lKFbxDouble3 =((FbxSurfaceLambert *)lMaterial)->Diffuse;
                 theColor.Set(lKFbxDouble3.Get()[0], lKFbxDouble3.Get()[1], lKFbxDouble3.Get()[2]);
                 pinfo("            Diffuse: %f, %f, %f", theColor.mRed, theColor.mGreen, theColor.mBlue);
-                
+
                 // Display the Emissive
                 lKFbxDouble3 =((FbxSurfaceLambert *)lMaterial)->Emissive;
                 theColor.Set(lKFbxDouble3.Get()[0], lKFbxDouble3.Get()[1], lKFbxDouble3.Get()[2]);
                 pinfo("            Emissive: %f, %f, %f", theColor.mRed, theColor.mGreen, theColor.mBlue);
-                
+
                 // Display the Opacity
                 lKFbxDouble1 =((FbxSurfaceLambert *)lMaterial)->TransparencyFactor;
                 pinfo("            Transparency: %f", lKFbxDouble1.Get());
@@ -2041,9 +2041,9 @@ void VROFBXExporter::printGeometry(FbxGeometry *pGeometry) {
             else {
                 FbxProperty prop = lMaterial->GetFirstProperty();
                 while (prop.IsValid()) {
-                    
+
                     pinfo("      Property %s, Type %s", prop.GetName().Buffer(), prop.GetPropertyDataType().GetName());
-                    
+
                     if (prop.GetSrcObjectCount<FbxTexture>() > 0) {
                         for(int j = 0; j < prop.GetSrcObjectCount<FbxFileTexture>(); ++j) {
                             FbxFileTexture *fileTexture = prop.GetSrcObject<FbxFileTexture>(j);
@@ -2057,7 +2057,7 @@ void VROFBXExporter::printGeometry(FbxGeometry *pGeometry) {
                 }
                 pinfo("            Unknown type of Material");
             }
-            
+
             FbxPropertyT<FbxString> lString;
             lString = lMaterial->ShadingModel;
             pinfo("            Shading Model: %s", lString.Get().Buffer());
@@ -2069,7 +2069,7 @@ void VROFBXExporter::printGeometry(FbxGeometry *pGeometry) {
 std::string VROFBXExporter::extractTextureName(FbxFileTexture *texture) {
     std::string fileName = std::string(texture->GetFileName());
     std::string textureName = fileName;
-    
+
     // First check '/' path separator
     size_t lastPathComponent = fileName.find_last_of("/");
     if (lastPathComponent != std::string::npos) {
@@ -2082,7 +2082,7 @@ std::string VROFBXExporter::extractTextureName(FbxFileTexture *texture) {
             textureName = fileName.substr(lastPathComponent + 1, fileName.size() - lastPathComponent - 1);
         }
     }
-    
+
     return textureName;
 }
 
@@ -2105,14 +2105,14 @@ std::string VROFBXExporter::getFileExtension(std::string file) {
         return "";
     }
 }
-              
+
 bool VROFBXExporter::startsWith(const std::string &candidate, const std::string &prefix) {
     if (candidate.length() < prefix.length()) {
         return false;
     }
     return 0 == candidate.compare(0, prefix.length(), prefix, 0, prefix.length());
 }
-              
+
 bool VROFBXExporter::endsWith(const std::string& candidate, const std::string& ending) {
     if (candidate.length() < ending.length()) {
         return false;
@@ -2176,5 +2176,3 @@ float VROFBXExporter::parseFloat(FbxProperty property) {
     }
     return 0;
 }
-
-
