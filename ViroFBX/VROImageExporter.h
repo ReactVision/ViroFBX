@@ -24,18 +24,18 @@ enum class VROImageOutputFormat {
  */
 class VROImageExporter {
 public:
-    
+
     VROImageExporter();
     virtual ~VROImageExporter();
-    
+
     void exportEXR(std::string exrPath, std::string outPath, VROImageOutputFormat outFormat);
     void exportHDR(std::string hdrPath, std::string outPath, VROImageOutputFormat outFormat);
-    
+
 private:
-    
+
     void writeVHD(float *data, int width, int height, int componentsPerPixel,
                   std::string outPath, VROImageOutputFormat outFormat);
-    
+
 };
 
 #endif /* VROImageExporter_hpp */
